@@ -185,7 +185,6 @@ document.getElementById('submissionForm').addEventListener('submit',async e=>{
  e.preventDefault();
  const form=e.currentTarget;
  if(!form.reportValidity())return;
- if(!window.venturifyIsAuthenticated?.()){openSubmit();toast('Please log in first, then submit your story.');return}
  const button=document.getElementById('submitStoryButton');
  button.disabled=true;button.textContent='Publishing…';
  const d=new FormData(form);
