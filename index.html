@@ -118,7 +118,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
-const client=window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
+const client=window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');window.venturifySupabaseClient=client;
 const $=id=>document.getElementById(id);let user=null,profile=null,mode='login',people=[];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const initials=s=>(String(s||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
@@ -208,7 +208,7 @@ renderCases();
 </script>
 <script>
 (()=> {
- const profileClient=window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
+ const profileClient=window.venturifySupabaseClient||window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
  const escProfile=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  const initialsProfile=s=>(String(s||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
  const displayProfile=p=>p?.display_name||('@'+(p?.username||'founder'));
@@ -237,7 +237,7 @@ renderCases();
 </script>
 <script>
 (()=> {
- const notificationClient=window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
+ const notificationClient=window.venturifySupabaseClient||window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
  const button=document.getElementById('notificationButton'),panel=document.getElementById('notificationPanel'),list=document.getElementById('notificationList'),badge=document.getElementById('notificationCount'),markAll=document.getElementById('markAllNotifications');
  let notificationUser=null,loading=false;
  const safe=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -252,7 +252,7 @@ renderCases();
  list.addEventListener('click',async e=>{const item=e.target.closest('[data-notification-id]');if(!item||!notificationUser)return;const id=item.dataset.notificationId,postId=item.dataset.notificationPost;const r=await notificationClient.from('notifications').update({read_at:new Date().toISOString()}).eq('id',id).eq('recipient_id',notificationUser.id);if(r.error)console.warn('Could not mark notification read',r.error.message);panel.hidden=true;button.setAttribute('aria-expanded','false');await loadNotifications();if(postId)document.getElementById('community').scrollIntoView({behavior:'smooth'})});
  document.addEventListener('click',e=>{if(!e.target.closest('.notification-wrap')){panel.hidden=true;button.setAttribute('aria-expanded','false')}});
  notificationClient.auth.onAuthStateChange(()=>setTimeout(syncUser,0));
- syncUser().catch(e=>console.warn('Notifications unavailable',e));setInterval(()=>{if(notificationUser)loadNotificationCount()},30000);
+ syncUser().catch(e=>console.warn('Notifications unavailable',e));setInterval(()=>{if(notificationUser){loadNotificationCount();if(!panel.hidden)loadNotifications()}},30000);
 })();
 </script>
 </body>
