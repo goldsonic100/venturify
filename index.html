@@ -43,7 +43,7 @@
 .follow-person small{font-size:10px;color:var(--muted);display:block;margin-top:3px}
 .follow-btn{border:1px solid #cad9bd;background:#eff5e8;color:#35563a;border-radius:7px;padding:7px 9px;font-size:10px;font-weight:800;cursor:pointer}
 .follow-btn.following{background:#fff;border-color:var(--line);color:#6d796f}
-.community-empty{padding:26px;text-align:center;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:10px}
+.founder-discovery{margin:0 0 22px}.discovery-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,260px);gap:9px;margin-bottom:15px}.discovery-controls input,.discovery-controls select{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;padding:11px 12px;background:#fffefa;font:inherit;font-size:12px;color:var(--ink)}.founder-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.founder-result{border:1px solid var(--line);border-radius:10px;padding:15px;min-width:0;background:#fffefa}.founder-result-head{display:flex;gap:10px;align-items:flex-start}.founder-result .avatar{width:38px;height:38px;flex:0 0 38px;font-size:12px}.founder-result-name{min-width:0;flex:1}.founder-result-name strong{display:block;font-size:13px;overflow-wrap:anywhere}.founder-result-name small{display:block;color:var(--muted);font-size:10px;margin-top:3px;overflow-wrap:anywhere}.founder-result p{font-size:11px;line-height:1.65;color:#59675a;overflow-wrap:anywhere}.founder-result-tags{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}.founder-result-tags .tag{font-size:9px}.founder-result-actions{display:flex;align-items:center;gap:9px;margin-top:12px}.founder-result-actions .follow-btn{margin-left:auto}@media(max-width:600px){.discovery-controls,.founder-results{grid-template-columns:1fr}}.community-empty{padding:26px;text-align:center;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:10px}
 @media(max-width:760px){.community-layout{grid-template-columns:1fr}.community-side{order:2}}
 \n.auth-modal{max-width:470px}.auth-tabs{display:flex;gap:8px;margin:18px 0}.auth-tabs button{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:10px;cursor:pointer;font-weight:750;font-size:12px}.auth-tabs button.active{background:#eaf2df;border-color:#c6d8b8}.auth-message{font-size:12px;line-height:1.6;margin:12px 0;color:#526653}.post-author-row{display:flex;align-items:center;gap:10px;margin-bottom:13px}.post-author-row strong{font-size:12px;display:block}.post-author-row small{font-size:10px;color:var(--muted)}.feed-tabs{display:flex;gap:8px;margin:0 0 14px}.feed-tab{border:1px solid var(--line);background:#fffefa;border-radius:8px;padding:9px 14px;font-size:11px;font-weight:800;color:#657064;cursor:pointer}.feed-tab.active{background:#eaf2df;border-color:#c6d8b8;color:#31553a}.profile-open{border:0;background:transparent;padding:0;text-align:left;cursor:pointer;color:inherit}.profile-open:hover strong{text-decoration:underline}.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:18px 0}.profile-stat{background:#eff3e9;border-radius:9px;padding:12px}.profile-stat strong{display:block;font-size:19px}.profile-stat span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#71806f;margin-top:4px}.profile-bio{font-size:13px;line-height:1.7;color:#566359;white-space:pre-wrap}.profile-post{padding:13px 0;border-top:1px solid var(--line);font-size:12px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
 </style>
@@ -68,6 +68,13 @@
 <section class="section community" id="community">
  <div class="wrap">
   <div class="section-head"><div><div class="kicker">The founder community</div><h2>Build in public. Learn together.</h2></div><p class="sub">Share what you're figuring out, follow founders with useful lessons, and join conversations around the messy middle of building something.</p></div>
+  <div class="community-card founder-discovery" id="founderDiscovery">
+   <div class="kicker">Meet your next collaborator</div><h3 style="font-family:var(--serif);font-size:28px;font-weight:500;margin:8px 0">Find a co-founder.</h3>
+   <p class="muted-small" style="margin:0 0 16px;max-width:650px">Discover founders by skills, startup, interests, or what they need help with. Compare profiles, then follow people you would like to connect with.</p>
+   <div class="discovery-controls"><input id="founderSearch" type="search" maxlength="120" placeholder="Search skills, founders, startups…" aria-label="Search founders"><select id="founderIntent" aria-label="Filter founder goals"><option value="all">Everyone</option><option value="collab">Open to co-founders / collaborators</option></select></div>
+   <div id="founderResults" class="founder-results" aria-live="polite"><div class="community-empty">Loading founders…</div></div>
+   <p class="muted-small" style="margin:13px 0 0">Tip: add your skills and “Looking for” goals to your profile so others can find you.</p>
+  </div>
   <div class="community-hub" id="communityHub">
    <div class="community-card"><div class="kicker">Start a space</div><h3 style="font-family:var(--serif);font-size:24px;font-weight:500;margin:9px 0 5px">Create a community.</h3><p class="muted-small" style="margin:0 0 14px">Give people with the same interest a home for focused discussions.</p><form id="communityCreateForm"><div class="field"><label for="communityName">Community name</label><input id="communityName" maxlength="60" required placeholder="e.g. Indie Game Builders"></div><div class="field" style="margin-top:9px"><label for="communityTopic">Topic</label><select id="communityTopic" required><option value="">Choose a topic</option><option>Startups</option><option>Technology</option><option>AI</option><option>Programming</option><option>Gaming</option><option>Marketing</option><option>Design</option><option>Finance</option><option>Education</option><option>Other</option></select></div><div class="field" style="margin-top:9px"><label for="communityDescription">Description</label><textarea id="communityDescription" maxlength="400" placeholder="What is this community about?" style="min-height:72px"></textarea></div><button class="btn btn-primary" id="createCommunityButton" type="submit" style="margin-top:12px">Create community ↗</button></form></div>
    <div class="community-card"><div class="kicker">Find your people</div><h3 style="font-family:var(--serif);font-size:24px;font-weight:500;margin:9px 0 5px">Explore communities.</h3><p class="muted-small" style="margin:0 0 14px">Discover popular groups, search every community, and join to become a member.</p><label class="community-search-label" for="communitySearch">Search all communities</label><input id="communitySearch" class="community-search" type="search" placeholder="Search by name, topic, or description…" autocomplete="off"><div class="community-browse-controls"><label class="community-control"><span>Topic</span><select id="communityTopicFilter" class="community-filter"><option value="all">All topics</option><option>Startups</option><option>Technology</option><option>AI</option><option>Programming</option><option>Gaming</option><option>Marketing</option><option>Design</option><option>Finance</option><option>Education</option><option>Other</option></select></label><label class="community-control"><span>Sort by</span><select id="communitySort" class="community-filter"><option value="popular">Most members</option><option value="active">Most active</option><option value="newest">Newest</option><option value="name">Name A–Z</option></select></label></div><div class="community-recommended-head"><strong>Recommended communities</strong><span>Popular groups to get started</span></div><div class="community-list community-recommended-list" id="recommendedCommunityList"><div class="community-empty">Finding popular communities…</div></div><div class="community-recommended-head community-all-head"><strong>All communities</strong><span id="communitySearchSummary">Browse every group</span></div><div class="community-list" id="communityList"><div class="community-empty">Loading communities…</div></div></div>
@@ -289,6 +296,47 @@ renderCases();
  document.addEventListener('click',e=>{if(!e.target.closest('.notification-wrap')){panel.hidden=true;button.setAttribute('aria-expanded','false')}});
  notificationClient.auth.onAuthStateChange(()=>setTimeout(syncUser,0));
  syncUser().catch(e=>console.warn('Notifications unavailable',e));
+})();
+</script>
+<script>
+(()=> {
+ const c=window.venturifySupabaseClient||window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
+ const $=id=>document.getElementById(id);
+ const safe=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ const initials=v=>(String(v||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
+ const display=p=>p.display_name||('@'+(p.username||'founder'));
+ const safeUrl=v=>{try{const u=new URL(v);return u.protocol==='https:'||u.protocol==='http:'?u.href:''}catch{return ''}};
+ let currentUser=null,rows=[],following=new Set(),ownSkills=[];
+ function render(){
+  const q=$('founderSearch').value.trim().toLowerCase().split(/\s+/).filter(Boolean),intent=$('founderIntent').value;
+  let list=rows.filter(p=>p.id!==currentUser?.id);
+  if(intent==='collab')list=list.filter(p=>/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''));
+  if(q.length)list=list.filter(p=>{const hay=[p.display_name,p.username,p.headline,p.company,p.location,p.skills,p.looking_for,p.bio].join(' ').toLowerCase();return q.every(t=>hay.includes(t))});
+  list.sort((a,b)=>{const score=p=>{const skills=(p.skills||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);return (/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||'')?2:0)-skills.filter(x=>ownSkills.includes(x)).length};return score(b)-score(a)||(a.display_name||a.username||'').localeCompare(b.display_name||b.username||'')});
+  $('founderResults').innerHTML=list.slice(0,80).map(p=>{
+   const skills=(p.skills||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,5),avatar=safeUrl(p.avatar_url);
+   return '<article class="founder-result"><div class="founder-result-head"><button type="button" class="avatar profile-open" data-profile="'+safe(p.id)+'" aria-label="View '+safe(display(p))+'">'+(avatar?'<img src="'+safe(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">':safe(initials(display(p))))+'</button><div class="founder-result-name"><button type="button" class="profile-open" data-profile="'+safe(p.id)+'"><strong>'+safe(display(p))+'</strong></button><small>@'+safe(p.username||'founder')+(p.company?' · '+safe(p.company):'')+'</small></div></div>'+(p.headline?'<p style="margin:10px 0 0;font-weight:750;color:#344b37">'+safe(p.headline)+'</p>':'')+(p.bio?'<p style="margin:7px 0">'+safe(p.bio.length>150?p.bio.slice(0,147)+'…':p.bio)+'</p>':'')+(p.looking_for?'<p style="margin:7px 0"><strong>Looking for:</strong> '+safe(p.looking_for)+'</p>':'')+(skills.length?'<div class="founder-result-tags">'+skills.map(x=>'<span class="tag">'+safe(x)+'</span>').join('')+'</div>':'')+(p.location?'<small class="muted-small">'+safe(p.location)+'</small>':'')+'<div class="founder-result-actions"><button type="button" class="profile-open" data-profile="'+safe(p.id)+'" style="font-size:11px;font-weight:800;color:#31553a">View profile ↗</button><button type="button" class="follow-btn '+(following.has(p.id)?'following':'')+'" data-discovery-follow="'+safe(p.id)+'">'+(currentUser?(following.has(p.id)?'Following':'Follow'):'Log in')+'</button></div></article>';
+  }).join('')||'<div class="community-empty" style="grid-column:1/-1">No founders match those filters yet. Try another search or update your profile.</div>';
+ }
+ async function load(){
+  const auth=await c.auth.getUser();currentUser=auth.data?.user||null;
+  const [pr,fr]=await Promise.all([c.from('profiles').select('id,username,display_name,bio,headline,company,location,skills,looking_for,avatar_url').order('created_at',{ascending:false}).limit(500),currentUser?c.from('follows').select('following_id').eq('follower_id',currentUser.id):Promise.resolve({data:[]})]);
+  if(pr.error){$('founderResults').innerHTML='<div class="community-empty">Could not load founders. Please refresh and try again.</div>';return}
+  rows=pr.data||[];following=new Set((fr.data||[]).map(x=>x.following_id));
+  const mine=rows.find(p=>p.id===currentUser?.id);ownSkills=(mine?.skills||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
+  render();
+ }
+ $('founderSearch').addEventListener('input',render);$('founderIntent').addEventListener('change',render);
+ $('founderResults').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-discovery-follow]');if(!b)return;
+  if(!currentUser){$('navAccount').click();return}
+  const id=b.dataset.discoveryFollow,exists=following.has(id);
+  const r=exists?await c.from('follows').delete().eq('follower_id',currentUser.id).eq('following_id',id):await c.from('follows').insert({follower_id:currentUser.id,following_id:id});
+  if(r.error){alert('Could not update follow: '+r.error.message);return}
+  await load();
+ });
+ c.auth.onAuthStateChange(()=>setTimeout(load,0));
+ load();
 })();
 </script>
 </body>
