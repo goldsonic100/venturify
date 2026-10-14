@@ -259,7 +259,7 @@ window.venturifyPublishStory=async story=>{
   await feed();
   return {ok:true};
 };
-client.auth.onAuthStateChange(()=>setTimeout(()=>{refresh();loadStories()},0));
+client.auth.onAuthStateChange(()=>setTimeout(async()=>{await refresh();await loadStories()},0));
 refresh().catch(e=>{console.error(e);$('accountStatus').textContent='Could not connect to Supabase. Check your network and project settings.'});
 loadStories();
 })();
