@@ -72,7 +72,8 @@
   <div class="section-head"><div><div class="kicker">The founder community</div><h2>Build in public. Learn together.</h2></div><p class="sub">Share what you're figuring out, follow founders with useful lessons, and join conversations around the messy middle of building something.</p></div>
   <div class="community-card founder-discovery" id="founderDiscovery">
    <div class="kicker">Meet your next collaborator</div><h3 style="font-family:var(--serif);font-size:28px;font-weight:500;margin:8px 0">Find a co-founder.</h3>
-   <p class="muted-small" style="margin:0 0 16px;max-width:650px">Discover founders by skills, startup, interests, or what they need help with. Compare profiles, then follow people you would like to connect with.</p>
+   <p class="muted-small" style="margin:0 0 16px;max-width:650px">Discover people worth meeting. Your daily picks prioritize complementary skills, shared goals, and founders open to collaboration.</p>
+   <div id="dailyMatchStatus" class="muted-small" style="margin:0 0 12px" hidden></div>
    <div class="discovery-controls"><input id="founderSearch" type="search" maxlength="120" placeholder="Search skills, founders, startups…" aria-label="Search founders"><select id="founderIntent" aria-label="Filter founder goals"><option value="all">Everyone</option><option value="collab">Open to co-founders / collaborators</option></select></div>
    <div id="founderResults" class="founder-results" aria-live="polite"><div class="community-empty">Loading founders…</div></div>
    <p class="muted-small" style="margin:13px 0 0">Tip: add your skills and “Looking for” goals to your profile so others can find you.</p>
@@ -310,10 +311,11 @@ renderCases();
  const initials=v=>(String(v||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
  const display=p=>p.display_name||('@'+(p.username||'founder'));
  const safeUrl=v=>{try{const u=new URL(v);return u.protocol==='https:'||u.protocol==='http:'?u.href:''}catch{return ''}};
- let currentUser=null,rows=[],following=new Set(),ownSkills=[],ownNeeds='';
+ let currentUser=null,rows=[],following=new Set(),ownSkills=[],ownNeeds='',dailyMatchIds=[];
  function render(){
   const q=$('founderSearch').value.trim().toLowerCase().split(/\s+/).filter(Boolean),intent=$('founderIntent').value;
   let list=rows.filter(p=>p.id!==currentUser?.id);
+  if(currentUser)list=list.filter(p=>dailyMatchIds.includes(p.id));
   if(intent==='collab')list=list.filter(p=>/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''));
   if(q.length)list=list.filter(p=>{const hay=[p.display_name,p.username,p.headline,p.company,p.location,p.skills,p.looking_for,p.bio].join(' ').toLowerCase();return q.every(t=>hay.includes(t))});
   const skillList=p=>(p.skills||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
@@ -330,6 +332,26 @@ renderCases();
   if(pr.error){$('founderResults').innerHTML='<div class="community-empty">Could not load founders. Please refresh and try again.</div>';return}
   rows=pr.data||[];following=new Set((fr.data||[]).map(x=>x.following_id));
   const mine=rows.find(p=>p.id===currentUser?.id);ownSkills=(mine?.skills||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);ownNeeds=mine?.looking_for||'';
+  dailyMatchIds=[];
+  if(currentUser){
+   const today=new Date().toISOString().slice(0,10);
+   const prior=await c.from('founder_match_impressions').select('candidate_id').eq('viewer_id',currentUser.id).eq('match_date',today);
+   if(prior.error){$('dailyMatchStatus').hidden=false;$('dailyMatchStatus').textContent='Daily recommendations could not load. Please refresh shortly.';}
+   else{
+    dailyMatchIds=(prior.data||[]).map(x=>x.candidate_id);
+    const candidateRows=rows.filter(p=>p.id!==currentUser.id&&!dailyMatchIds.includes(p.id));
+    const tokens=v=>(v||'').toLowerCase().split(/[,;|\n]+/).map(x=>x.trim()).filter(Boolean);
+    const mySkills=tokens(mine?.skills),myNeeds=(mine?.looking_for||'').toLowerCase(),myText=[mine?.headline,mine?.company,mine?.bio].filter(Boolean).join(' ').toLowerCase();
+    const score=p=>{const theirSkills=tokens(p.skills),shared=theirSkills.filter(x=>mySkills.includes(x)).length,needMatches=theirSkills.filter(x=>x&&myNeeds.includes(x)).length,helps=mySkills.filter(x=>(p.looking_for||'').toLowerCase().includes(x)).length,collab=/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''),theirText=[p.headline,p.company,p.bio].filter(Boolean).join(' ').toLowerCase(),words=myText.split(/\W+/).filter(x=>x.length>3),sharedTopics=words.filter(x=>theirText.includes(x)).length;return 50+Math.min(shared,2)*8+Math.min(needMatches,3)*10+Math.min(helps,2)*8+(collab?8:0)+Math.min(sharedTopics,2)*3};
+    candidateRows.sort((a,b)=>score(b)-score(a)||(a.display_name||a.username||'').localeCompare(b.display_name||b.username||''));
+    const needed=Math.max(0,6-dailyMatchIds.length),next=candidateRows.slice(0,needed);
+    if(next.length){const saved=await c.from('founder_match_impressions').insert(next.map(p=>({viewer_id:currentUser.id,candidate_id:p.id})));
+     if(!saved.error)dailyMatchIds.push(...next.map(p=>p.id));
+     else{const retry=await c.from('founder_match_impressions').select('candidate_id').eq('viewer_id',currentUser.id).eq('match_date',today);if(!retry.error)dailyMatchIds=(retry.data||[]).map(x=>x.candidate_id);}
+    }
+    $('dailyMatchStatus').hidden=false;$('dailyMatchStatus').textContent='Your personalized matches today: '+dailyMatchIds.length+' of 6 free daily matches. New picks refresh tomorrow.';
+   }
+  }else{$('dailyMatchStatus').hidden=true;}
   render();
  }
  $('founderSearch').addEventListener('input',render);$('founderIntent').addEventListener('change',render);
