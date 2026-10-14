@@ -311,7 +311,7 @@ renderCases();
  const initials=v=>(String(v||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
  const display=p=>p.display_name||('@'+(p.username||'founder'));
  const safeUrl=v=>{try{const u=new URL(v);return u.protocol==='https:'||u.protocol==='http:'?u.href:''}catch{return ''}};
- let currentUser=null,rows=[],following=new Set(),ownSkills=[],ownNeeds='',dailyMatchIds=[];
+ let currentUser=null,rows=[],following=new Set(),ownSkills=[],ownNeeds='',ownText='',dailyMatchIds=[];
  function render(){
   const q=$('founderSearch').value.trim().toLowerCase().split(/\s+/).filter(Boolean),intent=$('founderIntent').value;
   let list=rows.filter(p=>p.id!==currentUser?.id);
@@ -319,7 +319,7 @@ renderCases();
   if(intent==='collab')list=list.filter(p=>/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''));
   if(q.length)list=list.filter(p=>{const hay=[p.display_name,p.username,p.headline,p.company,p.location,p.skills,p.looking_for,p.bio].join(' ').toLowerCase();return q.every(t=>hay.includes(t))});
   const skillList=p=>(p.skills||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
-  const matchInfo=p=>{const theirs=skillList(p),shared=theirs.filter(x=>ownSkills.includes(x)),needs=ownNeeds.toLowerCase(),candidateNeeds=(p.looking_for||'').toLowerCase(),complement=theirs.filter(x=>x&&needs.includes(x)).length,helps=ownSkills.filter(x=>x&&candidateNeeds.includes(x)).length,collab=/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||'');const score=Math.min(98,50+Math.min(shared.length,2)*7+Math.min(complement,3)*10+Math.min(helps,2)*8+(collab?8:0));const reasons=[];if(complement)reasons.push('skills you need');if(helps)reasons.push('skills they need');if(shared.length)reasons.push('shared skills');if(collab)reasons.push('open to collaboration');return {score,reasons:reasons.slice(0,2)}};
+  const matchInfo=p=>{const theirs=skillList(p),shared=theirs.filter(x=>ownSkills.includes(x)),needs=ownNeeds.toLowerCase(),candidateNeeds=(p.looking_for||'').toLowerCase(),complement=theirs.filter(x=>x&&needs.includes(x)).length,helps=ownSkills.filter(x=>x&&candidateNeeds.includes(x)).length,collab=/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''),theirText=[p.headline,p.company,p.bio].filter(Boolean).join(' ').toLowerCase(),words=ownText.split(/\W+/).filter(x=>x.length>3),sharedTopics=words.filter(x=>theirText.includes(x)).length;const score=Math.min(98,50+Math.min(shared.length,2)*8+Math.min(complement,3)*10+Math.min(helps,2)*8+(collab?8:0)+Math.min(sharedTopics,2)*3);const reasons=[];if(complement)reasons.push('skills you need');if(helps)reasons.push('skills they need');if(shared.length)reasons.push('shared skills');if(sharedTopics)reasons.push('similar interests');if(collab)reasons.push('open to collaboration');return {score,reasons:reasons.slice(0,2)}};
   list.sort((a,b)=>matchInfo(b).score-matchInfo(a).score||(a.display_name||a.username||'').localeCompare(b.display_name||b.username||''));
   $('founderResults').innerHTML=list.slice(0,80).map(p=>{
    const skills=(p.skills||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,5),avatar=safeUrl(p.avatar_url),fit=matchInfo(p);
@@ -331,7 +331,7 @@ renderCases();
   const [pr,fr]=await Promise.all([c.from('profiles').select('id,username,display_name,bio,headline,company,location,skills,looking_for,avatar_url').order('created_at',{ascending:false}).limit(500),currentUser?c.from('follows').select('following_id').eq('follower_id',currentUser.id):Promise.resolve({data:[]})]);
   if(pr.error){$('founderResults').innerHTML='<div class="community-empty">Could not load founders. Please refresh and try again.</div>';return}
   rows=pr.data||[];following=new Set((fr.data||[]).map(x=>x.following_id));
-  const mine=rows.find(p=>p.id===currentUser?.id);ownSkills=(mine?.skills||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);ownNeeds=mine?.looking_for||'';
+  const mine=rows.find(p=>p.id===currentUser?.id);ownSkills=(mine?.skills||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);ownNeeds=mine?.looking_for||'';ownText=[mine?.headline,mine?.company,mine?.bio].filter(Boolean).join(' ').toLowerCase();
   dailyMatchIds=[];
   if(currentUser){
    const today=new Date().toISOString().slice(0,10);
@@ -345,10 +345,7 @@ renderCases();
     const score=p=>{const theirSkills=tokens(p.skills),shared=theirSkills.filter(x=>mySkills.includes(x)).length,needMatches=theirSkills.filter(x=>x&&myNeeds.includes(x)).length,helps=mySkills.filter(x=>(p.looking_for||'').toLowerCase().includes(x)).length,collab=/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''),theirText=[p.headline,p.company,p.bio].filter(Boolean).join(' ').toLowerCase(),words=myText.split(/\W+/).filter(x=>x.length>3),sharedTopics=words.filter(x=>theirText.includes(x)).length;return 50+Math.min(shared,2)*8+Math.min(needMatches,3)*10+Math.min(helps,2)*8+(collab?8:0)+Math.min(sharedTopics,2)*3};
     candidateRows.sort((a,b)=>score(b)-score(a)||(a.display_name||a.username||'').localeCompare(b.display_name||b.username||''));
     const needed=Math.max(0,6-dailyMatchIds.length),next=candidateRows.slice(0,needed);
-    if(next.length){const saved=await c.from('founder_match_impressions').insert(next.map(p=>({viewer_id:currentUser.id,candidate_id:p.id})));
-     if(!saved.error)dailyMatchIds.push(...next.map(p=>p.id));
-     else{const retry=await c.from('founder_match_impressions').select('candidate_id').eq('viewer_id',currentUser.id).eq('match_date',today);if(!retry.error)dailyMatchIds=(retry.data||[]).map(x=>x.candidate_id);}
-    }
+    if(next.length){let saveError=null;for(const p of next){const saved=await c.from('founder_match_impressions').insert({viewer_id:currentUser.id,candidate_id:p.id});if(saved.error){saveError=saved.error;break;}dailyMatchIds.push(p.id);}if(saveError){const retry=await c.from('founder_match_impressions').select('candidate_id').eq('viewer_id',currentUser.id).eq('match_date',today);if(!retry.error)dailyMatchIds=(retry.data||[]).map(x=>x.candidate_id);}}
     $('dailyMatchStatus').hidden=false;$('dailyMatchStatus').textContent='Your personalized matches today: '+dailyMatchIds.length+' of 6 free daily matches. New picks refresh tomorrow.';
    }
   }else{$('dailyMatchStatus').hidden=true;}
