@@ -233,6 +233,7 @@ const $=id=>document.getElementById(id);let user=null,profile=null,mode='login',
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const initials=s=>(String(s||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
 const name=p=>p?.display_name||('@'+(p?.username||'founder'));
+const renderMentions=value=>esc(value).replace(/@([A-Za-z0-9_]{1,30})/g,'<button type="button" class="mention-link" data-profile-username="$1">@$1</button>');
 const safeProfileUrl=value=>{if(!value)return '';try{const u=new URL(value);return (u.protocol==='https:'||u.protocol==='http:')?u.href:''}catch{return ''}};
 const timeAgo=value=>{const seconds=Math.max(0,Math.floor((Date.now()-new Date(value).getTime())/1000));if(seconds<60)return 'just now';if(seconds<3600)return Math.floor(seconds/60)+'m ago';if(seconds<86400)return Math.floor(seconds/3600)+'h ago';return Math.floor(seconds/86400)+'d ago'};
 const notice=m=>typeof toast==='function'?toast(m):alert(m);
