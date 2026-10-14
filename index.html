@@ -437,7 +437,7 @@ renderCases();
  let currentUser=null,rows=[],following=new Set(),ownSkills=[],ownNeeds='',ownText='',dailyMatchIds=[];
  function render(){
   const q=$('founderSearch').value.trim().toLowerCase().split(/\s+/).filter(Boolean),intent=$('founderIntent').value;
-  let list=rows.filter(p=>p.id!==currentUser?.id);
+  let list=rows.filter(p=>p.id!==currentUser?.id&&(communityCounts.get(p.id)||0)>=1&&founderLevel(p)>=5);
   if(currentUser)list=list.filter(p=>dailyMatchIds.includes(p.id));
   if(intent==='collab')list=list.filter(p=>/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''));
   if(q.length)list=list.filter(p=>{const hay=[p.display_name,p.username,p.headline,p.company,p.location,p.skills,p.looking_for,p.bio].join(' ').toLowerCase();return q.every(t=>hay.includes(t))});
@@ -451,9 +451,29 @@ renderCases();
  }
  async function load(){
   const auth=await c.auth.getUser();currentUser=auth.data?.user||null;
-  const [pr,fr]=await Promise.all([c.from('profiles').select('id,username,display_name,bio,headline,company,location,skills,looking_for,avatar_url').order('created_at',{ascending:false}).limit(500),currentUser?c.from('follows').select('following_id').eq('follower_id',currentUser.id):Promise.resolve({data:[]})]);
+  const [pr,fr]=await Promise.all([c.from('profiles').select('id,username,display_name,bio,headline,company,location,skills,looking_for,avatar_url,created_at').order('created_at',{ascending:false}).limit(500),currentUser?c.from('follows').select('following_id').eq('follower_id',currentUser.id):Promise.resolve({data:[]})]);
   if(pr.error){$('founderResults').innerHTML='<div class="community-empty">Could not load founders. Please refresh and try again.</div>';return}
   rows=pr.data||[];following=new Set((fr.data||[]).map(x=>x.following_id));
+  // Discovery is for established, active community members only.
+  const [memberships,followersResult,postsResult,commentsResult]=await Promise.all([
+   c.from('community_members').select('user_id,community_id'),
+   c.from('follows').select('following_id'),
+   c.from('posts').select('user_id'),
+   c.from('comments').select('user_id')
+  ]);
+  const memberRows=memberships.error?[]:(memberships.data||[]);
+  const communityCounts=new Map(),followerCounts=new Map(),postCounts=new Map(),commentCounts=new Map();
+  memberRows.forEach(x=>communityCounts.set(x.user_id,(communityCounts.get(x.user_id)||0)+1));
+  (followersResult.data||[]).forEach(x=>followerCounts.set(x.following_id,(followerCounts.get(x.following_id)||0)+1));
+  (postsResult.data||[]).forEach(x=>postCounts.set(x.user_id,(postCounts.get(x.user_id)||0)+1));
+  (commentsResult.data||[]).forEach(x=>{if(x.user_id)commentCounts.set(x.user_id,(commentCounts.get(x.user_id)||0)+1)});
+  const founderLevel=p=>{
+   const filled=[p.bio,p.headline,p.company,p.location,p.skills,p.looking_for,p.avatar_url].filter(v=>String(v||'').trim()).length;
+   const ageDays=p.created_at?Math.max(0,Math.floor((Date.now()-new Date(p.created_at).getTime())/86400000)):0;
+   const points=ageDays+(followerCounts.get(p.id)||0)*2+(postCounts.get(p.id)||0)*3+(commentCounts.get(p.id)||0)+(communityCounts.get(p.id)||0)*3+Math.min(20,Math.round(filled/9*20));
+   return Math.min(100,1+Math.floor(Math.sqrt(points/5)));
+  };
+  rows=rows.filter(p=>p.id===currentUser?.id||((communityCounts.get(p.id)||0)>=1&&founderLevel(p)>=5));
   const mine=rows.find(p=>p.id===currentUser?.id);ownSkills=(mine?.skills||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);ownNeeds=mine?.looking_for||'';ownText=[mine?.headline,mine?.company,mine?.bio].filter(Boolean).join(' ').toLowerCase();
   dailyMatchIds=[];
   if(currentUser){
