@@ -346,7 +346,7 @@ renderCases();
     candidateRows.sort((a,b)=>score(b)-score(a)||(a.display_name||a.username||'').localeCompare(b.display_name||b.username||''));
     const needed=Math.max(0,6-dailyMatchIds.length),next=candidateRows.slice(0,needed);
     if(next.length){let saveError=null;for(const p of next){const saved=await c.from('founder_match_impressions').insert({viewer_id:currentUser.id,candidate_id:p.id});if(saved.error){saveError=saved.error;break;}dailyMatchIds.push(p.id);}if(saveError){const retry=await c.from('founder_match_impressions').select('candidate_id').eq('viewer_id',currentUser.id).eq('match_date',today);if(!retry.error)dailyMatchIds=(retry.data||[]).map(x=>x.candidate_id);}}
-    $('dailyMatchStatus').hidden=false;$('dailyMatchStatus').textContent='Your personalized matches today: '+dailyMatchIds.length+' of 6 free daily matches. New picks refresh tomorrow.';
+    $('dailyMatchStatus').hidden=false;$('dailyMatchStatus').textContent='Your personalized matches today: '+dailyMatchIds.length+' of 6 free daily matches. Add skills and “Looking for” to your profile for better picks. New picks refresh tomorrow.';
    }
   }else{$('dailyMatchStatus').hidden=true;}
   render();
