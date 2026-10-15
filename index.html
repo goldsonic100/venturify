@@ -170,6 +170,76 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
 .profile-actions .btn{margin-top:12px!important}
 
 .topbar .nav .nav-icon-link{position:relative}.message-nav-count{position:absolute;top:0;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:#c8f169;color:#152319;border:2px solid #13241c;font-size:9px;font-weight:900;line-height:12px;display:inline-flex;align-items:center;justify-content:center}.message-nav-count[hidden]{display:none}
+
+/* Mobile layout repair: prevent clipped content and give navigation/content room to wrap. */
+html,body{max-width:100%;overflow-x:hidden}
+img,video,canvas,svg{max-width:100%}
+input,select,textarea,button{max-width:100%}
+.community-card,.founder-result,.community-tile,.chat-panel,.profile-post{min-width:0}
+.post-text,.comment,.profile-bio,.profile-post,.community-tile p{overflow-wrap:anywhere;word-break:break-word}
+@media(max-width:640px){
+ .wrap{width:calc(100% - 24px)}
+ .section{padding:38px 0}
+ .section h2{font-size:clamp(30px,9vw,40px);letter-spacing:-1px}
+ .section-head{gap:8px;margin-bottom:20px}
+ .section-head .sub{margin:4px 0 0}
+ .community-card{padding:14px;border-radius:11px}
+ .community-layout,.community-hub{grid-template-columns:minmax(0,1fr);gap:12px}
+ .community-layout>div,.community-side,.community-hub>.community-card{width:100%;min-width:0}
+ .community-side{order:initial}
+ .discovery-controls{grid-template-columns:minmax(0,1fr);gap:8px}
+ .founder-results{grid-template-columns:minmax(0,1fr)}
+ .founder-result{padding:12px}
+ .founder-result-actions{flex-wrap:wrap}
+ .founder-result-actions .follow-btn{margin-left:0}
+ .community-browse-controls{grid-template-columns:minmax(0,1fr)}
+ .community-list{max-height:none;overflow:visible}
+ .community-recommended-head{align-items:flex-start;flex-direction:column;gap:4px}
+ .compose-bottom{align-items:stretch;flex-direction:column}
+ .compose-bottom .btn{width:100%}
+ .compose-community{align-items:stretch;flex-direction:column}
+ .compose-community select{width:100%;min-width:0}
+ .stories-head{align-items:flex-start;flex-direction:column;gap:4px}
+ .story-composer{grid-template-columns:minmax(0,1fr)}
+ .story-composer .btn{width:100%}
+ .feed-tabs{display:flex;flex-wrap:nowrap;overflow-x:auto;padding-bottom:7px;scrollbar-width:thin}
+ .feed-tabs .feed-tab{flex:0 0 auto}
+ .profile-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .profile-stat{padding:9px 7px;min-width:0}
+ .profile-stat strong{font-size:16px;overflow-wrap:anywhere}
+ .profile-stat span{font-size:8px;letter-spacing:.2px}
+ .notification-filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px}
+ .notification-filters button{flex:0 0 auto}
+ .guest-banner-actions{flex-direction:column}
+ .guest-banner-actions button{width:100%}
+ .modal-backdrop{padding:10px;align-items:flex-end}
+ .modal{width:100%;max-height:92dvh;padding:20px 15px;border-radius:15px 15px 10px 10px}
+ .modal h2{font-size:27px}
+ .detail-grid{grid-template-columns:minmax(0,1fr)}
+ .form-grid{grid-template-columns:minmax(0,1fr)}
+ .field.full{grid-column:auto}
+ .topbar.wrap{width:100%;max-width:none;min-height:0;height:auto;padding:12px 12px 10px;display:flex;flex-wrap:wrap;flex-direction:row;align-items:center;gap:10px;border-radius:0}
+ .topbar .brand{font-size:18px;gap:7px}
+ .topbar .brand-mark{width:29px;height:29px;flex:0 0 29px}
+ .topbar .nav{width:100%;max-width:100%;min-width:0;flex:1 1 100%;order:2;justify-content:flex-start;gap:7px;overflow-x:auto;overflow-y:hidden;padding:2px 0 5px;white-space:nowrap}
+ .topbar .nav>a{flex:0 0 auto;font-size:11px;padding:7px 8px}
+ .topbar .nav .nav-signup{padding:8px 10px}
+ .topbar .nav .notification-wrap{flex:0 0 auto;position:relative}
+ .topbar .nav .notification-panel{position:fixed;top:105px;left:12px;right:12px;width:auto;max-width:none;max-height:70dvh}
+ .app-nav-links{width:100%;max-width:100%;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+ .app-nav-links a{flex:0 0 auto}
+ #notificationPage h2{font-size:28px!important}
+}
+@media(max-width:380px){
+ .wrap{width:calc(100% - 20px)}
+ .community-card{padding:12px}
+ .topbar.wrap{padding-left:10px;padding-right:10px}
+ .topbar .nav{gap:4px}
+ .topbar .nav>a{font-size:10px;padding:7px 6px}
+ .profile-stats{gap:4px}
+ .profile-stat strong{font-size:14px}
+}
+
 </style>
 </head>
 <body>
