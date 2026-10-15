@@ -107,8 +107,8 @@ body[data-view="notifications"] .notification-wrap{display:none}
 </head>
 <body data-view="messages">
 <header class="topbar wrap">
-  <a class="brand" href="#" aria-label="Venturify home"><span class="brand-mark">v.</span> venturify</a>
-  <nav class="nav" aria-label="Main navigation"><a href="#community">Community</a><a href="#messages">Messages</a><div class="notification-wrap"><button type="button" id="notificationButton" class="notification-button" aria-expanded="false" aria-controls="notificationPanel">🔔 Notifications <span id="notificationCount" class="notification-count" hidden>0</span></button><div id="notificationPanel" class="notification-panel" hidden><div class="notification-panel-head"><strong>Notifications</strong><button type="button" id="markAllNotifications" class="mark-all">Mark all read</button></div><div id="notificationList"><div class="notification-empty">Log in to see notifications.</div></div></div></div><a href="#" id="navAccount">Log in</a><a href="#library">Case studies</a><a href="#method">Our principles</a><a class="nav-cta" href="#submit" data-submit>Share a story ↗</a><div class="app-nav-links" aria-label="Venturify app">
+  <a class="brand" href="index.html" aria-label="Venturify home"><span class="brand-mark">v.</span> venturify</a>
+  <nav class="nav" aria-label="Main navigation"><a href="communities.html">Communities</a><a href="messages.html">Messages</a><div class="notification-wrap"><button type="button" id="notificationButton" class="notification-button" aria-expanded="false" aria-controls="notificationPanel">🔔 Notifications <span id="notificationCount" class="notification-count" hidden>0</span></button><div id="notificationPanel" class="notification-panel" hidden><div class="notification-panel-head"><strong>Notifications</strong><button type="button" id="markAllNotifications" class="mark-all">Mark all read</button></div><div id="notificationList"><div class="notification-empty">Log in to see notifications.</div></div></div></div><a href="#" id="navAccount">Log in</a><a href="#library">Case studies</a><a href="#method">Our principles</a><a class="nav-cta" href="#submit" data-submit>Share a story ↗</a><div class="app-nav-links" aria-label="Venturify app">
     <a href="feed.html" data-app-view="feed">Feed</a>
     <a href="discover.html" data-app-view="discover">Discover</a>
     <a href="communities.html" data-app-view="communities">Communities</a>
@@ -702,8 +702,12 @@ renderCases();
 (function(){
  const view="messages";
  document.body.dataset.view=view;
- document.querySelectorAll("[data-app-view]").forEach(link=>{if(link.dataset.appView===view)link.setAttribute("aria-current","page");else link.removeAttribute("aria-current");});
- if(view==="notifications"){const panel=document.getElementById("notificationPanel");if(panel)panel.hidden=false;}
+ document.querySelectorAll("[data-app-view]").forEach(link=>{
+   if(link.dataset.appView===view) link.setAttribute("aria-current","page");
+   else link.removeAttribute("aria-current");
+ });
+ const panel=document.getElementById("notificationPanel");
+ if(panel) panel.hidden=true;
 })();
 </script>
 </body>
