@@ -524,7 +524,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(membersResult.error||messagesResult.error){box.innerHTML='<div class="muted-small">Could not load recent conversations. Try refreshing.</div>';return}
   const messages=messagesResult.data||[];
   const messageIds=messages.map(m=>m.id);
-  const readsResult=messageIds.length?await client.from('message_reads').select('message_id').eq('user_id',user.id).in('message_id',messageIds):{data:[],error:null};
+  const readsResult=messageIds.length?await client.rpc('get_my_message_read_ids',{requested_message_ids:messageIds}):{data:[],error:null};
   if(readsResult.error){box.innerHTML='<div class="muted-small">Could not sync read status. Please refresh.</div>';return}
   const readIds=new Set((readsResult.data||[]).map(r=>r.message_id));
   const otherIds=[...new Set((membersResult.data||[]).filter(m=>m.user_id!==user.id).map(m=>m.user_id))];
