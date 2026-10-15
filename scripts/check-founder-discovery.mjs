@@ -126,4 +126,20 @@ assert.match(html, /positiveLearned=\[\.\.\.candidateWords\]\.filter\(word=>\(le
 assert.match(html, /return \{score,reasons:reasons\.slice\(0,3\)\}/,
   'Founder cards should show up to three specific explanation details');
 
+
+assert.match(html, /id="founderCompareTray"/,
+  'Discovery should include a founder comparison selection tray');
+assert.match(html, /data-compare-founder=/,
+  'Founder cards should allow selecting profiles for comparison');
+assert.match(html, /selectedFounderIds\.size!==2/,
+  'Comparison should require exactly two selected founders');
+assert.match(html, /Skills|compareList\(p\.skills\)/,
+  'Comparison should show founder skills');
+assert.match(html, /compareList\(p\.interests\)/,
+  'Comparison should show founder interests');
+assert.match(html, /compareText\(p\.looking_for\)/,
+  'Comparison should show each founder’s collaboration goals');
+assert.match(html, /founderCompareBackdrop/,
+  'Comparison should open in an accessible modal');
+
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery regression checks passed.');
