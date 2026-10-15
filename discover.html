@@ -49,7 +49,10 @@
 .founder-shortlist-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .founder-shortlist-head h3{font-family:var(--serif);font-weight:500;font-size:25px;margin:0 0 5px}
 .founder-shortlist-head p{font-size:11px;color:var(--muted);margin:0;line-height:1.6}
+.shortlist-filters{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(170px,1fr);gap:8px;margin:12px 0}
+.shortlist-filters input,.shortlist-filters select{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;background:#fffefa;color:var(--ink);padding:10px 11px;font:inherit;font-size:11px}
 .shortlist-list{display:grid;gap:9px}
+@media(max-width:560px){.shortlist-filters{grid-template-columns:1fr}.shortlist-item{align-items:flex-start}.shortlist-item select{flex:1;min-width:150px}}
 .shortlist-item{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid #dbe4d2;border-radius:10px;background:#fffefa;padding:11px}
 .shortlist-item-main{flex:1;min-width:130px}
 .shortlist-item-main strong{display:block;font-size:12px}
@@ -245,6 +248,10 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
    <div id="founderResults" class="founder-results" aria-live="polite"><div class="community-empty">Loading founders…</div></div>
    <section class="founder-shortlist" aria-labelledby="founderShortlistTitle">
     <div class="founder-shortlist-head"><div><h3 id="founderShortlistTitle">⭐ Founder Shortlist</h3><p>Save promising founders and track your next step. Only you can see your shortlist.</p></div><span id="founderShortlistCount" class="tag">0 saved</span></div>
+    <div class="shortlist-filters">
+     <input id="founderShortlistSearch" type="search" maxlength="120" placeholder="Search saved founders, skills, companies…" aria-label="Search saved founders">
+     <select id="founderShortlistStatusFilter" aria-label="Filter shortlist by next step"><option value="all">All next steps</option><option value="Want to message">Want to message</option><option value="Messaged">Messaged</option><option value="Potential cofounder">Potential cofounder</option></select>
+    </div>
     <div id="founderShortlistList" class="shortlist-list" aria-live="polite"><div class="community-empty">Sign in to keep a shortlist across devices.</div></div>
    </section>
    <p class="muted-small" style="margin:13px 0 0">Tip: add interests, skills, and “Looking for” goals to improve your matches.</p>
@@ -741,13 +748,21 @@ renderCases();
   count.textContent=shortlist.size+' saved';
   if(!currentUser){host.innerHTML='<div class="community-empty">Sign in to save founders and sync your shortlist across devices.</div>';return;}
   if(!shortlist.size){host.innerHTML='<div class="community-empty">Your shortlist is empty. Save a founder from Discover to keep them here.</div>';return;}
+  const query=($('founderShortlistSearch')?.value||'').trim().toLowerCase().split(/\\s+/).filter(Boolean);
+  const statusFilter=$('founderShortlistStatusFilter')?.value||'all';
   const profileById=new Map(allProfiles.map(p=>[p.id,p]));
-  host.innerHTML=[...shortlist.entries()].map(([id,item])=>{
+  const filtered=[...shortlist.entries()].filter(([id,item])=>{
+   const p=profileById.get(id);if(!p)return false;
+   if(statusFilter!=='all'&&(item.status||'Want to message')!==statusFilter)return false;
+   const hay=[display(p),p.username,p.company,p.headline,p.bio,p.skills,p.interests,p.looking_for].join(' ').toLowerCase();
+   return query.every(term=>hay.includes(term));
+  });
+  if(!filtered.length){host.innerHTML='<div class="community-empty">No saved founders match those filters. Try another search or choose “All next steps”.</div>';return;}
+  host.innerHTML=filtered.map(([id,item])=>{
    const p=profileById.get(id);
-   if(!p)return '';
    const status=item.status||'Want to message';
    return '<article class="shortlist-item"><div class="avatar">'+(safeUrl(p.avatar_url)?'<img src="'+safe(safeUrl(p.avatar_url))+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">':safe(initials(display(p))))+'</div><div class="shortlist-item-main"><strong>'+safe(display(p))+'</strong><small>@'+safe(p.username||'founder')+(p.company?' · '+safe(p.company):'')+'</small></div><label class="muted-small" for="shortlist-status-'+safe(id)+'">Next step</label><select id="shortlist-status-'+safe(id)+'" data-shortlist-status="'+safe(id)+'"><option'+(status==='Want to message'?' selected':'')+'>Want to message</option><option'+(status==='Messaged'?' selected':'')+'>Messaged</option><option'+(status==='Potential cofounder'?' selected':'')+'>Potential cofounder</option></select><div class="shortlist-actions"><button type="button" data-profile="'+safe(id)+'">View profile ↗</button><button type="button" data-message-profile="'+safe(id)+'">Message</button><button type="button" class="shortlist-remove" data-shortlist-remove="'+safe(id)+'">Remove</button></div></article>';
-  }).join('')||'<div class="community-empty">Saved founder profiles could not be found.</div>';
+  }).join('');
  }
  function render(){
   const q=$('founderSearch').value.trim().toLowerCase().split(/\s+/).filter(Boolean),intent=$('founderIntent').value;
@@ -840,6 +855,8 @@ renderCases();
   if(r.error){alert('Could not update follow: '+r.error.message);return}
   await load();
  });
+ $('founderShortlistSearch').addEventListener('input',renderShortlist);
+ $('founderShortlistStatusFilter').addEventListener('change',renderShortlist);
  $('founderShortlistList').addEventListener('change',async e=>{
   const select=e.target.closest('[data-shortlist-status]');if(!select||!currentUser)return;
   const id=select.dataset.shortlistStatus,status=select.value;
