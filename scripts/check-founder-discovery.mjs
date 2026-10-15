@@ -39,4 +39,23 @@ assert.match(html, /ownSkills=\(mine\?\.skills\|\|''\)\.split\([\s\S]*?replace\(
 assert.match(html, /const interestList=p=>\[\.\.\.new Set\([\s\S]*?replace\(\/\^#\+\/, ''\)/,
   'Interest-only filtering should normalize and deduplicate interest tokens');
 
+// Mobile-layout regression checks: these rules are easy to accidentally override
+// when new responsive styles are added to the single-page app.
+assert.match(html, /<meta name="viewport" content="width=device-width, initial-scale=1">/,
+  'Mobile pages must use the device viewport');
+assert.match(html, /html,body\{max-width:100%;overflow-x:hidden\}/,
+  'The document must prevent accidental page-wide horizontal overflow');
+assert.match(html, /@media\(max-width:640px\)\{[\s\S]*?\.topbar\.wrap\{[^}]*flex-wrap:wrap/,
+  'The mobile header must be allowed to wrap');
+assert.match(html, /\.topbar \.nav\{[^}]*overflow-x:auto/,
+  'Mobile navigation must remain horizontally scrollable');
+assert.match(html, /\.founder-results\{grid-template-columns:minmax\(0,1fr\)\}/,
+  'Founder cards must stack on narrow screens');
+assert.match(html, /\.community-layout,\.community-hub\{grid-template-columns:minmax\(0,1fr\)/,
+  'Community panels must stack on narrow screens');
+assert.match(html, /\.modal\{width:100%;max-height:92dvh/,
+  'Mobile modals must fit within the visible viewport');
+assert.match(html, /\.feed-tabs\{display:flex;flex-wrap:nowrap;overflow-x:auto/,
+  'Feed tabs must scroll instead of forcing the page wider');
+
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery regression checks passed.');
