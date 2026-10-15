@@ -513,29 +513,37 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(!user){box.innerHTML='<div class="muted-small">Log in to see your conversations.</div>';total.hidden=true;return}
   box.innerHTML='<div class="muted-small">Loading conversations…</div>';
   const memberships=await client.from('conversation_members').select('conversation_id,user_id').eq('user_id',user.id);
-  if(memberships.error){box.innerHTML='<div class="muted-small">Could not load conversations.</div>';return}
+  if(memberships.error){box.innerHTML='<div class="muted-small">Could not load conversations. Refresh and try again.</div>';return}
   const ids=[...new Set((memberships.data||[]).map(x=>x.conversation_id))];
   if(!ids.length){box.innerHTML='<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';total.hidden=true;return}
   const [membersResult,messagesResult]=await Promise.all([
    client.from('conversation_members').select('conversation_id,user_id').in('conversation_id',ids),
-   client.from('messages').select('id,conversation_id,sender_id,content,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(500)
+   client.from('messages').select('id,conversation_id,sender_id,content,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(1000)
   ]);
   if(membersResult.error||messagesResult.error){box.innerHTML='<div class="muted-small">Could not load recent conversations. Try refreshing.</div>';return}
+  const messages=messagesResult.data||[];
+  const messageIds=messages.map(m=>m.id);
+  const readsResult=messageIds.length?await client.from('message_reads').select('message_id').eq('user_id',user.id).in('message_id',messageIds):{data:[],error:null};
+  if(readsResult.error){box.innerHTML='<div class="muted-small">Could not sync read status. Please refresh.</div>';return}
+  const readIds=new Set((readsResult.data||[]).map(r=>r.message_id));
   const otherIds=[...new Set((membersResult.data||[]).filter(m=>m.user_id!==user.id).map(m=>m.user_id))];
-  const profileResult=otherIds.length?await client.from('profiles').select('id,username,display_name').in('id',otherIds):{data:[]};
+  const profileResult=otherIds.length?await client.from('profiles').select('id,username,display_name,avatar_url').in('id',otherIds):{data:[],error:null};
+  if(profileResult.error){box.innerHTML='<div class="muted-small">Could not load conversation profiles.</div>';return}
   const profileMap=new Map((profileResult.data||[]).map(p=>[p.id,p]));
   const conversations=ids.map(id=>{
    const other=(membersResult.data||[]).find(m=>m.conversation_id===id&&m.user_id!==user.id);
    if(!other)return null;
-   const msgs=(messagesResult.data||[]).filter(m=>m.conversation_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-   const latest=msgs[0],key='venturify-read-'+user.id+'-'+id;
-   let readAt='';try{readAt=localStorage.getItem(key)||''}catch{}
-   const unread=msgs.filter(m=>m.sender_id!==user.id&&(!readAt||new Date(m.created_at)>new Date(readAt))).length;
+   const msgs=messages.filter(m=>m.conversation_id===id);
+   const latest=msgs[0];
+   const unread=msgs.filter(m=>m.sender_id!==user.id&&!readIds.has(m.id)).length;
    return {id,otherId:other.user_id,person:profileMap.get(other.user_id)||{display_name:'Venturify member'},latest,unread};
   }).filter(Boolean).sort((a,b)=>new Date(b.latest?.created_at||0)-new Date(a.latest?.created_at||0));
   const unreadTotal=conversations.reduce((sum,item)=>sum+item.unread,0);
   total.textContent=unreadTotal+' unread';total.hidden=unreadTotal===0;
-  box.innerHTML=conversations.map(item=>'<button type="button" class="conversation-item '+(currentConversation===item.id?'active':'')+'" data-open-conversation="'+esc(item.otherId)+'"><span class="conversation-avatar">'+esc(initials(name(item.person)))+'</span><span class="conversation-copy"><strong>'+esc(name(item.person))+'</strong><small>'+esc(item.latest?(item.latest.sender_id===user.id?'You: ':'')+String(item.latest.content||'').slice(0,74):'Conversation started')+'</small></span><span class="conversation-trailing">'+(item.latest?'<span class="conversation-time">'+esc(new Date(item.latest.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'}))+'</span>':'')+(item.unread?'<span class="conversation-unread">'+item.unread+'</span>':'')+'</span></button>').join('')||'<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';
+  box.innerHTML=conversations.map(item=>{
+   const avatar=safeProfileUrl(item.person.avatar_url);
+   return '<button type="button" class="conversation-item '+(currentConversation===item.id?'active':'')+'" data-open-conversation="'+esc(item.otherId)+'"><span class="conversation-avatar">'+(avatar?'<img src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':esc(initials(name(item.person))))+'</span><span class="conversation-copy"><strong>'+esc(name(item.person))+'</strong><small>'+esc(item.latest?(item.latest.sender_id===user.id?'You: ':'')+String(item.latest.content||'').slice(0,74):'Conversation started')+'</small></span><span class="conversation-trailing">'+(item.latest?'<span class="conversation-time">'+esc(new Date(item.latest.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'}))+'</span>':'')+(item.unread?'<span class="conversation-unread">'+item.unread+'</span>':'')+'</span></button>';
+  }).join('')||'<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';
   filteredConversationList();
  }
  $('conversationSearch').addEventListener('input',filteredConversationList);
@@ -562,23 +570,15 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
  async function openConversation(otherId){
   if(!user)return loginRequired();if(!otherId)return;
   $('messagePerson').value=otherId;
-  const my=await client.from('conversation_members').select('conversation_id').eq('user_id',user.id);
-  const ids=(my.data||[]).map(x=>x.conversation_id);let conversationId=null;
-  if(ids.length){const r=await client.from('conversation_members').select('conversation_id').eq('user_id',otherId).in('conversation_id',ids).limit(1);conversationId=r.data?.[0]?.conversation_id||null}
-  if(!conversationId){
-   const c=await client.from('conversations').insert({}).select('id').single();
-   if(c.error){notice('Could not start chat: '+c.error.message);return}
-   let r=await client.from('conversation_members').insert({conversation_id:c.data.id,user_id:user.id});
-   if(r.error){notice(r.error.message);return}
-   r=await client.from('conversation_members').insert({conversation_id:c.data.id,user_id:otherId});
-   if(r.error){notice(r.error.message);return}
-   conversationId=c.data.id;
-  }
+  if(otherId===user.id){notice('Choose another founder to start a conversation.');return}
+  const direct=await client.rpc('get_or_create_direct_conversation',{target_user_id:otherId});
+  if(direct.error||!direct.data){notice('Could not start chat: '+(direct.error?.message||'Please try again.'));return}
+  const conversationId=direct.data;
   if(currentConversation!==conversationId){if(currentTypingChannel){client.removeChannel(currentTypingChannel);currentTypingChannel=null}if(currentConversationChannel){client.removeChannel(currentConversationChannel);currentConversationChannel=null}}
   currentConversation=conversationId;activeConversationOtherId=otherId;
   const contact=people.find(p=>p.id===otherId);$('currentChatName').textContent=contact?name(contact):'Founder conversation';$('currentChatSubtitle').textContent=contact?'@'+(contact.username||'founder')+' · Connected on Venturify':'Private conversation';$('currentChatAvatar').innerHTML=contact?.avatar_url&&safeProfileUrl(contact.avatar_url)?'<img src="'+esc(safeProfileUrl(contact.avatar_url))+'" alt="">':esc(initials(contact?name(contact):'Founder'));
-  currentConversationChannel=client.channel('venturify-chat-'+conversationId).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'conversation_id=eq.'+conversationId},()=>{showMessages(otherId)}).subscribe();
-  currentTypingChannel=client.channel('venturify-typing-'+conversationId).on('postgres_changes',{event:'*',schema:'public',table:'conversation_typing',filter:'conversation_id=eq.'+conversationId},()=>loadTypingStatus()).subscribe();
+  if(!currentConversationChannel)currentConversationChannel=client.channel('venturify-chat-'+conversationId).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'conversation_id=eq.'+conversationId},()=>{showMessages(otherId)}).subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')notice('Live message updates disconnected. Refresh to reconnect.')});
+  if(!currentTypingChannel)currentTypingChannel=client.channel('venturify-typing-'+conversationId).on('postgres_changes',{event:'*',schema:'public',table:'conversation_typing',filter:'conversation_id=eq.'+conversationId},()=>loadTypingStatus()).subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Live typing updates disconnected',error||status)});
   await showMessages(otherId);await loadTypingStatus();
  }
  async function startPendingDirectMessage(){if(!user||!pendingDirectMessage)return;const target=pendingDirectMessage;pendingDirectMessage=null;await openConversation(target);const cleanUrl=new URL(window.location.href);cleanUrl.searchParams.delete('to');window.history.replaceState({},'',cleanUrl.pathname+cleanUrl.search+cleanUrl.hash)}
