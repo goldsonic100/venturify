@@ -110,4 +110,20 @@ assert.match(html, /reasons\.push\('Matches feedback you liked'\)/,
 assert.match(html, /learnedTopicWeights\.get\(word\)\|\|0/,
   'Both daily ranking and displayed scores should use learned topic preferences');
 
+
+assert.match(html, /Shared interests: '\+sharedInterests\.slice\(0,2\)\.join\(', '\)/,
+  'Why this founder should name the exact shared interests');
+assert.match(html, /Shared skills: '\+shared\.slice\(0,2\)\.join\(', '\)/,
+  'Why this founder should name exact overlapping skills');
+assert.match(html, /Skills you need: '\+needSkills\.slice\(0,2\)\.join\(', '\)/,
+  'Why this founder should name candidate skills that match the viewer’s needs');
+assert.match(html, /They need: '\+helpSkills\.slice\(0,2\)\.join\(', '\)/,
+  'Why this founder should identify skills the candidate is looking for');
+assert.match(html, /Matches your activity: '\+activityMatches\.slice\(0,2\)\.join\(', '\)/,
+  'Why this founder should name topics connected to user activity');
+assert.match(html, /positiveLearned=\[\.\.\.candidateWords\]\.filter\(word=>\(learnedTopicWeights\.get\(word\)\|\|0\)>=4\)/,
+  'Why this founder should identify topics learned from positive feedback');
+assert.match(html, /return \{score,reasons:reasons\.slice\(0,3\)\}/,
+  'Founder cards should show up to three specific explanation details');
+
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery regression checks passed.');
