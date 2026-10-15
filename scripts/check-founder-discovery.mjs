@@ -96,4 +96,18 @@ assert.match(html, /feedbackByCandidate\.get\(p\.id\)==='relevant'\?10:0/,
 assert.match(html, /Feedback saved — future recommendations will learn from this\./,
   'The UI should confirm when saved feedback is active');
 
+
+assert.match(html, /let currentUser=null,[\\s\\S]*?learnedTopicWeights=new Map\(\)/,
+  'Discovery should keep a learned topic-weight map for feedback-driven personalization');
+assert.match(html, /const ratedProfiles=await c\.from\('profiles'\)\.select\('id,interests,skills,headline,company,bio,looking_for'\)\.in\('id',ratedIds\)/,
+  'Discovery should read the topics on profiles that received feedback');
+assert.match(html, /feedbackByCandidate\.get\(profile\.id\)==='relevant'\?4:-5/,
+  'Relevant feedback should reinforce profile topics and not-relevant feedback should discourage them');
+assert.match(html, /feedbackBonus=Math\.max\(-15,Math\.min\(15,feedbackSignal\)\)/,
+  'Learned topic influence should be capped so feedback cannot dominate every other match signal');
+assert.match(html, /reasons\.push\('Matches feedback you liked'\)/,
+  'Match explanations should identify when feedback preferences influenced a recommendation');
+assert.match(html, /candidateWords\]\)\.reduce\(\(sum,word\)=>sum\+\(learnedTopicWeights\.get\(word\)\|\|0\),0\)/,
+  'Both daily ranking and displayed scores should use learned topic preferences');
+
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery regression checks passed.');
