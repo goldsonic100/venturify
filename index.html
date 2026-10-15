@@ -829,12 +829,12 @@ renderCases();
   rows=rows.filter(p=>p.id===currentUser?.id||((communityCounts.get(p.id)||0)>=1&&founderLevel(p)>=5));
   const mine=rows.find(p=>p.id===currentUser?.id);
   engagedTopics=new Set();
-  const wordsFrom=v=>(v||'').toLowerCase().split(/\\W+/).filter(x=>x.length>3);
+  const wordsFrom=v=>(v||'').toLowerCase().split(/\W+/).filter(x=>x.length>3);
   const followedProfiles=rows.filter(p=>following.has(p.id));
   followedProfiles.forEach(p=>wordsFrom([p.interests,p.skills,p.headline,p.company,p.bio].filter(Boolean).join(' ')).forEach(x=>engagedTopics.add(x)));
   const likedPostIds=[...new Set((likesResult.data||[]).map(x=>x.post_id).filter(Boolean))].slice(0,300);
   if(currentUser&&likedPostIds.length){const likedPosts=await c.from('posts').select('id,user_id,content').in('id',likedPostIds);if(!likedPosts.error){const authors=new Set((likedPosts.data||[]).map(p=>p.user_id).filter(Boolean));(likedPosts.data||[]).forEach(p=>wordsFrom(p.content).forEach(x=>engagedTopics.add(x)));rows.filter(p=>authors.has(p.id)).forEach(p=>wordsFrom([p.interests,p.skills,p.headline,p.company,p.bio].filter(Boolean).join(' ')).forEach(x=>engagedTopics.add(x)));}}
-  const mineAgain=rows.find(p=>p.id===currentUser?.id);ownSkills=(mine?.skills||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g,' ')).filter(Boolean);ownInterests=(mine?.interests||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g,' ')).filter(Boolean);ownNeeds=mine?.looking_for||'';ownText=[mine?.headline,mine?.company,mine?.bio,mine?.interests].filter(Boolean).join(' ').toLowerCase();
+ownSkills=(mine?.skills||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g,' ')).filter(Boolean);ownInterests=(mine?.interests||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g,' ')).filter(Boolean);ownNeeds=mine?.looking_for||'';ownText=[mine?.headline,mine?.company,mine?.bio,mine?.interests].filter(Boolean).join(' ').toLowerCase();
   dailyMatchIds=[];
   if(currentUser){
    const today=new Date().toISOString().slice(0,10);
