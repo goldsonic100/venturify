@@ -774,7 +774,25 @@ renderCases();
   if(q.length)list=list.filter(p=>{const hay=[p.display_name,p.username,p.headline,p.company,p.location,p.skills,p.interests,p.looking_for,p.bio].join(' ').toLowerCase();return q.every(t=>hay.includes(t))});
   const normalizeTokens=v=>[...new Set((v||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g,' ')).filter(Boolean))];
   const skillList=p=>normalizeTokens(p.skills);
-  const matchInfo=p=>{const theirs=skillList(p),shared=theirs.filter(x=>ownSkills.includes(x)),theirInterests=normalizeTokens(p.interests),sharedInterests=theirInterests.filter(x=>ownInterests.includes(x)),needs=normalizeTokens(ownNeeds),candidateNeeds=normalizeTokens(p.looking_for),complement=theirs.filter(x=>needs.some(n=>n===x||n.includes(x)||x.includes(n))).length,helps=ownSkills.filter(x=>candidateNeeds.some(n=>n===x||n.includes(x)||x.includes(n))).length,collab=/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''),theirText=[p.headline,p.company,p.bio,p.interests].filter(Boolean).join(' ').toLowerCase(),words=[...new Set(ownText.split(/\W+/).filter(x=>x.length>3))],sharedTopics=words.filter(x=>theirText.includes(x)).length;const score=Math.min(100,Math.min(sharedInterests.length,3)*12+Math.min(shared.length,3)*7+Math.min(complement,2)*8+Math.min(helps,2)*6+(collab?5:0)+Math.min(sharedTopics,2)*5);const reasons=[];if(sharedInterests.length)reasons.push('Shared: '+sharedInterests.slice(0,2).join(', '));if(complement)reasons.push('Skills you need');if(helps)reasons.push('Skills they need');if(shared.length)reasons.push('Shared skills');if(sharedTopics)reasons.push('Similar topics');if(collab)reasons.push('Open to collaboration');const insights=[];if(sharedInterests.length)insights.push('Shared interests: '+sharedInterests.slice(0,3).join(', '));if(complement)insights.push('Complementary skills: their skills may help with your goals');if(helps)insights.push('Your skills may help with what they are looking for');if(collab)insights.push('Collaboration goals: open to a cofounder, partner, or teammate');if(shared.length)insights.push('Shared skills: '+shared.slice(0,3).join(', '));if(sharedTopics)insights.push('Related profile topics');return {score,reasons:reasons.slice(0,2),insights:insights.slice(0,4)}};
+  const matchInfo=p=>{
+   const theirs=skillList(p),shared=theirs.filter(x=>ownSkills.includes(x));
+   const theirInterests=normalizeTokens(p.interests),sharedInterests=theirInterests.filter(x=>ownInterests.includes(x));
+   const needs=normalizeTokens(ownNeeds),candidateNeeds=normalizeTokens(p.looking_for);
+   const complement=theirs.filter(x=>needs.some(n=>n===x||n.includes(x)||x.includes(n)));
+   const helps=ownSkills.filter(x=>candidateNeeds.some(n=>n===x||n.includes(x)||x.includes(n)));
+   const collab=/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||'');
+   const theirText=[p.headline,p.company,p.bio,p.interests].filter(Boolean).join(' ').toLowerCase();
+   const words=[...new Set(ownText.split(/\W+/).filter(x=>x.length>3))],sharedTopics=words.filter(x=>theirText.includes(x));
+   const score=Math.min(100,Math.min(sharedInterests.length,3)*12+Math.min(shared.length,3)*7+Math.min(complement.length,2)*8+Math.min(helps.length,2)*6+(collab?5:0)+Math.min(sharedTopics.length,2)*5);
+   const reasons=[],insights=[];
+   if(sharedInterests.length){reasons.push('Shared: '+sharedInterests.slice(0,2).join(', '));insights.push('Shared interests: '+sharedInterests.slice(0,3).join(', '))}
+   if(complement.length){reasons.push('Skills you need');insights.push('Skills that fit your goals: '+complement.slice(0,3).join(', '))}
+   if(helps.length){reasons.push('Skills they need');insights.push('Your skills may fit their goals: '+helps.slice(0,3).join(', '))}
+   if(shared.length){reasons.push('Shared skills');insights.push('Shared skills: '+shared.slice(0,3).join(', '))}
+   if(sharedTopics.length){reasons.push('Similar topics');insights.push('Related profile topics: '+sharedTopics.slice(0,3).join(', '))}
+   if(collab){reasons.push('Open to collaboration');insights.push('Collaboration goals: their profile says they are open to a cofounder, partner, or teammate')}
+   return {score,reasons:reasons.slice(0,2),insights:insights.slice(0,4)}
+  };
   list.sort((a,b)=>matchInfo(b).score-matchInfo(a).score||(a.display_name||a.username||'').localeCompare(b.display_name||b.username||''));
   $('founderResults').innerHTML=list.slice(0,80).map(p=>{
    const skills=(p.skills||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,4),interests=interestList(p).slice(0,4),avatar=safeUrl(p.avatar_url),fit=matchInfo(p);
