@@ -146,4 +146,21 @@ assert.match(html, /data-message-profile=/,
 assert.match(html, /aHelp=\[\.\.\.askA\]\.filter\(x=>skillsB\.has\(x\)\),bHelp=\[\.\.\.askB\]\.filter\(x=>skillsA\.has\(x\)\)/,
   'Complementary skill comparison should check both directions');
 
-console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery regression checks passed.');
+// Founder shortlist regression checks (Discover page + Supabase-backed privacy).
+const discoverHtml = readFileSync(new URL('../discover.html', import.meta.url), 'utf8');
+assert.match(discoverHtml, /Founder Shortlist/,
+  'Discover should show a dedicated founder shortlist');
+assert.match(discoverHtml, /data-shortlist-save=/,
+  'Founder cards should provide a save/unsave shortlist control');
+assert.match(discoverHtml, /from\('founder_shortlists'\)\.select\('founder_id,status,created_at'\)/,
+  'Discover should load saved founders and their next-step status from Supabase');
+assert.match(discoverHtml, /data-shortlist-status=/,
+  'Shortlist entries should allow updating next-step status');
+assert.match(discoverHtml, /data-shortlist-remove=/,
+  'Shortlist entries should allow removing saved founders');
+assert.match(discoverHtml, /data-message-profile=/,
+  'Shortlist entries should offer direct messaging');
+assert.match(discoverHtml, /Users view their own founder shortlist|founder_shortlists/,
+  'Shortlist markup and data flow should be present');
+
+console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery and shortlist regression checks passed.');
