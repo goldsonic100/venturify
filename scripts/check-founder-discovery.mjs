@@ -148,6 +148,19 @@ assert.match(html, /aHelp=\[\.\.\.askA\]\.filter\(x=>skillsB\.has\(x\)\),bHelp=\
 
 // Founder shortlist regression checks (Discover page + Supabase-backed privacy).
 const discoverHtml = readFileSync(new URL('../discover.html', import.meta.url), 'utf8');
+assert.match(discoverHtml, /data-match-feedback="relevant"/,
+  'Founder cards should let users mark a match relevant');
+assert.match(discoverHtml, /data-match-feedback="not_relevant"/,
+  'Founder cards should let users mark a match not relevant');
+assert.match(discoverHtml, /founder_match_feedback.*upsert|upsert\(\{viewer_id:currentUser.id,candidate_id:id,feedback:value/,
+  'Recommendation feedback should persist to Supabase');
+assert.match(discoverHtml, /matchFeedback\.get\(p\.id\)!=='not_relevant'/,
+  'Future daily recommendations should exclude founders marked not relevant');
+assert.match(discoverHtml, /matchFeedback\.get\(p\.id\)==='relevant'\?15:0/,
+  'Relevant feedback should boost future match ranking');
+assert.match(discoverHtml, /Math\.max\(0,6-dailyMatchIds\.length\)/,
+  'Personalized daily recommendations should remain capped at six');
+
 assert.match(discoverHtml, /founder-match-insights/,
   'Founder cards should show a dedicated match-insights panel');
 assert.match(discoverHtml, /Shared interests:/,
