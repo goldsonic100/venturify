@@ -80,4 +80,20 @@ assert.match(html, /sharedTopics=words\.filter\(x=>candidateWords\.has\(x\)\)\.l
 assert.match(html, /const wordsFrom=v=>topicTokens\(v\)/,
   'Activity topics should use the same stop-word-filtered tokenizer');
 
+
+assert.match(html, /c\.from\('founder_match_feedback'\)\.select\('candidate_id,feedback'\)/,
+  'Discovery should load the signed-in user’s saved match feedback');
+assert.match(html, /data-match-feedback="relevant"/,
+  'Founder cards should let users mark a match as relevant');
+assert.match(html, /data-match-feedback="not_relevant"/,
+  'Founder cards should let users mark a match as not relevant');
+assert.match(html, /founder_match_feedback'\)\.upsert\(/,
+  'Match feedback should be saved persistently in Supabase');
+assert.match(html, /feedbackByCandidate\.get\(p\.id\)!=='not_relevant'/,
+  'Future daily picks should exclude founders marked not relevant');
+assert.match(html, /feedbackByCandidate\.get\(p\.id\)==='relevant'\?10:0/,
+  'Positive feedback should boost a founder in future recommendation ranking');
+assert.match(html, /Feedback saved — future recommendations will learn from this\./,
+  'The UI should confirm when saved feedback is active');
+
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery regression checks passed.');
