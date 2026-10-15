@@ -114,20 +114,49 @@ body[data-view="share-story"] .hero,body[data-view="share-story"] #community,bod
 body[data-view="share-story"] #submit{display:block!important;padding-top:34px}
 body[data-view="case-studies"] .footer,body[data-view="principles"] .footer,body[data-view="share-story"] .footer{display:block!important}
 
+
+/* Cleaner, roomier navigation */
+.topbar{position:relative;top:auto;left:auto;right:auto;width:100%;padding:0 max(22px,calc((100% - 1160px)/2));height:82px;background:var(--deep);border-bottom:1px solid #34463a;gap:28px}
+.topbar .nav{display:flex;align-items:center;justify-content:flex-end;gap:clamp(14px,2.1vw,28px);flex-wrap:nowrap;white-space:nowrap;color:#d2dbd2}
+.topbar .nav a{display:inline-flex;align-items:center}
+.topbar .nav a[data-auth-only],.topbar .nav [data-auth-only]{display:none}
+body.authenticated .topbar .nav [data-auth-only]{display:inline-flex}
+body.authenticated .topbar .nav [data-guest-only]{display:none!important}
+.topbar .nav .nav-icon-link{font-size:23px;line-height:1;color:#e2e9df;padding:7px;border-radius:8px}
+.topbar .nav .nav-icon-link:hover{background:#263b2d;color:var(--green)}
+.topbar .nav .nav-icon-button{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;padding:0;border-radius:8px;font-size:19px}
+.topbar .nav .nav-signup{background:var(--green);color:#17251b;padding:11px 16px;border-radius:8px;font-weight:800}
+.topbar .nav .nav-profile{font-weight:750}
+.topbar .nav .notification-wrap{display:none}
+body.authenticated .topbar .nav .notification-wrap{display:block}
+.topbar .nav .notification-view-all{display:block}
+.topbar .brand{flex-shrink:0}
+@media(max-width:900px){.topbar{height:auto;min-height:78px;padding:15px 22px;gap:18px}.topbar .nav{gap:clamp(10px,1.7vw,17px);flex-wrap:wrap}.topbar .nav a{display:inline-flex!important}.topbar .nav [data-auth-only]{display:none!important}body.authenticated .topbar .nav [data-auth-only]{display:inline-flex!important}.topbar .nav [data-guest-only]{display:inline-flex!important}body.authenticated .topbar .nav [data-guest-only]{display:none!important}.topbar .nav .notification-wrap{display:none!important}body.authenticated .topbar .nav .notification-wrap{display:block!important}}
+@media(max-width:560px){.topbar{align-items:flex-start;flex-direction:column;padding:14px 15px;gap:12px}.topbar .nav{width:100%;justify-content:flex-start;gap:14px;white-space:normal}.topbar .nav a{font-size:12px}.topbar .nav .nav-icon-link{font-size:21px;padding:3px}.topbar .nav .nav-signup{padding:8px 11px}.topbar .nav .notification-wrap{position:static}.topbar .nav .notification-panel{left:0;right:auto;top:100%}}
+
 </style>
 </head>
 <body data-view="principles">
 <header class="topbar wrap">
   <a class="brand" href="index.html" aria-label="Venturify home"><span class="brand-mark">v.</span> venturify</a>
-  <nav class="nav" aria-label="Main navigation"><a href="communities.html">Communities</a><a href="messages.html">Messages</a><div class="notification-wrap"><button type="button" id="notificationButton" class="notification-button" aria-expanded="false" aria-controls="notificationPanel">🔔 Notifications <span id="notificationCount" class="notification-count" hidden>0</span></button><div id="notificationPanel" class="notification-panel" hidden><div class="notification-panel-head"><strong>Notifications</strong><button type="button" id="markAllNotifications" class="mark-all">Mark all read</button></div><div id="notificationList"><div class="notification-empty">Log in to see notifications.</div></div><a class="notification-view-all" href="notifications.html">View all notifications →</a></div></div><a href="#" id="navAccount">Log in</a><a href="case-studies.html">Case studies</a><a href="principles.html">Our principles</a><a class="nav-cta" href="share-story.html">Share a story ↗</a><div class="app-nav-links" aria-label="Venturify app">
+  <nav class="nav" aria-label="Main navigation">
     <a href="feed.html" data-app-view="feed">Feed</a>
     <a href="discover.html" data-app-view="discover">Discover</a>
     <a href="communities.html" data-app-view="communities">Communities</a>
-    <a href="messages.html" data-app-view="messages">Messages</a>
-    <a href="notifications.html" data-app-view="notifications">Notifications</a>
-    <a href="profile.html" data-app-view="profile">Profile</a>
-  </div>
-</nav>
+    <a class="nav-icon-link" href="messages.html" data-auth-only aria-label="Messages" title="Messages">✉</a>
+    <div class="notification-wrap" data-auth-only>
+      <button type="button" id="notificationButton" class="notification-button nav-icon-button" aria-label="Announcements and notifications" title="Announcements and notifications" aria-expanded="false" aria-controls="notificationPanel">🔔<span id="notificationCount" class="notification-count" hidden>0</span></button>
+      <div id="notificationPanel" class="notification-panel" hidden>
+        <div class="notification-panel-head"><strong>Announcements &amp; notifications</strong><button type="button" id="markAllNotifications" class="mark-all">Mark all read</button></div>
+        <div id="notificationList"><div class="notification-empty">No notifications yet.</div></div>
+        <a class="notification-view-all" href="notifications.html">View all notifications →</a>
+      </div>
+    </div>
+    <a href="#" id="navAccount" data-guest-only>Log in</a>
+    <a href="#" id="navSignup" data-guest-only class="nav-signup">Sign up</a>
+    <a href="profile.html" data-auth-only class="nav-profile">Profile</a>
+    <a href="principles.html">Our principles</a>
+  </nav>
 </header>
 <main>
 <section class="hero">
@@ -322,8 +351,8 @@ $('clearCommunityFilter').addEventListener('click',async()=>{currentCommunityId=
 $('postCommunity').addEventListener('change',async()=>{currentCommunityId=$('postCommunity').value||null;updateCommunityContext();await feed()});
 
 async function loadPeople(){const r=await client.from('profiles').select('id,username,display_name,avatar_url').order('created_at',{ascending:false}).limit(40);if(r.error){$('peopleList').innerHTML='<small>Could not load profiles.</small>';return}people=(r.data||[]).filter(p=>p.id!==user?.id);const fr=user?await client.from('follows').select('following_id').eq('follower_id',user.id):{data:[]};const followed=new Set((fr.data||[]).map(f=>f.following_id));$('peopleList').innerHTML=people.slice(0,10).map(p=>'<div class="follow-person"><button type="button" class="avatar profile-open" data-profile="'+esc(p.id)+'">'+(p.avatar_url&&safeProfileUrl(p.avatar_url)?'<img src="'+esc(safeProfileUrl(p.avatar_url))+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">':esc(initials(name(p))))+'</button><div class="person-meta"><button type="button" class="profile-open" data-profile="'+esc(p.id)+'"><strong>'+esc(name(p))+'</strong><small>@'+esc(p.username||'founder')+'</small></button></div><button class="follow-btn '+(followed.has(p.id)?'following':'')+'" data-follow="'+p.id+'">'+(user?(followed.has(p.id)?'Following':'Follow'):'Log in')+'</button></div>').join('')||'<div class="muted-small">New profiles will appear here as people join.</div>';$('messagePerson').innerHTML='<option value="">Choose a founder…</option>'+people.map(p=>'<option value="'+p.id+'">'+esc(name(p))+' (@'+esc(p.username||'founder')+')</option>').join('');await loadConversationList()}
-async function refresh(){const r=await client.auth.getUser();user=r.data.user||null;$("guestBanner").hidden=!!user;if(user)await getProfile();else{profile=null;$('myNameLabel').textContent='Your founder profile';$('myAvatar').textContent='Y';$('profileAvatarPreview').textContent='V';$('accountStatus').textContent='Browsing as a guest. Log in to publish and follow people.';$('navAccount').textContent='Log in'}await Promise.all([loadCommunities(),loadPeople()]);if(!user)$('chatMessages').innerHTML='<div class="muted-small">Log in to send private messages.</div>';await feed()}
-$('guestLogin').addEventListener('click',()=>auth('login'));$('guestSignup').addEventListener('click',()=>auth('signup'));
+async function refresh(){const r=await client.auth.getUser();user=r.data.user||null;document.body.classList.toggle('authenticated',!!user);$("guestBanner").hidden=!!user;if(user)await getProfile();else{profile=null;$('myNameLabel').textContent='Your founder profile';$('myAvatar').textContent='Y';$('profileAvatarPreview').textContent='V';$('accountStatus').textContent='Browsing as a guest. Log in to publish and follow people.';$('navAccount').textContent='Log in'}await Promise.all([loadCommunities(),loadPeople()]);if(!user)$('chatMessages').innerHTML='<div class="muted-small">Log in to send private messages.</div>';await feed()}
+$('guestLogin').addEventListener('click',()=>auth('login'));$('guestSignup').addEventListener('click',()=>auth('signup'));$('navSignup').addEventListener('click',e=>{e.preventDefault();auth('signup')});
 $('navAccount').addEventListener('click',async e=>{e.preventDefault();if(user){const r=await client.auth.signOut();if(r.error)notice(r.error.message);else{notice('Logged out.');await refresh()}}else auth('login')});
 $('loginTab').addEventListener('click',()=>auth('login'));$('signupTab').addEventListener('click',()=>auth('signup'));$('closeAuth').addEventListener('click',()=>$('authBackdrop').classList.remove('open'));$('authBackdrop').addEventListener('click',e=>{if(e.target===$('authBackdrop'))$('authBackdrop').classList.remove('open')});
 $('authForm').addEventListener('submit',async e=>{e.preventDefault();$('authSubmit').disabled=true;$('authMessage').textContent='Working…';const email=$('authEmail').value.trim(),password=$('authPassword').value;const r=mode==='signup'?await client.auth.signUp({email,password,options:{emailRedirectTo:window.location.origin+window.location.pathname,data:{display_name:$('authName').value.trim()||email.split('@')[0]}}}):await client.auth.signInWithPassword({email,password});$('authSubmit').disabled=false;if(r.error){$('authMessage').textContent=r.error.message;return}if(mode==='signup'&&!r.data.session){$('authMessage').textContent='Account created. Check your email for a confirmation link, then log in.';return}$('authBackdrop').classList.remove('open');notice(mode==='signup'?'Welcome to Venturify!':'Welcome back!');await refresh()});
