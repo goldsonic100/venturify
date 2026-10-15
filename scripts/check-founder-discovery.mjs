@@ -71,4 +71,13 @@ assert.match(html, /activityBonus=Math\.min\(activityMatches\.length,3\)\*6/,
 assert.match(html, /Based on your activity/,
   'Match explanations should identify activity-based recommendations');
 
+assert.match(html, /const topicStopWords=new Set/,
+  'Activity-based matching should filter common stop words');
+assert.match(html, /const topicTokens=v=>\[\.\.\.new Set\([\s\S]*?topicStopWords\.has\(x\)/,
+  'Topic matching should normalize, deduplicate, and filter tokens consistently');
+assert.match(html, /sharedTopics=words\.filter\(x=>candidateWords\.has\(x\)\)\.length/,
+  'Topic matching should use whole-token matches rather than accidental substrings');
+assert.match(html, /const wordsFrom=v=>topicTokens\(v\)/,
+  'Activity topics should use the same stop-word-filtered tokenizer');
+
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery regression checks passed.');
