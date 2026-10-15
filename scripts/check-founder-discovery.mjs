@@ -158,6 +158,14 @@ assert.match(discoverHtml, /data-shortlist-status=/,
   'Shortlist entries should allow updating next-step status');
 assert.match(discoverHtml, /data-shortlist-remove=/,
   'Shortlist entries should allow removing saved founders');
+assert.match(discoverHtml, /id="founderShortlistSearch"/,
+  'Shortlist should provide a search field');
+assert.match(discoverHtml, /id="founderShortlistStatusFilter"/,
+  'Shortlist should provide a status filter');
+assert.match(discoverHtml, /return query\.every\(term=>hay\.includes\(term\)\)/,
+  'Shortlist search should match all search terms');
+assert.match(discoverHtml, /statusFilter!=='all'/,
+  'Shortlist status filter should filter the saved list');
 assert.match(discoverHtml, /data-message-profile=/,
   'Shortlist entries should offer direct messaging');
 assert.match(discoverHtml, /Users view their own founder shortlist|founder_shortlists/,
