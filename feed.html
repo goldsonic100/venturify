@@ -134,6 +134,37 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
 @media(max-width:900px){.topbar{height:auto;min-height:78px;padding:15px 22px;gap:18px}.topbar .nav{gap:clamp(10px,1.7vw,17px);flex-wrap:wrap}.topbar .nav a{display:inline-flex!important}.topbar .nav [data-auth-only]{display:none!important}body.authenticated .topbar .nav [data-auth-only]{display:inline-flex!important}.topbar .nav [data-guest-only]{display:inline-flex!important}body.authenticated .topbar .nav [data-guest-only]{display:none!important}.topbar .nav .notification-wrap{display:none!important}body.authenticated .topbar .nav .notification-wrap{display:block!important}}
 @media(max-width:560px){.topbar{align-items:flex-start;flex-direction:column;padding:14px 15px;gap:12px}.topbar .nav{width:100%;justify-content:flex-start;gap:14px;white-space:normal}.topbar .nav a{font-size:12px}.topbar .nav .nav-icon-link{font-size:21px;padding:3px}.topbar .nav .nav-signup{padding:8px 11px}.topbar .nav .notification-wrap{position:static}.topbar .nav .notification-panel{left:0;right:auto;top:100%}}
 
+
+/* Keep the navigation in one consistent row on every page and screen size. */
+.topbar.wrap{width:min(100% - 30px,1160px);max-width:1160px;min-height:74px;height:74px;align-items:center;gap:20px}
+.topbar .brand{flex:0 0 auto;white-space:nowrap}
+.topbar .nav{display:flex;flex:1 1 auto;min-width:0;justify-content:flex-end;align-items:center;flex-wrap:nowrap;white-space:nowrap;gap:clamp(10px,1.35vw,20px);overflow-x:auto;overflow-y:visible;scrollbar-width:none}
+.topbar .nav::-webkit-scrollbar{display:none}
+.topbar .nav>a{flex:0 0 auto;white-space:nowrap}
+.topbar .nav .notification-wrap{flex:0 0 auto}
+@media(max-width:900px){
+ .topbar.wrap{width:calc(100% - 28px);padding:12px 0;min-height:74px;height:auto;flex-direction:row;align-items:center;gap:16px}
+ .topbar .nav{width:auto;max-width:calc(100vw - 170px);justify-content:flex-start;gap:14px;flex-wrap:nowrap}
+ .topbar .nav a{display:inline-flex;flex:0 0 auto}
+ .topbar .nav [data-auth-only]{display:none!important}
+ body.authenticated .topbar .nav [data-auth-only]{display:inline-flex!important}
+ .topbar .nav .notification-wrap{display:none!important}
+ body.authenticated .topbar .nav .notification-wrap{display:block!important}
+ .topbar .nav [data-guest-only]{display:inline-flex!important}
+ body.authenticated .topbar .nav [data-guest-only]{display:none!important}
+}
+@media(max-width:560px){
+ .topbar.wrap{width:calc(100% - 24px);padding:12px 0;min-height:68px;gap:12px;flex-direction:row;align-items:center}
+ .topbar .brand{font-size:18px;gap:7px}
+ .topbar .brand-mark{width:29px;height:29px}
+ .topbar .nav{max-width:calc(100vw - 145px);gap:12px;overflow-x:auto;justify-content:flex-start;white-space:nowrap}
+ .topbar .nav a{font-size:12px;white-space:nowrap}
+ .topbar .nav .nav-icon-link{font-size:21px;padding:3px}
+ .topbar .nav .nav-signup{padding:8px 11px}
+ .topbar .nav .notification-wrap{position:relative}
+ .topbar .nav .notification-panel{left:auto;right:0;top:calc(100% + 8px)}
+}
+
 </style>
 </head>
 <body data-view="feed">
