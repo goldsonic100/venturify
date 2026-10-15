@@ -34,5 +34,9 @@ assert.match(html, /data-profile=/,
 
 assert.ok((html.match(/replace\(\/\^#\+/g) || []).length >= 2,
   'Daily ranking and displayed match scores should normalize hashtag-prefixed tokens consistently');
+assert.match(html, /ownSkills=\(mine\?\.skills\|\|''\)\.split\([\s\S]*?replace\(\/\^#\+\/, ''\)/,
+  'The viewer’s skills should use the same token normalization as candidate skills');
+assert.match(html, /const interestList=p=>\[\.\.\.new Set\([\s\S]*?replace\(\/\^#\+\/, ''\)/,
+  'Interest-only filtering should normalize and deduplicate interest tokens');
 
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery regression checks passed.');
