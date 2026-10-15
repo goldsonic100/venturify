@@ -169,6 +169,7 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
 .profile-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
 .profile-actions .btn{margin-top:12px!important}
 
+.topbar .nav .nav-icon-link{position:relative}.message-nav-count{position:absolute;top:0;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:#c8f169;color:#152319;border:2px solid #13241c;font-size:9px;font-weight:900;line-height:12px;display:inline-flex;align-items:center;justify-content:center}.message-nav-count[hidden]{display:none}
 </style>
 </head>
 <body data-view="notifications">
@@ -178,7 +179,7 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
     <a href="feed.html" data-app-view="feed">Feed</a>
     <a href="discover.html" data-app-view="discover">Discover</a>
     <a href="communities.html" data-app-view="communities">Communities</a>
-    <a class="nav-icon-link" href="messages.html" data-auth-only aria-label="Messages" title="Messages">✉</a>
+    <a class="nav-icon-link" href="messages.html" data-auth-only aria-label="Messages" title="Messages">✉<span id="messageNavCount" class="message-nav-count" hidden>0</span></a>
     <div class="notification-wrap" data-auth-only>
       <button type="button" id="notificationButton" class="notification-button nav-icon-button" aria-label="Announcements and notifications" title="Announcements and notifications" aria-expanded="false" aria-controls="notificationPanel">🔔<span id="notificationCount" class="notification-count" hidden>0</span></button>
       <div id="notificationPanel" class="notification-panel" hidden>
@@ -386,7 +387,7 @@ $('clearCommunityFilter').addEventListener('click',async()=>{currentCommunityId=
 $('postCommunity').addEventListener('change',async()=>{currentCommunityId=$('postCommunity').value||null;updateCommunityContext();await feed()});
 
 async function loadPeople(){const r=await client.from('profiles').select('id,username,display_name,avatar_url').order('created_at',{ascending:false}).limit(40);if(r.error){$('peopleList').innerHTML='<small>Could not load profiles.</small>';return}people=(r.data||[]).filter(p=>p.id!==user?.id);const fr=user?await client.from('follows').select('following_id').eq('follower_id',user.id):{data:[]};const followed=new Set((fr.data||[]).map(f=>f.following_id));$('peopleList').innerHTML=people.slice(0,10).map(p=>'<div class="follow-person"><button type="button" class="avatar profile-open" data-profile="'+esc(p.id)+'">'+(p.avatar_url&&safeProfileUrl(p.avatar_url)?'<img src="'+esc(safeProfileUrl(p.avatar_url))+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">':esc(initials(name(p))))+'</button><div class="person-meta"><button type="button" class="profile-open" data-profile="'+esc(p.id)+'"><strong>'+esc(name(p))+'</strong><small>@'+esc(p.username||'founder')+'</small></button></div><button class="follow-btn '+(followed.has(p.id)?'following':'')+'" data-follow="'+p.id+'">'+(user?(followed.has(p.id)?'Following':'Follow'):'Log in')+'</button></div>').join('')||'<div class="muted-small">New profiles will appear here as people join.</div>';$('messagePerson').innerHTML='<option value="">Choose a founder…</option>'+people.map(p=>'<option value="'+p.id+'">'+esc(name(p))+' (@'+esc(p.username||'founder')+')</option>').join('');await loadConversationList()}
-async function refresh(){const r=await client.auth.getUser();user=r.data.user||null;document.body.classList.toggle('authenticated',!!user);$("guestBanner").hidden=!!user;if(user)await getProfile();else{profile=null;$('myNameLabel').textContent='Your founder profile';$('myAvatar').textContent='Y';$('profileAvatarPreview').textContent='V';$('accountStatus').textContent='Browsing as a guest. Log in to publish and follow people.';$('navAccount').textContent='Log in'}await Promise.all([loadCommunities(),loadPeople()]);if(!user)$('chatMessages').innerHTML='<div class="muted-small">Log in to send private messages.</div>';await feed()}
+async function refresh(){const r=await client.auth.getUser();user=r.data.user||null;if(messagingSessionUserId&&messagingSessionUserId!==user?.id)stopActiveConversationRealtime();messagingSessionUserId=user?.id||null;startGlobalMessageRealtime(user?.id||null);document.body.classList.toggle('authenticated',!!user);$("guestBanner").hidden=!!user;if(user)await getProfile();else{profile=null;$('myNameLabel').textContent='Your founder profile';$('myAvatar').textContent='Y';$('profileAvatarPreview').textContent='V';$('accountStatus').textContent='Browsing as a guest. Log in to publish and follow people.';$('navAccount').textContent='Log in'}await Promise.all([loadCommunities(),loadPeople()]);if(!user)$('chatMessages').innerHTML='<div class="muted-small">Log in to send private messages.</div>';await feed()}
 $('guestLogin').addEventListener('click',()=>auth('login'));$('guestSignup').addEventListener('click',()=>auth('signup'));$('navSignup').addEventListener('click',e=>{e.preventDefault();auth('signup')});
 $('navAccount').addEventListener('click',async e=>{e.preventDefault();if(user){const r=await client.auth.signOut();if(r.error)notice(r.error.message);else{notice('Logged out.');await refresh()}}else auth('login')});
 $('loginTab').addEventListener('click',()=>auth('login'));$('signupTab').addEventListener('click',()=>auth('signup'));$('closeAuth').addEventListener('click',()=>$('authBackdrop').classList.remove('open'));$('authBackdrop').addEventListener('click',e=>{if(e.target===$('authBackdrop'))$('authBackdrop').classList.remove('open')});
@@ -418,7 +419,7 @@ $('feed').addEventListener('click',async e=>{
  if(focus)$('feed').querySelector('[data-comment-input="'+focus.dataset.focus+'"]')?.focus();
 });
  document.addEventListener('click',async e=>{const mention=e.target.closest('[data-profile-username]');if(!mention)return;const username=mention.dataset.profileUsername;if(!/^[A-Za-z0-9_]{1,30}$/.test(username))return;mention.disabled=true;const result=await client.from('profiles').select('id').ilike('username',username).maybeSingle();mention.disabled=false;if(result.error||!result.data){notice('That username was not found.');return}showProfile(result.data.id)});
-let currentConversation=null,currentConversationChannel=null,currentTypingChannel=null,typingCleanupTimer=null;
+let currentConversation=null,currentConversationChannel=null,currentTypingChannel=null,currentReadChannel=null,globalMessageChannel=null,globalMessageRealtimeUser=null,messagingSessionUserId=null,typingCleanupTimer=null;
  let activeConversationOtherId=null,activeConversationMessages=[];
  function filteredConversationList(){const search=$('conversationSearch')?.value?.trim().toLowerCase()||'';document.querySelectorAll('#conversationList [data-open-conversation]').forEach(button=>{button.hidden=!!search&&!button.textContent.toLowerCase().includes(search)})}
  async function loadConversationList(){
@@ -426,33 +427,57 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(!user){box.innerHTML='<div class="muted-small">Log in to see your conversations.</div>';total.hidden=true;return}
   box.innerHTML='<div class="muted-small">Loading conversations…</div>';
   const memberships=await client.from('conversation_members').select('conversation_id,user_id').eq('user_id',user.id);
-  if(memberships.error){box.innerHTML='<div class="muted-small">Could not load conversations.</div>';return}
+  if(memberships.error){box.innerHTML='<div class="muted-small">Could not load conversations. Refresh and try again.</div>';return}
   const ids=[...new Set((memberships.data||[]).map(x=>x.conversation_id))];
-  if(!ids.length){box.innerHTML='<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';total.hidden=true;return}
+  if(!ids.length){box.innerHTML='<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';total.hidden=true;const navCount=$('messageNavCount');if(navCount){navCount.hidden=true;navCount.textContent='0'}return}
   const [membersResult,messagesResult]=await Promise.all([
    client.from('conversation_members').select('conversation_id,user_id').in('conversation_id',ids),
-   client.from('messages').select('id,conversation_id,sender_id,content,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(500)
+   client.from('messages').select('id,conversation_id,sender_id,content,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(1000)
   ]);
   if(membersResult.error||messagesResult.error){box.innerHTML='<div class="muted-small">Could not load recent conversations. Try refreshing.</div>';return}
+  const messages=messagesResult.data||[];
+  const messageIds=messages.map(m=>m.id);
+  const readsResult=messageIds.length?await client.from('message_reads').select('message_id').eq('user_id',user.id).in('message_id',messageIds):{data:[],error:null};
+  if(readsResult.error){box.innerHTML='<div class="muted-small">Could not sync read status. Please refresh.</div>';return}
+  const readIds=new Set((readsResult.data||[]).map(r=>r.message_id));
   const otherIds=[...new Set((membersResult.data||[]).filter(m=>m.user_id!==user.id).map(m=>m.user_id))];
-  const profileResult=otherIds.length?await client.from('profiles').select('id,username,display_name').in('id',otherIds):{data:[]};
+  const profileResult=otherIds.length?await client.from('profiles').select('id,username,display_name,avatar_url').in('id',otherIds):{data:[],error:null};
+  if(profileResult.error){box.innerHTML='<div class="muted-small">Could not load conversation profiles.</div>';return}
   const profileMap=new Map((profileResult.data||[]).map(p=>[p.id,p]));
   const conversations=ids.map(id=>{
    const other=(membersResult.data||[]).find(m=>m.conversation_id===id&&m.user_id!==user.id);
    if(!other)return null;
-   const msgs=(messagesResult.data||[]).filter(m=>m.conversation_id===id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-   const latest=msgs[0],key='venturify-read-'+user.id+'-'+id;
-   let readAt='';try{readAt=localStorage.getItem(key)||''}catch{}
-   const unread=msgs.filter(m=>m.sender_id!==user.id&&(!readAt||new Date(m.created_at)>new Date(readAt))).length;
+   const msgs=messages.filter(m=>m.conversation_id===id);
+   const latest=msgs[0];
+   const unread=msgs.filter(m=>m.sender_id!==user.id&&!readIds.has(m.id)).length;
    return {id,otherId:other.user_id,person:profileMap.get(other.user_id)||{display_name:'Venturify member'},latest,unread};
   }).filter(Boolean).sort((a,b)=>new Date(b.latest?.created_at||0)-new Date(a.latest?.created_at||0));
   const unreadTotal=conversations.reduce((sum,item)=>sum+item.unread,0);
-  total.textContent=unreadTotal+' unread';total.hidden=unreadTotal===0;
-  box.innerHTML=conversations.map(item=>'<button type="button" class="conversation-item '+(currentConversation===item.id?'active':'')+'" data-open-conversation="'+esc(item.otherId)+'"><span class="conversation-avatar">'+esc(initials(name(item.person)))+'</span><span class="conversation-copy"><strong>'+esc(name(item.person))+'</strong><small>'+esc(item.latest?(item.latest.sender_id===user.id?'You: ':'')+String(item.latest.content||'').slice(0,74):'Conversation started')+'</small></span><span class="conversation-trailing">'+(item.latest?'<span class="conversation-time">'+esc(new Date(item.latest.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'}))+'</span>':'')+(item.unread?'<span class="conversation-unread">'+item.unread+'</span>':'')+'</span></button>').join('')||'<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';
+  total.textContent=unreadTotal+' unread';total.hidden=unreadTotal===0;const navCount=$('messageNavCount');if(navCount){navCount.textContent=unreadTotal>99?'99+':String(unreadTotal);navCount.hidden=unreadTotal===0}
+  box.innerHTML=conversations.map(item=>{
+   const avatar=safeProfileUrl(item.person.avatar_url);
+   return '<button type="button" class="conversation-item '+(currentConversation===item.id?'active':'')+'" data-open-conversation="'+esc(item.otherId)+'"><span class="conversation-avatar">'+(avatar?'<img src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':esc(initials(name(item.person))))+'</span><span class="conversation-copy"><strong>'+esc(name(item.person))+'</strong><small>'+esc(item.latest?(item.latest.sender_id===user.id?'You: ':'')+String(item.latest.content||'').slice(0,74):'Conversation started')+'</small></span><span class="conversation-trailing">'+(item.latest?'<span class="conversation-time">'+esc(new Date(item.latest.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'}))+'</span>':'')+(item.unread?'<span class="conversation-unread">'+item.unread+'</span>':'')+'</span></button>';
+  }).join('')||'<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';
   filteredConversationList();
  }
  $('conversationSearch').addEventListener('input',filteredConversationList);
  $('conversationList').addEventListener('click',async e=>{const button=e.target.closest('[data-open-conversation]');if(!button)return;const otherId=button.dataset.openConversation;$('messagePerson').value=otherId;await openConversation(otherId)});
+ function stopActiveConversationRealtime(){
+  if(currentConversationChannel){client.removeChannel(currentConversationChannel);currentConversationChannel=null}
+  if(currentTypingChannel){client.removeChannel(currentTypingChannel);currentTypingChannel=null}
+  if(currentReadChannel){client.removeChannel(currentReadChannel);currentReadChannel=null}
+  currentConversation=null;activeConversationOtherId=null;
+ }
+ function stopGlobalMessageRealtime(){if(globalMessageChannel){client.removeChannel(globalMessageChannel);globalMessageChannel=null}globalMessageRealtimeUser=null}
+ function startGlobalMessageRealtime(uid){
+  if(!uid){stopGlobalMessageRealtime();const navCount=$('messageNavCount');if(navCount){navCount.hidden=true;navCount.textContent='0'}return}
+  if(globalMessageChannel&&globalMessageRealtimeUser===uid)return;
+  stopGlobalMessageRealtime();globalMessageRealtimeUser=uid;
+  globalMessageChannel=client.channel('venturify-inbox-updates-'+uid)
+   .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'sender_id=neq.'+uid},()=>loadConversationList())
+   .on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reads',filter:'user_id=eq.'+uid},()=>loadConversationList())
+   .subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Inbox live updates disconnected',error||status)});
+ }
  async function setTyping(isTyping){
   if(!user||!currentConversation)return;
   if(isTyping){
@@ -475,22 +500,15 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
  async function openConversation(otherId){
   if(!user)return loginRequired();if(!otherId)return;
   $('messagePerson').value=otherId;
-  const my=await client.from('conversation_members').select('conversation_id').eq('user_id',user.id);
-  const ids=(my.data||[]).map(x=>x.conversation_id);let conversationId=null;
-  if(ids.length){const r=await client.from('conversation_members').select('conversation_id').eq('user_id',otherId).in('conversation_id',ids).limit(1);conversationId=r.data?.[0]?.conversation_id||null}
-  if(!conversationId){
-   const c=await client.from('conversations').insert({}).select('id').single();
-   if(c.error){notice('Could not start chat: '+c.error.message);return}
-   let r=await client.from('conversation_members').insert({conversation_id:c.data.id,user_id:user.id});
-   if(r.error){notice(r.error.message);return}
-   r=await client.from('conversation_members').insert({conversation_id:c.data.id,user_id:otherId});
-   if(r.error){notice(r.error.message);return}
-   conversationId=c.data.id;
-  }
-  if(currentConversation!==conversationId){if(currentTypingChannel){client.removeChannel(currentTypingChannel);currentTypingChannel=null}if(currentConversationChannel){client.removeChannel(currentConversationChannel);currentConversationChannel=null}}
+  if(otherId===user.id){notice('Choose another founder to start a conversation.');return}
+  const direct=await client.rpc('get_or_create_direct_conversation',{target_user_id:otherId});
+  if(direct.error||!direct.data){notice('Could not start chat: '+(direct.error?.message||'Please try again.'));return}
+  const conversationId=direct.data;
+  if(currentConversation!==conversationId){if(currentTypingChannel){client.removeChannel(currentTypingChannel);currentTypingChannel=null}if(currentConversationChannel){client.removeChannel(currentConversationChannel);currentConversationChannel=null}if(currentReadChannel){client.removeChannel(currentReadChannel);currentReadChannel=null}}
   currentConversation=conversationId;activeConversationOtherId=otherId;
-  currentConversationChannel=client.channel('venturify-chat-'+conversationId).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'conversation_id=eq.'+conversationId},()=>{showMessages(otherId)}).subscribe();
-  currentTypingChannel=client.channel('venturify-typing-'+conversationId).on('postgres_changes',{event:'*',schema:'public',table:'conversation_typing',filter:'conversation_id=eq.'+conversationId},()=>loadTypingStatus()).subscribe();
+  if(!currentConversationChannel)currentConversationChannel=client.channel('venturify-chat-'+conversationId).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'conversation_id=eq.'+conversationId},()=>{showMessages(otherId)}).subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')notice('Live message updates disconnected. Refresh to reconnect.')});
+  if(!currentTypingChannel)currentTypingChannel=client.channel('venturify-typing-'+conversationId).on('postgres_changes',{event:'*',schema:'public',table:'conversation_typing',filter:'conversation_id=eq.'+conversationId},()=>loadTypingStatus()).subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Live typing updates disconnected',error||status)});
+  if(!currentReadChannel)currentReadChannel=client.channel('venturify-read-'+conversationId).on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reads',filter:'user_id=eq.'+otherId},()=>showMessages(otherId)).subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Live read receipts disconnected',error||status)});
   await showMessages(otherId);await loadTypingStatus();
  }
  async function showMessages(otherId){
