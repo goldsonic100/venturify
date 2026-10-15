@@ -44,7 +44,23 @@
 .follow-person small{font-size:10px;color:var(--muted);display:block;margin-top:3px}
 .follow-btn{border:1px solid #cad9bd;background:#eff5e8;color:#35563a;border-radius:7px;padding:7px 9px;font-size:10px;font-weight:800;cursor:pointer}
 .follow-btn.following{background:#fff;border-color:var(--line);color:#6d796f}
-.founder-discovery{margin:0 0 22px}.discovery-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,260px);gap:9px;margin-bottom:15px}.discovery-controls input,.discovery-controls select{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;padding:11px 12px;background:#fffefa;font:inherit;font-size:12px;color:var(--ink)}.founder-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.founder-result{border:1px solid var(--line);border-radius:10px;padding:15px;min-width:0;background:#fffefa}.founder-result-head{display:flex;gap:10px;align-items:flex-start}.founder-result .avatar{width:38px;height:38px;flex:0 0 38px;font-size:12px}.founder-result-name{min-width:0;flex:1}.founder-result-name strong{display:block;font-size:13px;overflow-wrap:anywhere}.founder-result-name small{display:block;color:var(--muted);font-size:10px;margin-top:3px;overflow-wrap:anywhere}.founder-result p{font-size:11px;line-height:1.65;color:#59675a;overflow-wrap:anywhere}.founder-result-tags{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}.founder-result-tags .tag{font-size:9px}.founder-result-actions{display:flex;align-items:center;gap:9px;margin-top:12px}.founder-result-actions .follow-btn{margin-left:auto}@media(max-width:600px){.discovery-controls,.founder-results{grid-template-columns:1fr}}.community-empty{padding:26px;text-align:center;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:10px}
+.founder-discovery{margin:0 0 22px}.discovery-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,260px);gap:9px;margin-bottom:15px}.discovery-controls input,.discovery-controls select{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;padding:11px 12px;background:#fffefa;font:inherit;font-size:12px;color:var(--ink)}.founder-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.founder-shortlist{margin-top:24px;border:1px solid var(--line);border-radius:13px;background:#f0f5e9;padding:18px}
+.founder-shortlist-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.founder-shortlist-head h3{font-family:var(--serif);font-weight:500;font-size:25px;margin:0 0 5px}
+.founder-shortlist-head p{font-size:11px;color:var(--muted);margin:0;line-height:1.6}
+.shortlist-list{display:grid;gap:9px}
+.shortlist-item{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid #dbe4d2;border-radius:10px;background:#fffefa;padding:11px}
+.shortlist-item-main{flex:1;min-width:130px}
+.shortlist-item-main strong{display:block;font-size:12px}
+.shortlist-item-main small{display:block;font-size:10px;color:var(--muted);margin-top:4px}
+.shortlist-item select{border:1px solid var(--line);border-radius:7px;background:#fff;padding:8px;font-size:10px;max-width:100%}
+.shortlist-actions{display:flex;gap:7px;flex-wrap:wrap}
+.shortlist-actions button{border:1px solid #cad9bd;border-radius:7px;background:#eff5e8;color:#35563a;padding:8px 10px;font-size:10px;font-weight:800;cursor:pointer}
+.shortlist-actions .shortlist-remove{background:#fff;border-color:var(--line);color:#667363}
+.founder-save-btn{border:1px solid #cad9bd;background:#eff5e8;color:#35563a;border-radius:7px;padding:7px 9px;font-size:10px;font-weight:800;cursor:pointer}
+.founder-save-btn.saved{background:#e0efce;border-color:#a9c58d}
+.founder-result{border:1px solid var(--line);border-radius:10px;padding:15px;min-width:0;background:#fffefa}.founder-result-head{display:flex;gap:10px;align-items:flex-start}.founder-result .avatar{width:38px;height:38px;flex:0 0 38px;font-size:12px}.founder-result-name{min-width:0;flex:1}.founder-result-name strong{display:block;font-size:13px;overflow-wrap:anywhere}.founder-result-name small{display:block;color:var(--muted);font-size:10px;margin-top:3px;overflow-wrap:anywhere}.founder-result p{font-size:11px;line-height:1.65;color:#59675a;overflow-wrap:anywhere}.founder-result-tags{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}.founder-result-tags .tag{font-size:9px}.founder-result-actions{display:flex;align-items:center;gap:9px;margin-top:12px}.founder-result-actions .follow-btn{margin-left:auto}@media(max-width:600px){.discovery-controls,.founder-results{grid-template-columns:1fr}}.community-empty{padding:26px;text-align:center;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:10px}
 @media(max-width:760px){.community-layout{grid-template-columns:1fr}.community-side{order:2}}
 \n.auth-modal{max-width:470px}.auth-tabs{display:flex;gap:8px;margin:18px 0}.auth-tabs button{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:10px;cursor:pointer;font-weight:750;font-size:12px}.auth-tabs button.active{background:#eaf2df;border-color:#c6d8b8}.auth-message{font-size:12px;line-height:1.6;margin:12px 0;color:#526653}.post-author-row{display:flex;align-items:center;gap:10px;margin-bottom:13px}.post-author-row strong{font-size:12px;display:block}.post-author-row small{font-size:10px;color:var(--muted)}.feed-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.message-inbox-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 9px;font-size:12px}.message-unread-total{background:#eaf2df;color:#31553a;border-radius:99px;padding:4px 8px;font-size:10px;font-weight:800}.conversation-search{width:100%;height:39px;border:1px solid var(--line);border-radius:8px;background:#fffefa;padding:0 11px;font-size:11px;margin:0 0 9px;outline:none}.conversation-search:focus{border-color:#8da98a}.conversation-list{display:grid;gap:7px;margin-bottom:16px;max-height:280px;overflow:auto}.conversation-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fffefa;text-align:left;cursor:pointer;color:var(--ink)}.conversation-item:hover,.conversation-item.active{border-color:#a8c29b;background:#f4f8ef}.conversation-avatar{width:34px;height:34px;flex:0 0 34px;border-radius:50%;display:grid;place-items:center;background:#eaf2df;color:#31553a;font-weight:850;font-size:11px}.conversation-copy{flex:1;min-width:0}.conversation-copy strong,.conversation-copy small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.conversation-copy strong{font-size:11px}.conversation-copy small{font-size:10px;color:var(--muted);margin-top:4px}.conversation-trailing{display:flex;flex-direction:column;align-items:flex-end;gap:5px}.conversation-time{font-size:9px;color:var(--muted)}.conversation-unread{min-width:17px;height:17px;padding:0 5px;display:grid;place-items:center;border-radius:99px;background:#31553a;color:white;font-size:9px;font-weight:850}.chat-panel{border:1px solid var(--line);border-radius:10px;padding:10px;background:#f8faf5}.chat-message-list{display:flex;flex-direction:column;gap:8px;max-height:320px!important}.chat-bubble{max-width:88%;align-self:flex-start;border:1px solid #e2e8dc;background:#fffefa;border-radius:11px 11px 11px 3px;padding:9px 11px;font-size:12px;line-height:1.6;overflow-wrap:anywhere;white-space:pre-wrap}.chat-bubble.mine{align-self:flex-end;background:#eaf2df;border-color:#d9e6cc;border-radius:11px 11px 3px 11px}.chat-bubble-meta{display:flex;justify-content:flex-end;gap:8px;margin-top:5px;font-size:9px;color:#6f7c6c}.chat-receipt{font-weight:800;color:#476a43}.typing-status{font-size:10px;color:#65775f;padding:7px 3px 2px;font-style:italic}.typing-status[hidden]{display:none}.feed-tab{border:1px solid var(--line);background:#fffefa;border-radius:8px;padding:9px 14px;font-size:11px;font-weight:800;color:#657064;cursor:pointer}.feed-tab.active{background:#eaf2df;border-color:#c6d8b8;color:#31553a}.profile-open{border:0;background:transparent;padding:0;text-align:left;cursor:pointer;color:inherit}.profile-open:hover strong{text-decoration:underline}.post-image{display:block;max-width:100%;max-height:460px;object-fit:contain;border-radius:10px;border:1px solid var(--line);margin:5px 0 12px}.post-topic-tags{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 13px}.post-attachment{margin-top:8px}.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:18px 0}.profile-stat{background:#eff3e9;border-radius:9px;padding:12px}.profile-stat strong{display:block;font-size:19px}.profile-stat span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:#71806f;margin-top:4px}.profile-bio{font-size:13px;line-height:1.7;color:#566359;white-space:pre-wrap}.profile-post{padding:13px 0;border-top:1px solid var(--line);font-size:12px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
 
@@ -227,6 +243,10 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
    <div id="dailyMatchStatus" class="muted-small" style="margin:0 0 12px" hidden></div>
    <div class="discovery-controls"><input id="founderSearch" type="search" maxlength="120" placeholder="Search skills, founders, startups…" aria-label="Search founders"><select id="founderIntent" aria-label="Filter founder goals"><option value="all">Everyone</option><option value="interests">People with shared interests</option><option value="collab">Open to co-founders / collaborators</option></select></div>
    <div id="founderResults" class="founder-results" aria-live="polite"><div class="community-empty">Loading founders…</div></div>
+   <section class="founder-shortlist" aria-labelledby="founderShortlistTitle">
+    <div class="founder-shortlist-head"><div><h3 id="founderShortlistTitle">⭐ Founder Shortlist</h3><p>Save promising founders and track your next step. Only you can see your shortlist.</p></div><span id="founderShortlistCount" class="tag">0 saved</span></div>
+    <div id="founderShortlistList" class="shortlist-list" aria-live="polite"><div class="community-empty">Sign in to keep a shortlist across devices.</div></div>
+   </section>
    <p class="muted-small" style="margin:13px 0 0">Tip: add interests, skills, and “Looking for” goals to improve your matches.</p>
   </div>
   <div class="community-hub" id="communityHub">
@@ -714,7 +734,21 @@ renderCases();
  const initials=v=>(String(v||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
  const display=p=>p.display_name||('@'+(p.username||'founder'));
  const safeUrl=v=>{try{const u=new URL(v);return u.protocol==='https:'||u.protocol==='http:'?u.href:''}catch{return ''}};
- let currentUser=null,rows=[],following=new Set(),ownSkills=[],ownInterests=[],ownNeeds='',ownText='',dailyMatchIds=[],communityCounts=new Map(),founderLevel=()=>1;
+ let currentUser=null,rows=[],allProfiles=[],following=new Set(),shortlist=new Map(),ownSkills=[],ownInterests=[],ownNeeds='',ownText='',dailyMatchIds=[],communityCounts=new Map(),founderLevel=()=>1;
+ function renderShortlist(){
+  const host=$('founderShortlistList'),count=$('founderShortlistCount');
+  if(!host||!count)return;
+  count.textContent=shortlist.size+' saved';
+  if(!currentUser){host.innerHTML='<div class="community-empty">Sign in to save founders and sync your shortlist across devices.</div>';return;}
+  if(!shortlist.size){host.innerHTML='<div class="community-empty">Your shortlist is empty. Save a founder from Discover to keep them here.</div>';return;}
+  const profileById=new Map(allProfiles.map(p=>[p.id,p]));
+  host.innerHTML=[...shortlist.entries()].map(([id,item])=>{
+   const p=profileById.get(id);
+   if(!p)return '';
+   const status=item.status||'Want to message';
+   return '<article class="shortlist-item"><div class="avatar">'+(safeUrl(p.avatar_url)?'<img src="'+safe(safeUrl(p.avatar_url))+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">':safe(initials(display(p))))+'</div><div class="shortlist-item-main"><strong>'+safe(display(p))+'</strong><small>@'+safe(p.username||'founder')+(p.company?' · '+safe(p.company):'')+'</small></div><label class="muted-small" for="shortlist-status-'+safe(id)+'">Next step</label><select id="shortlist-status-'+safe(id)+'" data-shortlist-status="'+safe(id)+'"><option'+(status==='Want to message'?' selected':'')+'>Want to message</option><option'+(status==='Messaged'?' selected':'')+'>Messaged</option><option'+(status==='Potential cofounder'?' selected':'')+'>Potential cofounder</option></select><div class="shortlist-actions"><button type="button" data-profile="'+safe(id)+'">View profile ↗</button><button type="button" data-message-profile="'+safe(id)+'">Message</button><button type="button" class="shortlist-remove" data-shortlist-remove="'+safe(id)+'">Remove</button></div></article>';
+  }).join('')||'<div class="community-empty">Saved founder profiles could not be found.</div>';
+ }
  function render(){
   const q=$('founderSearch').value.trim().toLowerCase().split(/\s+/).filter(Boolean),intent=$('founderIntent').value;
   let list=rows.filter(p=>p.id!==currentUser?.id&&(communityCounts.get(p.id)||0)>=1&&founderLevel(p)>=5);
@@ -729,14 +763,19 @@ renderCases();
   list.sort((a,b)=>matchInfo(b).score-matchInfo(a).score||(a.display_name||a.username||'').localeCompare(b.display_name||b.username||''));
   $('founderResults').innerHTML=list.slice(0,80).map(p=>{
    const skills=(p.skills||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,4),interests=interestList(p).slice(0,4),avatar=safeUrl(p.avatar_url),fit=matchInfo(p);
-   return '<article class="founder-result"><div class="founder-result-head"><button type="button" class="avatar profile-open" data-profile="'+safe(p.id)+'" aria-label="View '+safe(display(p))+'">'+(avatar?'<img src="'+safe(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">':safe(initials(display(p))))+'</button><div class="founder-result-name"><button type="button" class="profile-open" data-profile="'+safe(p.id)+'"><strong>'+safe(display(p))+'</strong></button><small>@'+safe(p.username||'founder')+(p.company?' · '+safe(p.company):'')+'</small><span class="tag" title="Match score based on shared interests, skills, and collaboration goals">Match score '+fit.score+'/100</span>'+(fit.reasons.length?'<small class="muted-small">Why: '+safe(fit.reasons.join(' · '))+'</small>':'')+'</div></div>'+(p.headline?'<p style="margin:10px 0 0;font-weight:750;color:#344b37">'+safe(p.headline)+'</p>':'')+(p.bio?'<p style="margin:7px 0">'+safe(p.bio.length>150?p.bio.slice(0,147)+'…':p.bio)+'</p>':'')+(p.looking_for?'<p style="margin:7px 0"><strong>Looking for:</strong> '+safe(p.looking_for)+'</p>':'')+((skills.length||interests.length)?'<div class="founder-result-tags">'+skills.map(x=>'<span class="tag">'+safe(x)+'</span>').join('')+interests.map(x=>'<span class="tag" style="background:#edf2e8">♡ '+safe(x)+'</span>').join('')+'</div>':'')+(p.location?'<small class="muted-small">'+safe(p.location)+'</small>':'')+'<div class="founder-result-actions"><button type="button" class="profile-open" data-profile="'+safe(p.id)+'" style="font-size:11px;font-weight:800;color:#31553a">View profile ↗</button><button type="button" class="follow-btn '+(following.has(p.id)?'following':'')+'" data-discovery-follow="'+safe(p.id)+'">'+(currentUser?(following.has(p.id)?'Following':'Follow'):'Log in')+'</button></div></article>';
+   return '<article class="founder-result"><div class="founder-result-head"><button type="button" class="avatar profile-open" data-profile="'+safe(p.id)+'" aria-label="View '+safe(display(p))+'">'+(avatar?'<img src="'+safe(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">':safe(initials(display(p))))+'</button><div class="founder-result-name"><button type="button" class="profile-open" data-profile="'+safe(p.id)+'"><strong>'+safe(display(p))+'</strong></button><small>@'+safe(p.username||'founder')+(p.company?' · '+safe(p.company):'')+'</small><span class="tag" title="Match score based on shared interests, skills, and collaboration goals">Match score '+fit.score+'/100</span>'+(fit.reasons.length?'<small class="muted-small">Why: '+safe(fit.reasons.join(' · '))+'</small>':'')+'</div></div>'+(p.headline?'<p style="margin:10px 0 0;font-weight:750;color:#344b37">'+safe(p.headline)+'</p>':'')+(p.bio?'<p style="margin:7px 0">'+safe(p.bio.length>150?p.bio.slice(0,147)+'…':p.bio)+'</p>':'')+(p.looking_for?'<p style="margin:7px 0"><strong>Looking for:</strong> '+safe(p.looking_for)+'</p>':'')+((skills.length||interests.length)?'<div class="founder-result-tags">'+skills.map(x=>'<span class="tag">'+safe(x)+'</span>').join('')+interests.map(x=>'<span class="tag" style="background:#edf2e8">♡ '+safe(x)+'</span>').join('')+'</div>':'')+(p.location?'<small class="muted-small">'+safe(p.location)+'</small>':'')+'<div class="founder-result-actions"><button type="button" class="profile-open" data-profile="'+safe(p.id)+'" style="font-size:11px;font-weight:800;color:#31553a">View profile ↗</button><button type="button" class="founder-save-btn '+(shortlist.has(p.id)?'saved':'')+'" data-shortlist-save="'+safe(p.id)+'">'+(shortlist.has(p.id)?'★ Saved':'＋ Save founder')+'</button><button type="button" class="follow-btn '+(following.has(p.id)?'following':'')+'" data-discovery-follow="'+safe(p.id)+'">'+(currentUser?(following.has(p.id)?'Following':'Follow'):'Log in')+'</button></div></article>';
   }).join('')||'<div class="community-empty" style="grid-column:1/-1">No founders match those filters yet. Try another search or update your profile.</div>';
  }
  async function load(){
   const auth=await c.auth.getUser();currentUser=auth.data?.user||null;
   const [pr,fr]=await Promise.all([c.from('profiles').select('id,username,display_name,bio,headline,company,location,skills,interests,looking_for,avatar_url,created_at').order('created_at',{ascending:false}).limit(500),currentUser?c.from('follows').select('following_id').eq('follower_id',currentUser.id):Promise.resolve({data:[]})]);
   if(pr.error){$('founderResults').innerHTML='<div class="community-empty">Could not load founders. Please refresh and try again.</div>';return}
-  rows=pr.data||[];following=new Set((fr.data||[]).map(x=>x.following_id));
+  allProfiles=pr.data||[];rows=allProfiles.slice();following=new Set((fr.data||[]).map(x=>x.following_id));shortlist=new Map();
+  if(currentUser){
+   const saved=await c.from('founder_shortlists').select('founder_id,status,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+   if(!saved.error)(saved.data||[]).forEach(x=>shortlist.set(x.founder_id,{status:x.status,created_at:x.created_at}));
+  }
+  renderShortlist();
   // Discovery is for established, active community members only.
   const [memberships,followersResult,postsResult,commentsResult]=await Promise.all([
    c.from('community_members').select('user_id,community_id'),
@@ -779,12 +818,41 @@ renderCases();
  }
  $('founderSearch').addEventListener('input',render);$('founderIntent').addEventListener('change',render);
  $('founderResults').addEventListener('click',async e=>{
+  const saveButton=e.target.closest('[data-shortlist-save]');
+  if(saveButton){
+   if(!currentUser){$('navAccount').click();return;}
+   const id=saveButton.dataset.shortlistSave;
+   if(shortlist.has(id)){
+    const removed=await c.from('founder_shortlists').delete().eq('user_id',currentUser.id).eq('founder_id',id);
+    if(removed.error){alert('Could not remove founder: '+removed.error.message);return;}
+    shortlist.delete(id);
+   }else{
+    const added=await c.from('founder_shortlists').insert({user_id:currentUser.id,founder_id:id,status:'Want to message'});
+    if(added.error){alert('Could not save founder: '+added.error.message);return;}
+    shortlist.set(id,{status:'Want to message',created_at:new Date().toISOString()});
+   }
+   render();renderShortlist();return;
+  }
   const b=e.target.closest('[data-discovery-follow]');if(!b)return;
   if(!currentUser){$('navAccount').click();return}
   const id=b.dataset.discoveryFollow,exists=following.has(id);
   const r=exists?await c.from('follows').delete().eq('follower_id',currentUser.id).eq('following_id',id):await c.from('follows').insert({follower_id:currentUser.id,following_id:id});
   if(r.error){alert('Could not update follow: '+r.error.message);return}
   await load();
+ });
+ $('founderShortlistList').addEventListener('change',async e=>{
+  const select=e.target.closest('[data-shortlist-status]');if(!select||!currentUser)return;
+  const id=select.dataset.shortlistStatus,status=select.value;
+  const result=await c.from('founder_shortlists').update({status,updated_at:new Date().toISOString()}).eq('user_id',currentUser.id).eq('founder_id',id);
+  if(result.error){alert('Could not update shortlist status: '+result.error.message);await load();return;}
+  if(shortlist.has(id))shortlist.set(id,{...shortlist.get(id),status});
+ });
+ $('founderShortlistList').addEventListener('click',async e=>{
+  const button=e.target.closest('[data-shortlist-remove]');if(!button)return;
+  if(!currentUser)return;
+  const id=button.dataset.shortlistRemove,result=await c.from('founder_shortlists').delete().eq('user_id',currentUser.id).eq('founder_id',id);
+  if(result.error){alert('Could not remove founder: '+result.error.message);return;}
+  shortlist.delete(id);render();renderShortlist();
  });
  c.auth.onAuthStateChange(()=>setTimeout(load,0));
  load();
