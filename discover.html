@@ -45,7 +45,7 @@
 .follow-btn{border:1px solid #cad9bd;background:#eff5e8;color:#35563a;border-radius:7px;padding:7px 9px;font-size:10px;font-weight:800;cursor:pointer}
 .follow-btn.following{background:#fff;border-color:var(--line);color:#6d796f}
 .founder-discovery{margin:0 0 22px}.discovery-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,260px);gap:9px;margin-bottom:15px}.discovery-controls input,.discovery-controls select{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;padding:11px 12px;background:#fffefa;font:inherit;font-size:12px;color:var(--ink)}.founder-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.founder-shortlist{margin-top:24px;border:1px solid var(--line);border-radius:13px;background:#f0f5e9;padding:18px}
+.founder-dashboard{margin-top:20px;border:1px solid var(--line);border-radius:13px;background:#fffefa;padding:18px}.founder-dashboard-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}.founder-dashboard-head h3{font-family:var(--serif);font-weight:500;font-size:25px;margin:0 0 5px}.founder-dashboard-head p{font-size:11px;color:var(--muted);margin:0;line-height:1.6}.founder-dashboard-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.founder-dashboard-stat{padding:12px;border:1px solid var(--line);border-radius:10px;background:#f8f8f2;min-width:0}.founder-dashboard-stat strong{display:block;font-size:22px;line-height:1.2;font-family:var(--serif);font-weight:500}.founder-dashboard-stat span{display:block;margin-top:5px;color:var(--muted);font-size:9px;line-height:1.4}.founder-dashboard-lower{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:16px}.founder-dashboard-panel{min-width:0;border:1px solid var(--line);border-radius:10px;padding:13px}.founder-dashboard-panel h4{font-size:12px;margin:0 0 9px}.founder-history-list{display:grid;gap:8px}.founder-history-item{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid #eceee6;min-width:0}.founder-history-item:last-child{border-bottom:0}.founder-history-avatar{width:32px;height:32px;flex:0 0 32px;border-radius:50%;background:#e7eddf;display:grid;place-items:center;font-size:10px;font-weight:800;overflow:hidden}.founder-history-avatar img{width:100%;height:100%;object-fit:cover}.founder-history-main{min-width:0;flex:1}.founder-history-main strong{display:block;font-size:10px;overflow-wrap:anywhere}.founder-history-main small{display:block;color:var(--muted);font-size:9px;margin-top:3px}.founder-history-pill{font-size:8px;font-weight:800;padding:5px 7px;border-radius:99px;background:#edf1e8;color:#53654b;white-space:nowrap}.founder-history-pill.negative{background:#f6e9e2;color:#814b37}.founder-trend-bar{height:7px;border-radius:99px;background:#ecefe7;overflow:hidden;margin:8px 0}.founder-trend-bar span{display:block;height:100%;background:#789966;border-radius:99px}.founder-trend-row{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--muted)}.founder-dashboard-guidance{margin-top:12px;padding:10px;border-radius:8px;background:#f0f5e9;font-size:10px;line-height:1.6;color:#52634d}.founder-dashboard-link{border:1px solid var(--line);background:#fffefa;color:var(--ink);padding:7px 10px;border-radius:8px;font-size:10px;font-weight:800;cursor:pointer}@media(max-width:620px){.founder-dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.founder-dashboard-lower{grid-template-columns:1fr}}.founder-shortlist{margin-top:24px;border:1px solid var(--line);border-radius:13px;background:#f0f5e9;padding:18px}
 .founder-shortlist-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .founder-shortlist-head h3{font-family:var(--serif);font-weight:500;font-size:25px;margin:0 0 5px}
 .founder-shortlist-head p{font-size:11px;color:var(--muted);margin:0;line-height:1.6}
@@ -246,6 +246,15 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
    <div id="dailyMatchStatus" class="muted-small" style="margin:0 0 12px" hidden></div>
    <div class="discovery-controls"><input id="founderSearch" type="search" maxlength="120" placeholder="Search skills, founders, startups…" aria-label="Search founders"><select id="founderIntent" aria-label="Filter founder goals"><option value="all">Everyone</option><option value="interests">People with shared interests</option><option value="collab">Open to co-founders / collaborators</option></select></div>
    <div id="founderResults" class="founder-results" aria-live="polite"><div class="community-empty">Loading founders…</div></div>
+   <section class="founder-dashboard" aria-labelledby="founderDashboardTitle">
+    <div class="founder-dashboard-head"><div><h3 id="founderDashboardTitle">📊 Your Match Dashboard</h3><p>See who you’ve met through Discover, what you’ve saved, and how your feedback shapes future picks.</p></div><button type="button" id="matchDashboardRefresh" class="founder-dashboard-link">Refresh stats ↻</button></div>
+    <div id="founderDashboardStats" class="founder-dashboard-stats" aria-live="polite"><div class="community-empty">Loading your match stats…</div></div>
+    <div class="founder-dashboard-lower">
+     <section class="founder-dashboard-panel" aria-labelledby="founderHistoryTitle"><h4 id="founderHistoryTitle">Recent match history</h4><div id="founderMatchHistory" class="founder-history-list"><div class="community-empty">Sign in to see your match history.</div></div></section>
+     <section class="founder-dashboard-panel" aria-labelledby="founderTrendTitle"><h4 id="founderTrendTitle">Feedback trends</h4><div id="founderFeedbackTrends"><div class="community-empty">Rate matches to build your trend.</div></div></section>
+    </div>
+    <div class="founder-dashboard-guidance">How matching adapts: marking someone <strong>Relevant</strong> adds a boost to their ranking when future picks are assembled. <strong>Not relevant</strong> removes them from future picks. Your six-new-matches-per-day limit still applies.</div>
+   </section>
    <section class="founder-shortlist" aria-labelledby="founderShortlistTitle">
     <div class="founder-shortlist-head"><div><h3 id="founderShortlistTitle">⭐ Founder Shortlist</h3><p>Save promising founders and track your next step. Only you can see your shortlist.</p></div><span id="founderShortlistCount" class="tag">0 saved</span></div>
     <div class="shortlist-filters">
@@ -741,7 +750,20 @@ renderCases();
  const initials=v=>(String(v||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
  const display=p=>p.display_name||('@'+(p.username||'founder'));
  const safeUrl=v=>{try{const u=new URL(v);return u.protocol==='https:'||u.protocol==='http:'?u.href:''}catch{return ''}};
- let currentUser=null,rows=[],allProfiles=[],following=new Set(),shortlist=new Map(),matchFeedback=new Map(),ownSkills=[],ownInterests=[],ownNeeds='',ownText='',dailyMatchIds=[],communityCounts=new Map(),founderLevel=()=>1;
+ let currentUser=null,rows=[],allProfiles=[],following=new Set(),shortlist=new Map(),matchFeedback=new Map(),matchFeedbackRows=[],matchHistory=[],ownSkills=[],ownInterests=[],ownNeeds='',ownText='',dailyMatchIds=[],communityCounts=new Map(),founderLevel=()=>1;
+ function renderMatchDashboard(){
+  const stats=$('founderDashboardStats'),history=$('founderMatchHistory'),trends=$('founderFeedbackTrends');
+  if(!stats||!history||!trends)return;
+  if(!currentUser){stats.innerHTML='<div class="community-empty" style="grid-column:1/-1">Sign in to track recommendations, shortlist progress, and feedback trends.</div>';history.innerHTML='<div class="community-empty">Your match history appears here after you sign in.</div>';trends.innerHTML='<div class="community-empty">Sign in and rate recommendations to build your trend.</div>';return;}
+  const total=matchHistory.length,positive=matchFeedbackRows.filter(x=>x.feedback==='relevant').length,negative=matchFeedbackRows.filter(x=>x.feedback==='not_relevant').length,answered=positive+negative,rate=answered?Math.round(positive/answered*100):null;
+  stats.innerHTML='<div class="founder-dashboard-stat"><strong>'+total+'</strong><span>Recent recommendations tracked</span></div><div class="founder-dashboard-stat"><strong>'+shortlist.size+'</strong><span>Founders saved</span></div><div class="founder-dashboard-stat"><strong>'+answered+'</strong><span>Recommendations rated</span></div><div class="founder-dashboard-stat"><strong>'+(rate===null?'—':rate+'%')+'</strong><span>Marked relevant</span></div>';
+  const profileById=new Map(allProfiles.map(p=>[p.id,p]));
+  const recent=matchHistory.slice(0,12);
+  history.innerHTML=recent.map(item=>{const p=profileById.get(item.candidate_id);if(!p)return '';const value=matchFeedback.get(p.id),pill=value==='relevant'?'<span class="founder-history-pill">Relevant</span>':value==='not_relevant'?'<span class="founder-history-pill negative">Not relevant</span>':shortlist.has(p.id)?'<span class="founder-history-pill">Saved</span>':'<span class="founder-history-pill">Seen</span>';return '<article class="founder-history-item"><div class="founder-history-avatar">'+(safeUrl(p.avatar_url)?'<img src="'+safe(safeUrl(p.avatar_url))+'" alt="">':safe(initials(display(p))))+'</div><div class="founder-history-main"><strong>'+safe(display(p))+'</strong><small>'+safe(p.company||p.headline||'Venturify founder')+' · '+safe(new Date(item.created_at||item.match_date).toLocaleDateString())+'</small></div>'+pill+'</article>';}).join('')||'<div class="community-empty">No match history yet. Your daily recommendations will appear here.</div>';
+  const now=Date.now(),week=7*86400000,recentRows=matchFeedbackRows.filter(x=>now-new Date(x.updated_at||x.created_at).getTime()<=week),olderRows=matchFeedbackRows.filter(x=>now-new Date(x.updated_at||x.created_at).getTime()>week),positiveRate=arr=>arr.length?Math.round(arr.filter(x=>x.feedback==='relevant').length/arr.length*100):null,recentRate=positiveRate(recentRows),olderRate=positiveRate(olderRows);
+  const trendLine=(label,value)=>'<div class="founder-trend-row"><span>'+label+'</span><strong>'+(value===null?'Not enough ratings':value+'% relevant')+'</strong></div>'+(value===null?'':'<div class="founder-trend-bar"><span style="width:'+value+'%"></span></div>');
+  trends.innerHTML='<div class="founder-trend-row"><span>Overall relevance</span><strong>'+(rate===null?'—':rate+'%')+'</strong></div><div class="founder-trend-bar"><span style="width:'+(rate===null?0:rate)+'%"></span></div>'+trendLine('Last 7 days',recentRate)+trendLine('Earlier feedback',olderRate)+(recentRate!==null&&olderRate!==null?'<p class="muted-small" style="margin:8px 0 0">Recent ratings are '+(recentRate>olderRate?'up '+(recentRate-olderRate)+' points':recentRate<olderRate?'down '+(olderRate-recentRate)+' points':'unchanged')+' compared with earlier feedback.</p>':'<p class="muted-small" style="margin:8px 0 0">Keep rating recommendations; after a week of feedback, this panel can compare recent ratings with earlier ones.</p>');
+ }
  function renderShortlist(){
   const host=$('founderShortlistList'),count=$('founderShortlistCount');
   if(!host||!count)return;
@@ -808,8 +830,8 @@ renderCases();
    const saved=await c.from('founder_shortlists').select('founder_id,status,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false});
    if(!saved.error)(saved.data||[]).forEach(x=>shortlist.set(x.founder_id,{status:x.status,created_at:x.created_at}));
   }
-  if(currentUser){const feedbackResult=await c.from('founder_match_feedback').select('candidate_id,feedback').eq('viewer_id',currentUser.id);matchFeedback=new Map();if(!feedbackResult.error)(feedbackResult.data||[]).forEach(x=>matchFeedback.set(x.candidate_id,x.feedback));}else{matchFeedback=new Map();}
-  renderShortlist();
+  if(currentUser){const feedbackResult=await c.from('founder_match_feedback').select('candidate_id,feedback,created_at,updated_at').eq('viewer_id',currentUser.id).order('updated_at',{ascending:false});matchFeedback=new Map();matchFeedbackRows=feedbackResult.error?[]:(feedbackResult.data||[]);matchFeedbackRows.forEach(x=>matchFeedback.set(x.candidate_id,x.feedback));}else{matchFeedback=new Map();matchFeedbackRows=[];matchHistory=[];}
+  renderShortlist();renderMatchDashboard();
   // Discovery is for established, active community members only.
   const [memberships,followersResult,postsResult,commentsResult]=await Promise.all([
    c.from('community_members').select('user_id,community_id'),
@@ -847,10 +869,13 @@ renderCases();
     if(next.length){let saveError=null;for(const p of next){const saved=await c.from('founder_match_impressions').insert({viewer_id:currentUser.id,candidate_id:p.id});if(saved.error){saveError=saved.error;break;}dailyMatchIds.push(p.id);}if(saveError){const retry=await c.from('founder_match_impressions').select('candidate_id').eq('viewer_id',currentUser.id).eq('match_date',today);if(!retry.error)dailyMatchIds=(retry.data||[]).map(x=>x.candidate_id);}}
     $('dailyMatchStatus').hidden=false;$('dailyMatchStatus').textContent='Your personalized matches today: '+dailyMatchIds.length+' of 6 free daily matches. Add interests, skills, and “Looking for” to your profile for better picks. New picks refresh tomorrow.';
    }
-  }else{$('dailyMatchStatus').hidden=true;}
-  render();
+   const historyResult=await c.from('founder_match_impressions').select('candidate_id,match_date,created_at').eq('viewer_id',currentUser.id).order('created_at',{ascending:false}).limit(100);
+   matchHistory=historyResult.error?[]:(historyResult.data||[]);
+  }else{$('dailyMatchStatus').hidden=true;matchHistory=[];}
+  renderMatchDashboard();render();
  }
  $('founderSearch').addEventListener('input',render);$('founderIntent').addEventListener('change',render);
+ $('matchDashboardRefresh')?.addEventListener('click',()=>load());
  $('founderResults').addEventListener('click',async e=>{
   const feedbackButton=e.target.closest('[data-match-feedback]');
   if(feedbackButton){
@@ -859,7 +884,7 @@ renderCases();
    if(!id||!['relevant','not_relevant'].includes(value))return;
    const saved=await c.from('founder_match_feedback').upsert({viewer_id:currentUser.id,candidate_id:id,feedback:value,updated_at:new Date().toISOString()},{onConflict:'viewer_id,candidate_id'});
    if(saved.error){alert('Could not save recommendation feedback. Please try again.');return;}
-   matchFeedback.set(id,value);render();
+   matchFeedback.set(id,value);const existing=matchFeedbackRows.find(x=>x.candidate_id===id);if(existing){existing.feedback=value;existing.updated_at=new Date().toISOString();}else matchFeedbackRows.unshift({candidate_id:id,feedback:value,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});renderMatchDashboard();render();
    $('dailyMatchStatus').textContent='Feedback saved. Your future daily matches will use this preference. You can rate up to 6 new recommendations each day.';
    return;
   }
