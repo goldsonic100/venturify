@@ -58,4 +58,17 @@ assert.match(html, /\.modal\{width:100%;max-height:92dvh/,
 assert.match(html, /\.feed-tabs\{display:flex;flex-wrap:nowrap;overflow-x:auto/,
   'Feed tabs must scroll instead of forcing the page wider');
 
+assert.match(html, /c\.from\('likes'\)\.select\('post_id'\)\.eq\('user_id',currentUser\.id\)/,
+  'Personalized discovery should read the signed-in user’s liked posts when available');
+assert.match(html, /followedProfiles=rows\.filter\(p=>following\.has\(p\.id\)\)/,
+  'Personalized discovery should learn topics from founders the user follows');
+assert.match(html, /wordsFrom\(p\.content\)/,
+  'Personalized discovery should learn topics from liked post content');
+assert.match(html, /Math\.min\(activityMatches,3\)\*6/,
+  'Daily recommendation ranking should reward overlap with activity-derived topics');
+assert.match(html, /activityBonus=Math\.min\(activityMatches\.length,3\)\*6/,
+  'Displayed match scores should reflect activity-derived topics consistently');
+assert.match(html, /Based on your activity/,
+  'Match explanations should identify activity-based recommendations');
+
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery regression checks passed.');
