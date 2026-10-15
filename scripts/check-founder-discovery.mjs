@@ -21,7 +21,7 @@ assert.match(html, /Math\.min\(sharedInterestCount,3\)\*12/,
   'Daily ranking should prioritize shared interests');
 assert.match(html, /Math\.min\(sharedInterests\.length,3\)\*12/,
   'Displayed match scores should prioritize shared interests');
-assert.match(html, /reasons\.push\('Shared: '\+sharedInterests\.slice\(0,2\)\.join\(', '\)\)/,
+assert.match(html, /reasons\.push\('Shared interests: '\+sharedInterests\.slice\(0,2\)\.join\(', '\)\)/,
   'Match explanations should show actual shared interests');
 assert.match(html, /Match score '\+fit\.score\+'\/100/,
   'Cards should display match scores out of 100');
