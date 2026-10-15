@@ -148,6 +148,14 @@ assert.match(html, /aHelp=\[\.\.\.askA\]\.filter\(x=>skillsB\.has\(x\)\),bHelp=\
 
 // Founder shortlist regression checks (Discover page + Supabase-backed privacy).
 const discoverHtml = readFileSync(new URL('../discover.html', import.meta.url), 'utf8');
+assert.match(discoverHtml, /founder-match-insights/,
+  'Founder cards should show a dedicated match-insights panel');
+assert.match(discoverHtml, /Shared interests:/,
+  'Match insights should explain shared interests');
+assert.match(discoverHtml, /Complementary skills:/,
+  'Match insights should explain complementary skills');
+assert.match(discoverHtml, /Collaboration goals:/,
+  'Match insights should explain collaboration goals');
 assert.match(discoverHtml, /Founder Shortlist/,
   'Discover should show a dedicated founder shortlist');
 assert.match(discoverHtml, /data-shortlist-save=/,
