@@ -750,7 +750,7 @@ renderCases();
  const initials=v=>(String(v||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
  const display=p=>p.display_name||('@'+(p.username||'founder'));
  const safeUrl=v=>{try{const u=new URL(v);return u.protocol==='https:'||u.protocol==='http:'?u.href:''}catch{return ''}};
- let currentUser=null,rows=[],allProfiles=[],following=new Set(),shortlist=new Map(),matchFeedback=new Map(),matchFeedbackRows=[],matchHistory=[],ownSkills=[],ownInterests=[],ownNeeds='',ownText='',dailyMatchIds=[],communityCounts=new Map(),founderLevel=()=>1;
+ let currentUser=null,rows=[],allProfiles=[],following=new Set(),shortlist=new Map(),matchFeedback=new Map(),matchFeedbackRows=[],matchHistory=[],ownSkills=[],ownInterests=[],ownNeeds='',ownText='',dailyMatchIds=[],communityCounts=new Map(),communityIdsByUser=new Map(),communityNames=new Map(),ownCommunityIds=new Set(),founderLevel=()=>1;
  function renderMatchDashboard(){
   const stats=$('founderDashboardStats'),history=$('founderMatchHistory'),trends=$('founderFeedbackTrends');
   if(!stats||!history||!trends)return;
@@ -799,18 +799,20 @@ renderCases();
   const matchInfo=p=>{
    const theirs=skillList(p),shared=theirs.filter(x=>ownSkills.includes(x));
    const theirInterests=normalizeTokens(p.interests),sharedInterests=theirInterests.filter(x=>ownInterests.includes(x));
+   const sharedCommunityIds=(communityIdsByUser.get(p.id)||new Set());const sharedCommunities=[...sharedCommunityIds].filter(id=>ownCommunityIds.has(id)).map(id=>communityNames.get(id)).filter(Boolean);
    const needs=normalizeTokens(ownNeeds),candidateNeeds=normalizeTokens(p.looking_for);
    const complement=theirs.filter(x=>needs.some(n=>n===x||n.includes(x)||x.includes(n)));
    const helps=ownSkills.filter(x=>candidateNeeds.some(n=>n===x||n.includes(x)||x.includes(n)));
    const collab=/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||'');
    const theirText=[p.headline,p.company,p.bio,p.interests].filter(Boolean).join(' ').toLowerCase();
    const words=[...new Set(ownText.split(/\W+/).filter(x=>x.length>3))],sharedTopics=words.filter(x=>theirText.includes(x));
-   const score=Math.min(100,Math.min(sharedInterests.length,3)*12+Math.min(shared.length,3)*7+Math.min(complement.length,2)*8+Math.min(helps.length,2)*6+(collab?5:0)+Math.min(sharedTopics.length,2)*5);
+   const score=Math.min(100,Math.min(sharedInterests.length,3)*12+Math.min(shared.length,3)*7+Math.min(complement.length,2)*8+Math.min(helps.length,2)*6+Math.min(sharedCommunities.length,2)*8+(collab?5:0)+Math.min(sharedTopics.length,2)*5);
    const reasons=[],insights=[];
    if(sharedInterests.length){reasons.push('Shared: '+sharedInterests.slice(0,2).join(', '));insights.push('Shared interests: '+sharedInterests.slice(0,3).join(', '))}
    if(complement.length){reasons.push('Skills you need');insights.push('Skills that fit your goals: '+complement.slice(0,3).join(', '))}
    if(helps.length){reasons.push('Skills they need');insights.push('Your skills may fit their goals: '+helps.slice(0,3).join(', '))}
    if(shared.length){reasons.push('Shared skills');insights.push('Shared skills: '+shared.slice(0,3).join(', '))}
+   if(sharedCommunities.length){reasons.push('Same communities');insights.push('Communities you both joined: '+sharedCommunities.slice(0,3).join(', '))}
    if(sharedTopics.length){reasons.push('Similar topics');insights.push('Related profile topics: '+sharedTopics.slice(0,3).join(', '))}
    if(collab){reasons.push('Open to collaboration');insights.push('Collaboration goals: their profile says they are open to a cofounder, partner, or teammate')}
    return {score,reasons:reasons.slice(0,2),insights:insights.slice(0,4)}
@@ -840,8 +842,9 @@ renderCases();
    c.from('comments').select('user_id')
   ]);
   const memberRows=memberships.error?[]:(memberships.data||[]);
-  communityCounts=new Map();const followerCounts=new Map(),postCounts=new Map(),commentCounts=new Map();
-  memberRows.forEach(x=>communityCounts.set(x.user_id,(communityCounts.get(x.user_id)||0)+1));
+  communityCounts=new Map();communityIdsByUser=new Map();communityNames=new Map();ownCommunityIds=new Set();const followerCounts=new Map(),postCounts=new Map(),commentCounts=new Map();
+  memberRows.forEach(x=>{communityCounts.set(x.user_id,(communityCounts.get(x.user_id)||0)+1);if(!communityIdsByUser.has(x.user_id))communityIdsByUser.set(x.user_id,new Set());communityIdsByUser.get(x.user_id).add(x.community_id)});
+  const communityNameResult=await c.from('communities').select('id,name');if(!communityNameResult.error)(communityNameResult.data||[]).forEach(x=>communityNames.set(x.id,x.name));
   (followersResult.data||[]).forEach(x=>followerCounts.set(x.following_id,(followerCounts.get(x.following_id)||0)+1));
   (postsResult.data||[]).forEach(x=>postCounts.set(x.user_id,(postCounts.get(x.user_id)||0)+1));
   (commentsResult.data||[]).forEach(x=>{if(x.user_id)commentCounts.set(x.user_id,(commentCounts.get(x.user_id)||0)+1)});
@@ -852,7 +855,7 @@ renderCases();
    return Math.min(100,1+Math.floor(Math.sqrt(points/5)));
   };
   rows=rows.filter(p=>p.id===currentUser?.id||((communityCounts.get(p.id)||0)>=1&&founderLevel(p)>=5));
-  const mine=rows.find(p=>p.id===currentUser?.id);ownSkills=(mine?.skills||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);ownInterests=(mine?.interests||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);ownNeeds=mine?.looking_for||'';ownText=[mine?.headline,mine?.company,mine?.bio,mine?.interests].filter(Boolean).join(' ').toLowerCase();
+  const mine=rows.find(p=>p.id===currentUser?.id);ownSkills=(mine?.skills||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);ownInterests=(mine?.interests||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);ownNeeds=mine?.looking_for||'';ownText=[mine?.headline,mine?.company,mine?.bio,mine?.interests].filter(Boolean).join(' ').toLowerCase();ownCommunityIds=communityIdsByUser.get(currentUser?.id)||new Set();
   dailyMatchIds=[];
   if(currentUser){
    const today=new Date().toISOString().slice(0,10);
@@ -863,7 +866,7 @@ renderCases();
     const candidateRows=rows.filter(p=>p.id!==currentUser.id&&!dailyMatchIds.includes(p.id)&&matchFeedback.get(p.id)!=='not_relevant');
     const tokens=v=>(v||'').toLowerCase().split(/[,;|\n]+/).map(x=>x.trim()).filter(Boolean);
     const mySkills=tokens(mine?.skills),myInterests=tokens(mine?.interests),myNeeds=(mine?.looking_for||'').toLowerCase(),myText=[mine?.headline,mine?.company,mine?.bio,mine?.interests].filter(Boolean).join(' ').toLowerCase();
-    const score=p=>{const theirSkills=tokens(p.skills),theirInterests=tokens(p.interests),shared=theirSkills.filter(x=>mySkills.includes(x)).length,sharedInterestCount=theirInterests.filter(x=>myInterests.includes(x)).length,needs=tokens(myNeeds),candidateNeeds=tokens(p.looking_for),needMatches=theirSkills.filter(x=>needs.some(n=>n===x||n.includes(x)||x.includes(n))).length,helps=mySkills.filter(x=>candidateNeeds.some(n=>n===x||n.includes(x)||x.includes(n))).length,collab=/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''),theirText=[p.headline,p.company,p.bio,p.interests].filter(Boolean).join(' ').toLowerCase(),words=[...new Set(myText.split(/\W+/).filter(x=>x.length>3))],sharedTopics=words.filter(x=>theirText.includes(x)).length,base=Math.min(100,Math.min(sharedInterestCount,3)*12+Math.min(shared,3)*7+Math.min(needMatches,2)*8+Math.min(helps,2)*6+(collab?5:0)+Math.min(sharedTopics,2)*5);return base+(matchFeedback.get(p.id)==='relevant'?15:0)};
+    const score=p=>{const theirSkills=tokens(p.skills),theirInterests=tokens(p.interests),shared=theirSkills.filter(x=>mySkills.includes(x)).length,sharedInterestCount=theirInterests.filter(x=>myInterests.includes(x)).length,needs=tokens(myNeeds),candidateNeeds=tokens(p.looking_for),needMatches=theirSkills.filter(x=>needs.some(n=>n===x||n.includes(x)||x.includes(n))).length,helps=mySkills.filter(x=>candidateNeeds.some(n=>n===x||n.includes(x)||x.includes(n))).length,sharedCommunityCount=[...(communityIdsByUser.get(p.id)||new Set())].filter(id=>ownCommunityIds.has(id)).length,collab=/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''),theirText=[p.headline,p.company,p.bio,p.interests].filter(Boolean).join(' ').toLowerCase(),words=[...new Set(myText.split(/\W+/).filter(x=>x.length>3))],sharedTopics=words.filter(x=>theirText.includes(x)).length,base=Math.min(100,Math.min(sharedInterestCount,3)*12+Math.min(shared,3)*7+Math.min(needMatches,2)*8+Math.min(helps,2)*6+Math.min(sharedCommunityCount,2)*8+(collab?5:0)+Math.min(sharedTopics,2)*5);return base+(matchFeedback.get(p.id)==='relevant'?15:0)};
     candidateRows.sort((a,b)=>score(b)-score(a)||(a.display_name||a.username||'').localeCompare(b.display_name||b.username||''));
     const needed=Math.max(0,6-dailyMatchIds.length),next=candidateRows.slice(0,needed);
     if(next.length){let saveError=null;for(const p of next){const saved=await c.from('founder_match_impressions').insert({viewer_id:currentUser.id,candidate_id:p.id});if(saved.error){saveError=saved.error;break;}dailyMatchIds.push(p.id);}if(saveError){const retry=await c.from('founder_match_impressions').select('candidate_id').eq('viewer_id',currentUser.id).eq('match_date',today);if(!retry.error)dailyMatchIds=(retry.data||[]).map(x=>x.candidate_id);}}
