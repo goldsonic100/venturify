@@ -179,6 +179,14 @@ assert.match(discoverHtml, /founder-match-insights/,
   'Founder cards should show a dedicated match-insights panel');
 assert.match(discoverHtml, /Shared interests:/,
   'Match insights should explain shared interests');
+assert.match(discoverHtml, /c\.from\('communities'\)\.select\('id,name'\)/,
+  'Discovery should load community names for shared-community explanations');
+assert.match(discoverHtml, /Math\.min\(sharedCommunities\.length,2\)\*8/,
+  'Displayed match scores should reward up to two shared communities');
+assert.match(discoverHtml, /sharedCommunityCount=.*Math\.min\(sharedCommunityCount,2\)\*8/,
+  'Daily recommendations should also reward shared communities');
+assert.match(discoverHtml, /Communities you both joined:/,
+  'Match insights should name the communities shared by both founders');
 assert.match(discoverHtml, /Complementary skills:/,
   'Match insights should explain complementary skills');
 assert.match(discoverHtml, /Collaboration goals:/,
