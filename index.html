@@ -720,7 +720,7 @@ renderCases();
   let list=rows.filter(p=>p.id!==currentUser?.id&&(communityCounts.get(p.id)||0)>=1&&founderLevel(p)>=5);
   if(currentUser)list=list.filter(p=>dailyMatchIds.includes(p.id));
   if(intent==='collab')list=list.filter(p=>/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''));
-  const interestList=p=>(p.interests||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);
+  const interestList=p=>[...new Set((p.interests||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g,' ')).filter(Boolean))];
   if(intent==='interests')list=list.filter(p=>interestList(p).some(x=>ownInterests.includes(x)));
   if(q.length)list=list.filter(p=>{const hay=[p.display_name,p.username,p.headline,p.company,p.location,p.skills,p.interests,p.looking_for,p.bio].join(' ').toLowerCase();return q.every(t=>hay.includes(t))});
   const normalizeTokens=v=>[...new Set((v||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g,' ')).filter(Boolean))];
@@ -757,7 +757,7 @@ renderCases();
    return Math.min(100,1+Math.floor(Math.sqrt(points/5)));
   };
   rows=rows.filter(p=>p.id===currentUser?.id||((communityCounts.get(p.id)||0)>=1&&founderLevel(p)>=5));
-  const mine=rows.find(p=>p.id===currentUser?.id);ownSkills=(mine?.skills||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);ownInterests=(mine?.interests||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);ownNeeds=mine?.looking_for||'';ownText=[mine?.headline,mine?.company,mine?.bio,mine?.interests].filter(Boolean).join(' ').toLowerCase();
+  const mine=rows.find(p=>p.id===currentUser?.id);ownSkills=(mine?.skills||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g,' ')).filter(Boolean);ownInterests=(mine?.interests||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g,' ')).filter(Boolean);ownNeeds=mine?.looking_for||'';ownText=[mine?.headline,mine?.company,mine?.bio,mine?.interests].filter(Boolean).join(' ').toLowerCase();
   dailyMatchIds=[];
   if(currentUser){
    const today=new Date().toISOString().slice(0,10);
