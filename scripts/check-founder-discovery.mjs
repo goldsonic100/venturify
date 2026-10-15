@@ -161,6 +161,20 @@ assert.match(discoverHtml, /matchFeedback\.get\(p\.id\)==='relevant'\?15:0/,
 assert.match(discoverHtml, /Math\.max\(0,6-dailyMatchIds\.length\)/,
   'Personalized daily recommendations should remain capped at six');
 
+assert.match(discoverHtml, /id="founderDashboardTitle"/,
+  'Discover should include a founder match dashboard');
+assert.match(discoverHtml, /id="founderMatchHistory"/,
+  'Dashboard should show recent match history');
+assert.match(discoverHtml, /id="founderFeedbackTrends"/,
+  'Dashboard should show feedback trends');
+assert.match(discoverHtml, /founder_match_impressions.*limit\(100\)/,
+  'Dashboard should load recent impressions for the signed-in user');
+assert.match(discoverHtml, /Recent recommendations tracked/,
+  'Dashboard should summarize tracked recommendations');
+assert.match(discoverHtml, /Last 7 days/,
+  'Dashboard should compare recent feedback trends');
+assert.match(discoverHtml, /id="matchDashboardRefresh"/,
+  'Dashboard should allow refreshing its stats');
 assert.match(discoverHtml, /founder-match-insights/,
   'Founder cards should show a dedicated match-insights panel');
 assert.match(discoverHtml, /Shared interests:/,
