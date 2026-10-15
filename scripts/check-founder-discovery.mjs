@@ -32,4 +32,7 @@ assert.match(html, /data-discovery-follow=/,
 assert.match(html, /data-profile=/,
   'Founder cards must retain the profile link');
 
+assert.ok((html.match(/replace\(\/\^#\+\//g) || []).length >= 2,
+  'Daily ranking and displayed match scores should normalize hashtag-prefixed tokens consistently');
+
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery regression checks passed.');
