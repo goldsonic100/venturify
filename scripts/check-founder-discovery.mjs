@@ -141,5 +141,9 @@ assert.match(html, /compareText\(p\.looking_for\)/,
   'Comparison should show each founder’s collaboration goals');
 assert.match(html, /founderCompareBackdrop/,
   'Comparison should open in an accessible modal');
+assert.match(html, /data-message-profile=/,
+  'Comparison should provide a direct way to message each founder');
+assert.match(html, /aHelp=\[\.\.\.askA\]\.filter\(x=>skillsB\.has\(x\)\),bHelp=\[\.\.\.askB\]\.filter\(x=>skillsA\.has\(x\)\)/,
+  'Complementary skill comparison should check both directions');
 
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery regression checks passed.');
