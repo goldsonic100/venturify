@@ -103,12 +103,23 @@ body[data-view="notifications"] #notificationPage{display:block!important}
 body[data-view="notifications"] .notification-wrap{display:none}
 @media(max-width:720px){.topbar{align-items:flex-start;flex-wrap:wrap}.app-nav-links{width:100%;overflow-x:auto;padding-bottom:4px}.app-nav-links a{font-size:11px;padding:7px 9px}}
 
+
+/* Independent content destinations */
+.notification-view-all{display:block;padding:11px 14px;border-top:1px solid var(--line);font-size:12px;font-weight:800;color:var(--deep);text-decoration:none}
+body[data-view="case-studies"] .hero,body[data-view="case-studies"] #community,body[data-view="case-studies"] #method,body[data-view="case-studies"] #submit{display:none!important}
+body[data-view="case-studies"] #library{display:block!important;padding-top:34px}
+body[data-view="principles"] .hero,body[data-view="principles"] #community,body[data-view="principles"] #library,body[data-view="principles"] #submit{display:none!important}
+body[data-view="principles"] #method{display:block!important;padding-top:34px}
+body[data-view="share-story"] .hero,body[data-view="share-story"] #community,body[data-view="share-story"] #library,body[data-view="share-story"] #method{display:none!important}
+body[data-view="share-story"] #submit{display:block!important;padding-top:34px}
+body[data-view="case-studies"] .footer,body[data-view="principles"] .footer,body[data-view="share-story"] .footer{display:block!important}
+
 </style>
 </head>
 <body data-view="messages">
 <header class="topbar wrap">
   <a class="brand" href="index.html" aria-label="Venturify home"><span class="brand-mark">v.</span> venturify</a>
-  <nav class="nav" aria-label="Main navigation"><a href="communities.html">Communities</a><a href="messages.html">Messages</a><div class="notification-wrap"><button type="button" id="notificationButton" class="notification-button" aria-expanded="false" aria-controls="notificationPanel">🔔 Notifications <span id="notificationCount" class="notification-count" hidden>0</span></button><div id="notificationPanel" class="notification-panel" hidden><div class="notification-panel-head"><strong>Notifications</strong><button type="button" id="markAllNotifications" class="mark-all">Mark all read</button></div><div id="notificationList"><div class="notification-empty">Log in to see notifications.</div></div></div></div><a href="#" id="navAccount">Log in</a><a href="index.html#library">Case studies</a><a href="index.html#method">Our principles</a><a class="nav-cta" href="index.html#submit" data-submit>Share a story ↗</a><div class="app-nav-links" aria-label="Venturify app">
+  <nav class="nav" aria-label="Main navigation"><a href="communities.html">Communities</a><a href="messages.html">Messages</a><div class="notification-wrap"><button type="button" id="notificationButton" class="notification-button" aria-expanded="false" aria-controls="notificationPanel">🔔 Notifications <span id="notificationCount" class="notification-count" hidden>0</span></button><div id="notificationPanel" class="notification-panel" hidden><div class="notification-panel-head"><strong>Notifications</strong><button type="button" id="markAllNotifications" class="mark-all">Mark all read</button></div><div id="notificationList"><div class="notification-empty">Log in to see notifications.</div></div><a class="notification-view-all" href="notifications.html">View all notifications →</a></div></div><a href="#" id="navAccount">Log in</a><a href="index.html#library">Case studies</a><a href="index.html#method">Our principles</a><a class="nav-cta" href="index.html#submit" data-submit>Share a story ↗</a><div class="app-nav-links" aria-label="Venturify app">
     <a href="feed.html" data-app-view="feed">Feed</a>
     <a href="discover.html" data-app-view="discover">Discover</a>
     <a href="communities.html" data-app-view="communities">Communities</a>
