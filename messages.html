@@ -523,10 +523,10 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   ]);
   if(membersResult.error||messagesResult.error){box.innerHTML='<div class="muted-small">Could not load recent conversations. Try refreshing.</div>';return}
   const messages=messagesResult.data||[];
-  const messageIds=messages.map(m=>m.id);
-  const readsResult=messageIds.length?await client.rpc('get_my_message_read_ids',{requested_message_ids:messageIds}):{data:[],error:null};
-  if(readsResult.error){box.innerHTML='<div class="muted-small">Could not sync read status. Please refresh.</div>';return}
-  const readIds=new Set((readsResult.data||[]).map(r=>r.message_id));
+  // Fetch complete unread totals separately from the inbox's 1,000-message preview.
+  const unreadResult=await client.rpc('get_my_unread_message_counts');
+  if(unreadResult.error){box.innerHTML='<div class="muted-small">Could not sync unread counts. Please refresh.</div>';return}
+  const unreadCounts=new Map((unreadResult.data||[]).map(row=>[row.conversation_id,Number(row.unread_count)||0]));
   const otherIds=[...new Set((membersResult.data||[]).filter(m=>m.user_id!==user.id).map(m=>m.user_id))];
   const profileResult=otherIds.length?await client.from('profiles').select('id,username,display_name,avatar_url').in('id',otherIds):{data:[],error:null};
   if(profileResult.error){box.innerHTML='<div class="muted-small">Could not load conversation profiles.</div>';return}
@@ -536,7 +536,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
    if(!other)return null;
    const msgs=messages.filter(m=>m.conversation_id===id);
    const latest=msgs[0];
-   const unread=msgs.filter(m=>m.sender_id!==user.id&&!readIds.has(m.id)).length;
+   const unread=unreadCounts.get(id)||0;
    return {id,otherId:other.user_id,person:profileMap.get(other.user_id)||{display_name:'Venturify member'},latest,unread};
   }).filter(Boolean).sort((a,b)=>new Date(b.latest?.created_at||0)-new Date(a.latest?.created_at||0));
   const unreadTotal=conversations.reduce((sum,item)=>sum+item.unread,0);
