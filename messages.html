@@ -635,7 +635,14 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(!currentConversation)return;
   const r=await client.from('messages').insert({conversation_id:currentConversation,sender_id:user.id,content});
   if(r.error)notice('Message failed: '+r.error.message);
-  else{$('messageText').value='';await setTyping(false);await showMessages(otherId);await loadConversationList()}
+  else{
+   $('messageText').value='';await setTyping(false);
+   // Keep Discover's private founder shortlist in sync with real outreach.
+   // This is best-effort: a shortlist update must never turn a sent message into a reported failure.
+   const shortlistUpdate=await client.from('founder_shortlists').update({status:'Messaged',updated_at:new Date().toISOString()}).eq('user_id',user.id).eq('founder_id',otherId);
+   await showMessages(otherId);await loadConversationList();
+   if(!shortlistUpdate.error&&shortlistUpdate.count!==0)notice('Message sent. Your saved founder’s next step is now “Messaged.”');
+  }
  });
 
 window.venturifyIsAuthenticated=()=>!!user;
