@@ -506,7 +506,7 @@ $('feed').addEventListener('click',async e=>{
  if(focus)$('feed').querySelector('[data-comment-input="'+focus.dataset.focus+'"]')?.focus();
 });
  document.addEventListener('click',async e=>{const mention=e.target.closest('[data-profile-username]');if(!mention)return;const username=mention.dataset.profileUsername;if(!/^[A-Za-z0-9_]{1,30}$/.test(username))return;mention.disabled=true;const result=await client.from('profiles').select('id').ilike('username',username).maybeSingle();mention.disabled=false;if(result.error||!result.data){notice('That username was not found.');return}showProfile(result.data.id)});
-let currentConversation=null,currentConversationChannel=null,currentTypingChannel=null,currentReadChannel=null,globalMessageChannel=null,globalMessageRealtimeUser=null,messagingSessionUserId=null,typingCleanupTimer=null;
+let currentConversation=null,currentConversationChannel=null,currentTypingChannel=null,currentReadChannel=null,globalMessageChannel=null,globalMessageRealtimeUser=null,messagingSessionUserId=null,typingCleanupTimer=null;let conversationOpenRequest=0;
  let activeConversationOtherId=null,activeConversationMessages=[];
  function filteredConversationList(){const search=$('conversationSearch')?.value?.trim().toLowerCase()||'';document.querySelectorAll('#conversationList [data-open-conversation]').forEach(button=>{button.hidden=!!search&&!button.textContent.toLowerCase().includes(search)})}
  async function loadConversationList(){
@@ -588,10 +588,13 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(!user)return loginRequired();if(!otherId)return;
   $('messagePerson').value=otherId;
   if(otherId===user.id){notice('Choose another founder to start a conversation.');return}
+  const requestId=++conversationOpenRequest,requestingUserId=user.id;
   // Clear the previous chat before requesting another one. If the RPC fails,
   // sending must never fall back to the conversation that was open previously.
   if(activeConversationOtherId!==otherId)stopActiveConversationRealtime();
   const direct=await client.rpc('get_or_create_direct_conversation',{target_user_id:otherId});
+  // Ignore out-of-order RPC responses if the user selected a different founder meanwhile.
+  if(requestId!==conversationOpenRequest||!user||user.id!==requestingUserId)return;
   if(direct.error||!direct.data){currentConversation=null;activeConversationOtherId=null;notice('Could not start chat: '+(direct.error?.message||'Please try again.'));return}
   const conversationId=direct.data;
   if(currentConversation!==conversationId)stopActiveConversationRealtime();
