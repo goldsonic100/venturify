@@ -788,7 +788,8 @@ renderCases();
  }
  function render(){
   const q=$('founderSearch').value.trim().toLowerCase().split(/\s+/).filter(Boolean),intent=$('founderIntent').value;
-  const hasProfileInfo=p=>[p.headline,p.bio,p.company,p.skills,p.interests,p.looking_for].some(v=>typeof v==='string'&&v.trim().length>0);\n  let list=rows.filter(p=>p.id!==currentUser?.id&&hasProfileInfo(p)&&(communityCounts.get(p.id)||0)>=1&&founderLevel(p)>=5);
+  const hasProfileInfo=p=>[p.headline,p.bio,p.company,p.skills,p.interests,p.looking_for].some(v=>typeof v==='string'&&v.trim().length>0);
+  let list=rows.filter(p=>p.id!==currentUser?.id&&hasProfileInfo(p)&&(communityCounts.get(p.id)||0)>=1&&founderLevel(p)>=5);
   if(currentUser)list=list.filter(p=>dailyMatchIds.includes(p.id));
   if(intent==='collab')list=list.filter(p=>/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''));
   const interestList=p=>(p.interests||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);
