@@ -605,26 +605,34 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
  async function startPendingDirectMessage(){if(!user||!pendingDirectMessage)return;const target=pendingDirectMessage;pendingDirectMessage=null;await openConversation(target);const cleanUrl=new URL(window.location.href);cleanUrl.searchParams.delete('to');window.history.replaceState({},'',cleanUrl.pathname+cleanUrl.search+cleanUrl.hash)}
  async function showMessages(otherId){
   if(!currentConversation||!user)return;
-  const r=await client.from('messages').select('id,sender_id,content,created_at').eq('conversation_id',currentConversation).order('created_at').limit(100);
+  // Snapshot the target before any network request; a user may switch chats while a query is in flight.
+  const conversationId=currentConversation,sessionUserId=user.id;
+  if(activeConversationOtherId!==otherId)return;
+  const stillViewing=()=>!!user&&user.id===sessionUserId&&currentConversation===conversationId&&activeConversationOtherId===otherId;
+  const r=await client.from('messages').select('id,sender_id,content,created_at').eq('conversation_id',conversationId).order('created_at').limit(100);
+  if(!stillViewing())return;
   if(r.error){$('chatMessages').innerHTML='<div class="muted-small">'+esc(r.error.message)+'</div>';return}
-  activeConversationMessages=r.data||[];
-  const incoming=activeConversationMessages.filter(m=>m.sender_id!==user.id);
+  const messages=r.data||[];
+  const incoming=messages.filter(m=>m.sender_id!==sessionUserId);
   if(incoming.length){
-   const readResult=await client.from('message_reads').upsert(incoming.map(m=>({message_id:m.id,user_id:user.id})),{onConflict:'message_id,user_id',ignoreDuplicates:true});
+   const readResult=await client.from('message_reads').upsert(incoming.map(m=>({message_id:m.id,user_id:sessionUserId})),{onConflict:'message_id,user_id',ignoreDuplicates:true});
+   if(!stillViewing())return;
    if(readResult.error)console.warn('Read receipts could not be saved',readResult.error.message);
   }
-  const outgoing=activeConversationMessages.filter(m=>m.sender_id===user.id),outIds=outgoing.map(m=>m.id);
-  const reads=outIds.length?await client.from('message_reads').select('message_id,read_at').in('message_id',outIds).neq('user_id',user.id):{data:[]};
+  const outgoing=messages.filter(m=>m.sender_id===sessionUserId),outIds=outgoing.map(m=>m.id);
+  const reads=outIds.length?await client.from('message_reads').select('message_id,read_at').in('message_id',outIds).neq('user_id',sessionUserId):{data:[]};
+  if(!stillViewing())return;
   const readMap=new Map((reads.data||[]).map(x=>[x.message_id,x.read_at]));
   const p=people.find(x=>x.id===otherId);
   $('messageStatus').textContent='Private conversation with '+name(p)+'. Read receipts and typing status appear when both people use the updated chat.';
-  $('chatMessages').innerHTML=activeConversationMessages.map(m=>{
-   const mine=m.sender_id===user.id,readAt=readMap.get(m.id);
+  activeConversationMessages=messages;
+  $('chatMessages').innerHTML=messages.map(m=>{
+   const mine=m.sender_id===sessionUserId,readAt=readMap.get(m.id);
    return '<div class="chat-bubble '+(mine?'mine':'')+'">'+esc(m.content)+'<div class="chat-bubble-meta"><span>'+esc(new Date(m.created_at).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}))+'</span>'+(mine&&readAt?'<span class="chat-receipt">Seen</span>':'')+'</div></div>';
   }).join('')||'<div class="muted-small">Start the conversation below.</div>';
   $('chatMessages').scrollTop=$('chatMessages').scrollHeight;
-  try{localStorage.setItem('venturify-read-'+user.id+'-'+currentConversation,new Date().toISOString())}catch{}
-  await loadConversationList();
+  try{localStorage.setItem('venturify-read-'+sessionUserId+'-'+conversationId,new Date().toISOString())}catch{}
+  if(stillViewing())await loadConversationList();
  }
  $('messagePerson').addEventListener('change',e=>{if(e.target.value)openConversation(e.target.value)});
  $('messageText').addEventListener('input',()=>{if(currentConversation&&user)setTyping(!!$('messageText').value.trim())});
