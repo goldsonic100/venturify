@@ -847,7 +847,7 @@ renderCases();
  }
  async function load(){
   const auth=await c.auth.getUser();currentUser=auth.data?.user||null;
-  const [pr,fr]=await Promise.all([c.from('profiles').select('id,username,display_name,bio,headline,company,location,skills,interests,looking_for,avatar_url,created_at').order('created_at',{ascending:false}).limit(500),currentUser?c.from('follows').select('following_id').eq('follower_id',currentUser.id):Promise.resolve({data:[]})]);
+  const [pr,fr]=await Promise.all([c.from('profiles').select('id,username,display_name,bio,headline,company,location,skills,interests,looking_for,avatar_url,website_url,linkedin_url,created_at').order('created_at',{ascending:false}).limit(500),currentUser?c.from('follows').select('following_id').eq('follower_id',currentUser.id):Promise.resolve({data:[]})]);
   if(pr.error){$('founderResults').innerHTML='<div class="community-empty">Could not load founders. Please refresh and try again.</div>';return}
   rows=pr.data||[];following=new Set((fr.data||[]).map(x=>x.following_id));
   // Discovery is for established, active community members only.
@@ -864,7 +864,7 @@ renderCases();
   (postsResult.data||[]).forEach(x=>postCounts.set(x.user_id,(postCounts.get(x.user_id)||0)+1));
   (commentsResult.data||[]).forEach(x=>{if(x.user_id)commentCounts.set(x.user_id,(commentCounts.get(x.user_id)||0)+1)});
   founderLevel=p=>{
-   const filled=[p.bio,p.headline,p.company,p.location,p.skills,p.interests,p.looking_for,p.avatar_url].filter(v=>String(v||'').trim()).length;
+   const filled=[p.bio,p.headline,p.company,p.location,p.skills,p.interests,p.looking_for,p.avatar_url,p.website_url,p.linkedin_url].filter(v=>String(v||'').trim()).length;
    const ageDays=p.created_at?Math.max(0,Math.floor((Date.now()-new Date(p.created_at).getTime())/86400000)):0;
    const points=ageDays+(followerCounts.get(p.id)||0)*2+(postCounts.get(p.id)||0)*3+(commentCounts.get(p.id)||0)+(communityCounts.get(p.id)||0)*3+Math.min(20,Math.round(filled/9*20));
    return Math.min(100,1+Math.floor(Math.sqrt(points/5)));
