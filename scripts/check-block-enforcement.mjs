@@ -16,13 +16,16 @@ const checks = [
   ['conversation membership checked for messages', /from public\.conversation_members cm[\s\S]*?where cm\.conversation_id\s*=\s*messages\.conversation_id/i],
   ['posts use author_id', /posts\.author_id/i],
   ['comments use author_id', /comments\.author_id/i],
-  ['comment policy joins posts using author_id', /p\.author_id/i],
+  ['comment policy uses secure post-author predicate', /not private\.is_post_author_blocked\(comments\.post_id\)/i],
+  ['predicate is security definer with locked search path', /create or replace function private\.is_post_author_blocked[\s\S]*?security definer[\s\S]*?set search_path = ''/i],
+  ['predicate execution not granted to anon/public', /revoke all on function private\.is_post_author_blocked\(uuid\) from public, anon/i],
 ];
 for (const [label, pattern] of checks) {
   assert.match(sql, pattern, `Missing or malformed requirement: ${label}`);
 }
 assert.match(schema, /create table if not exists public\.posts[\s\S]*?author_id uuid not null/i, 'Repository schema must define posts.author_id');
 assert.match(schema, /create table if not exists public\.comments[\s\S]*?author_id uuid not null/i, 'Repository schema must define comments.author_id');
+assert.ok(sql.includes('as ' + '$') && sql.includes(';' + '\n' + '$' + ';'), 'SQL function body must use valid dollar quoting');
 assert.doesNotMatch(sql, /\b(?:posts|comments|p)\.user_id\b/i, 'Migration must not reference nonexistent user_id columns on posts/comments');
 assert.doesNotMatch(sql, /create policy[\s\S]{0,300}?\b(?:using|with check)\s*\(\s*true\s*\)/i, 'Do not introduce broad always-true access policies');
-console.log(`Block-enforcement static checks passed (${checks.length + 3} assertions). These checks do not replace live PostgreSQL/RLS integration tests.`);
+console.log(`Block-enforcement static checks passed (${checks.length + 6} assertions). These checks do not replace live PostgreSQL/RLS integration tests.`);
