@@ -1,0 +1,29 @@
+name: Block enforcement checks
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/20261017000000_enforce_user_blocks.sql'
+      - 'scripts/check-block-enforcement.mjs'
+      - '.github/workflows/block-enforcement-checks.yml'
+  push:
+    branches:
+      - feature/enforce-user-blocks
+    paths:
+      - 'supabase/migrations/20261017000000_enforce_user_blocks.sql'
+      - 'scripts/check-block-enforcement.mjs'
+      - '.github/workflows/block-enforcement-checks.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  block-enforcement:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check block-enforcement migration
+        run: node scripts/check-block-enforcement.mjs
