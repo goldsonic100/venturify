@@ -56,7 +56,7 @@ language sql
 stable
 security definer
 set search_path = ''
-as $
+as $block$
   select exists (
     select 1
     from public.posts p
@@ -65,7 +65,7 @@ as $
       or (b.blocked_id = (select auth.uid()) and b.blocker_id = p.author_id)
     where p.id = p_post_id
   );
-$;
+$block$;
 
 revoke all on function private.is_post_author_blocked(uuid) from public, anon;
 grant execute on function private.is_post_author_blocked(uuid) to authenticated;
