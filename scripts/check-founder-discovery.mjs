@@ -193,7 +193,12 @@ assert.match(discoverHtml, /Collaboration goals:/,
   'Match insights should explain collaboration goals');
 assert.match(discoverHtml, /Founder Shortlist/,
   'Discover should show a dedicated founder shortlist');
-assert.match(discoverHtml, /hasProfileInfo=p=>\[p\.headline,p\.bio,p\.company,p\.skills,p\.interests,p\.looking_for\]\.some\(v=>typeof v==='string'&&v\.trim\(\)\.length>0\)/,\n  'Discovery should hide low-information profiles while allowing founders with meaningful profile details');\nassert.match(discoverHtml, /communityCounts\.get\(p\.id\)\|\|0\)>=1&&founderLevel\(p\)>=5/,\n  'Discovery must still require at least one community and Level 5+');\n\nassert.match(discoverHtml, /data-shortlist-save=/,
+assert.match(discoverHtml, /hasProfileInfo=p=>\[p\.headline,p\.bio,p\.company,p\.skills,p\.interests,p\.looking_for\]\.some\(v=>typeof v==='string'&&v\.trim\(\)\.length>0\)/,
+  'Discovery should hide low-information profiles while allowing founders with meaningful profile details');
+assert.match(discoverHtml, /communityCounts\.get\(p\.id\)\|\|0\)>=1&&founderLevel\(p\)>=5/,
+  'Discovery must still require at least one community and Level 5+');
+
+assert.match(discoverHtml, /data-shortlist-save=/,
   'Founder cards should provide a save/unsave shortlist control');
 assert.match(discoverHtml, /from\('founder_shortlists'\)\.select\('founder_id,status,created_at'\)/,
   'Discover should load saved founders and their next-step status from Supabase');
