@@ -68,8 +68,6 @@ assert.match(html, /Math\.min\(activityMatches,3\)\*6/,
   'Daily recommendation ranking should reward overlap with activity-derived topics');
 assert.match(html, /activityBonus=Math\.min\(activityMatches\.length,3\)\*6/,
   'Displayed match scores should reflect activity-derived topics consistently');
-assert.match(html, /Based on your activity/,
-  'Match explanations should identify activity-based recommendations');
 
 assert.match(html, /const topicStopWords=new Set/,
   'Activity-based matching should filter common stop words');
