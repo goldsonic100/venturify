@@ -16,9 +16,9 @@ create index if not exists user_blocks_blocked_idx
 create table if not exists public.content_reports (
   id uuid primary key default gen_random_uuid(),
   reporter_id uuid not null references public.profiles(id) on delete cascade,
-  reported_user_id uuid references public.profiles(id) on delete set null,
-  post_id uuid references public.posts(id) on delete set null,
-  comment_id uuid references public.comments(id) on delete set null,
+  reported_user_id uuid references public.profiles(id) on delete cascade,
+  post_id uuid references public.posts(id) on delete cascade,
+  comment_id uuid references public.comments(id) on delete cascade,
   reason text not null check (reason in (
     'spam', 'harassment', 'fake_or_misleading', 'scam', 'privacy',
     'inappropriate_content', 'other'
