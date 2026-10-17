@@ -44,20 +44,39 @@ using (
   )
 );
 
+-- A normal policy subquery would be filtered by the restrictive post SELECT
+-- policy and could fail to see a blocked author's post. Use a narrowly scoped
+-- SECURITY DEFINER predicate to check the target post's author without exposing
+-- hidden post data to the caller.
+create schema if not exists private;
+
+create or replace function private.is_post_author_blocked(p_post_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $
+  select exists (
+    select 1
+    from public.posts p
+    join public.user_blocks b
+      on (b.blocker_id = (select auth.uid()) and b.blocked_id = p.author_id)
+      or (b.blocked_id = (select auth.uid()) and b.blocker_id = p.author_id)
+    where p.id = p_post_id
+  );
+$;
+
+revoke all on function private.is_post_author_blocked(uuid) from public, anon;
+grant execute on function private.is_post_author_blocked(uuid) to authenticated;
+
 create policy "Blocked accounts cannot comment on each other's posts"
 on public.comments
 as restrictive
 for insert
 to authenticated
 with check (
-  not exists (
-    select 1
-    from public.posts p
-    join public.user_blocks b
-      on (b.blocker_id = (select auth.uid()) and b.blocked_id = p.author_id)
-      or (b.blocked_id = (select auth.uid()) and b.blocker_id = p.author_id)
-    where p.id = comments.post_id
-  )
+  not private.is_post_author_blocked(comments.post_id)
 );
 
 create policy "Blocked accounts cannot read conversation messages"
