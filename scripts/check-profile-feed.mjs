@@ -7,7 +7,7 @@ const files = {
 };
 
 function compileInlineScripts(name, html) {
-  const scripts = [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)]
+  const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
     .filter(([, source]) => source.trim());
   assert.ok(scripts.length, `${name}.html should contain inline application scripts`);
   for (const [index, match] of scripts.entries()) {
@@ -27,7 +27,7 @@ for (const id of [
   'profileHeadline', 'profileCompany', 'profileSkills', 'profileInterests',
   'profileLookingFor', 'profileAvatarUrl', 'profileWebsite', 'profileLinkedin'
 ]) {
-  assert.match(profile, new RegExp('id=["\\']' + id + '["\\']'), `Profile editor must retain #${id}`);
+  assert.ok(profile.includes('id="' + id + '"') || profile.includes("id='" + id + "'"), `Profile editor must retain #${id}`);
 }
 assert.match(profile, /safeProfileUrl\s*=\s*value\s*=>/, 'Profile URLs must pass through the safe URL helper');
 assert.match(profile, /profileClient\.from\(['"]follows['"]\)/, 'Public profiles should keep follower/following data');
