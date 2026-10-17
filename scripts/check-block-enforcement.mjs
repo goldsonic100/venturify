@@ -25,6 +25,6 @@ for (const [label, pattern] of checks) {
 }
 assert.match(schema, /create table if not exists public\.posts[\s\S]*?author_id uuid not null/i, 'Repository schema must define posts.author_id');
 assert.match(schema, /create table if not exists public\.comments[\s\S]*?author_id uuid not null/i, 'Repository schema must define comments.author_id');
-assert.ok(sql.includes('as $block), 'Migration function bodies should use tagged dollar quotes');
+assert.ok(sql.includes('as $block$'), 'Migration function bodies should use tagged dollar quotes');
 
 console.log('Passed: block-enforcement migration and schema regression checks.');
