@@ -87,9 +87,9 @@
     if (id === user.id) { status('You cannot block your own account.'); return; }
     if (!confirm('Block this founder? You can unblock them later from your blocked-account settings.')) return;
     $('ventSafetyBlock').disabled = true;
-    const {error} = await client.from('user_blocks').insert({blocker_id:user.id, blocked_id:id});
+    const {error} = await client.from('user_blocks').upsert({blocker_id:user.id, blocked_id:id}, {onConflict:'blocker_id,blocked_id', ignoreDuplicates:true});
     $('ventSafetyBlock').disabled = false;
-    if (error && error.code !== '23505') { status(error.code === '42P01' || error.code === 'PGRST205' ? 'Blocking is not set up yet. Apply the trust-safety SQL migration first.' : 'Could not block this account. Check that the migration is applied and try again.'); return; }
+    if (error) { status(error.code === '42P01' || error.code === 'PGRST205' ? 'Blocking is not set up yet. Apply the trust-safety SQL migration first.' : 'Could not block this account. Check that the migration is applied and try again.'); return; }
     status('Account blocked. Full filtering across feeds and messages is the next enforcement step.');
   });
 })();
