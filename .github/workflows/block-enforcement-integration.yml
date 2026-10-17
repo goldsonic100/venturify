@@ -1,0 +1,48 @@
+name: Block enforcement PostgreSQL integration tests
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/20261017000000_enforce_user_blocks.sql'
+      - 'supabase/tests/block-enforcement-fixture.sql'
+      - 'supabase/tests/block-enforcement-integration.sql'
+      - '.github/workflows/block-enforcement-integration.yml'
+  push:
+    branches:
+      - feature/enforce-user-blocks
+    paths:
+      - 'supabase/migrations/20261017000000_enforce_user_blocks.sql'
+      - 'supabase/tests/block-enforcement-fixture.sql'
+      - 'supabase/tests/block-enforcement-integration.sql'
+      - '.github/workflows/block-enforcement-integration.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  postgres-rls:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: venturify_rls_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d venturify_rls_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build disposable RLS fixture
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d venturify_rls_test -v ON_ERROR_STOP=1 -f supabase/tests/block-enforcement-fixture.sql
+      - name: Apply candidate migration and assert block behavior
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -U postgres -d venturify_rls_test -v ON_ERROR_STOP=1 -f supabase/tests/block-enforcement-integration.sql
