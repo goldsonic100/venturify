@@ -68,7 +68,7 @@ assert.match(html, /Math\.min\(activityMatches,3\)\*6/,
   'Daily recommendation ranking should reward overlap with activity-derived topics');
 assert.match(html, /activityBonus=Math\.min\(activityMatches\.length,3\)\*6/,
   'Displayed match scores should reflect activity-derived topics consistently');
-assert.match(html, /Based on your activity/,
+assert.match(html, /reasons\.push\('Matches your activity: '/,
   'Match explanations should identify activity-based recommendations');
 
 assert.match(html, /const topicStopWords=new Set/,
@@ -105,7 +105,7 @@ assert.match(html, /feedbackByCandidate\.get\(profile\.id\)==='relevant'\?4:-5/,
   'Relevant feedback should reinforce profile topics and not-relevant feedback should discourage them');
 assert.match(html, /feedbackBonus=Math\.max\(-15,Math\.min\(15,feedbackSignal\)\)/,
   'Learned topic influence should be capped so feedback cannot dominate every other match signal');
-assert.match(html, /reasons\.push\('Matches feedback you liked'\)/,
+assert.match(html, /reasons\.push\('Fits feedback/,
   'Match explanations should identify when feedback preferences influenced a recommendation');
 assert.match(html, /learnedTopicWeights\.get\(word\)\|\|0/,
   'Both daily ranking and displayed scores should use learned topic preferences');
@@ -187,7 +187,7 @@ assert.match(discoverHtml, /sharedCommunityCount=.*Math\.min\(sharedCommunityCou
   'Daily recommendations should also reward shared communities');
 assert.match(discoverHtml, /Communities you both joined:/,
   'Match insights should name the communities shared by both founders');
-assert.match(discoverHtml, /Complementary skills:/,
+assert.match(discoverHtml, /Skills that fit your goals:|Your skills may fit their goals:/,
   'Match insights should explain complementary skills');
 assert.match(discoverHtml, /Collaboration goals:/,
   'Match insights should explain collaboration goals');
