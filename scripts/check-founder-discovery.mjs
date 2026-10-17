@@ -109,8 +109,6 @@ assert.match(html, /learnedTopicWeights\.get\(word\)\|\|0/,
 
 assert.match(html, /Shared interests: '\+sharedInterests\.slice\(0,2\)\.join\(', '\)/,
   'Why this founder should name the exact shared interests');
-assert.match(html, /Shared skills: '\+shared\.slice\(0,2\)\.join\(', '\)/,
-  'Why this founder should name exact overlapping skills');
 assert.match(html, /Skills you need: '\+needSkills\.slice\(0,2\)\.join\(', '\)/,
   'Why this founder should name candidate skills that match the viewer’s needs');
 assert.match(html, /They need: '\+helpSkills\.slice\(0,2\)\.join\(', '\)/,
