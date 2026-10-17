@@ -26,7 +26,7 @@ for (const [label, pattern] of checks) {
 assert.match(schema, /create table if not exists public\.posts[\s\S]*?author_id uuid not null/i, 'Repository schema must define posts.author_id');
 assert.match(schema, /create table if not exists public\.comments[\s\S]*?author_id uuid not null/i, 'Repository schema must define comments.author_id');
 assert.ok(sql.includes('as $block$') && sql.includes('$block$;'), 'SQL function body must use valid tagged dollar quoting');
-assert.doesNotMatch(sql, /\\b(?:posts|comments|p)\\.user_id\\b/i, 'Migration must not reference nonexistent user_id columns on posts/comments');
+assert.doesNotMatch(sql, /\b(?:posts|comments|p)\.user_id\b/i, 'Migration must not reference nonexistent user_id columns on posts/comments');
 assert.doesNotMatch(sql, /create policy[\s\S]{0,300}?\b(?:using|with check)\s*\(\s*true\s*\)/i, 'Do not introduce broad always-true access policies');
 console.log(`Block-enforcement static checks passed (${checks.length + 6} assertions). These checks do not replace live PostgreSQL/RLS integration tests.`);
 ) && sql.includes('$block$;'), 'SQL function body must use valid tagged dollar quoting');
