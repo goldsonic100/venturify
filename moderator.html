@@ -66,7 +66,7 @@ async function loadReports(){
   const data=await rpc('moderator_list_reports_page',{p_status:$('reportFilter').value||null,p_limit:51,p_offset:reportOffset});
   reportHasNext=data.length>50;updateReportPagination();
   const visibleReports=data.slice(0,50);
-  host.replaceChildren();if(!visibleReports.length){host.innerHTML='<div class="empty">No reports on this page.</div>';return;}
+  host.replaceChildren();if(!visibleReports.length){if(reportOffset>0){reportOffset=Math.max(0,reportOffset-50);updateReportPagination();await loadReports();return;}host.innerHTML='<div class="empty">No reports on this page.</div>';return;}
   visibleReports.forEach(report=>{
    const card=document.createElement('article');card.className='item';
    const title=document.createElement('h3');title.textContent=report.reason+' · '+report.status;
