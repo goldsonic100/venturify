@@ -50,6 +50,9 @@ using (
 -- hidden post data to the caller.
 create schema if not exists private;
 
+-- Function EXECUTE alone is insufficient: callers also need schema USAGE.
+grant usage on schema private to authenticated;
+
 create or replace function private.is_post_author_blocked(p_post_id uuid)
 returns boolean
 language sql
