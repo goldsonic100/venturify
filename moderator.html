@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#13241c">
+<title>Moderator dashboard · Venturify</title>
+<style>
+:root{--ink:#15221c;--muted:#6b776f;--paper:#f6f6f0;--card:#fffefa;--line:#e2e6dc;--green:#c8f169;--deep:#13241c;--accent:#426b4b}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:var(--deep);color:white;padding:22px max(20px,calc((100vw - 1180px)/2));display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{font-weight:850;letter-spacing:-.5px;font-size:20px}.brand span{color:var(--green)}header a{color:#e7efdf;text-decoration:none;font-size:12px}
+main{max-width:1180px;margin:30px auto;padding:0 20px 60px}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:1.7px;color:var(--accent);font-weight:850}
+h1{font:500 clamp(32px,5vw,48px) Georgia,serif;letter-spacing:-1.5px;margin:8px 0}p{line-height:1.6}.muted{color:var(--muted)}.topline{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:22px 0;border-bottom:1px solid var(--line);padding-bottom:12px}.tabs button,.btn{border:1px solid var(--line);border-radius:9px;background:white;color:var(--ink);padding:10px 13px;font-weight:750;cursor:pointer}.tabs button[aria-selected=true],.btn.primary{background:var(--deep);color:white;border-color:var(--deep)}button:disabled{opacity:.5;cursor:wait}
+.panel[hidden]{display:none}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px}.metric,.surface{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:17px}.metric span{display:block;color:var(--muted);font-size:11px;font-weight:700}.metric strong{display:block;font:500 32px Georgia,serif;margin-top:8px}.surface{margin-top:14px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.toolbar input,.toolbar select,input,select,textarea{font:inherit;border:1px solid #d4ddcf;border-radius:8px;padding:10px;background:white;max-width:100%}.toolbar input{flex:1;min-width:210px}.item{border-top:1px solid var(--line);padding:15px 0;overflow-wrap:anywhere}.item:first-child{border-top:0}.item h3{font-size:14px;margin:0 0 7px}.item p{margin:6px 0;font-size:12px}.item small{color:var(--muted)}.item label{display:block;font-size:11px;font-weight:800;margin:10px 0 5px}.item textarea{display:block;width:100%;min-height:66px;resize:vertical}.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.status{margin:12px 0;padding:12px;border-radius:9px;background:#edf4e5;color:#31553a;line-height:1.5}.status.error{background:#fff0ec;color:#8b3021}.status[hidden]{display:none}.empty{padding:24px;text-align:center;color:var(--muted)}.pill{display:inline-block;padding:4px 8px;border-radius:99px;background:#edf4e5;color:#31553a;font-size:10px;font-weight:800}.item .detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:12px}.detail-grid div{background:#f4f6ef;border-radius:8px;padding:9px;font-size:11px}.detail-grid b{display:block;margin-bottom:4px}.footer-note{font-size:11px;color:var(--muted);margin-top:18px}
+@media(max-width:600px){main{margin-top:22px;padding:0 13px 40px}.metric strong{font-size:27px}.tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.tabs button{width:100%}}
+</style>
+</head>
+<body>
+<header><div class="brand">Venturify <span>· Moderator</span></div><a href="index.html">← Back to Venturify</a></header>
+<main>
+<div class="topline"><div><div class="eyebrow">Trust, safety & operations</div><h1>Moderator dashboard</h1><p class="muted">Review reports, inspect public profile details and posts, and check database-level activity counts.</p></div><button class="btn" id="refreshButton" type="button">Refresh data ↻</button></div>
+<div id="status" class="status" role="status" aria-live="polite">Checking your moderator access…</div>
+<div id="dashboard" hidden>
+<nav class="tabs" aria-label="Moderator sections">
+<button type="button" data-tab="overview" aria-selected="true">Overview</button>
+<button type="button" data-tab="reports" aria-selected="false">Reports</button>
+<button type="button" data-tab="accounts" aria-selected="false">Accounts</button>
+<button type="button" data-tab="content" aria-selected="false">Content</button>
+<button type="button" data-tab="systems" aria-selected="false">Systems</button>
+</nav>
+<section class="panel" id="panel-overview"><div class="cards" id="metrics"></div><div class="surface"><h2>Moderator quick notes</h2><p class="muted">Start with pending reports, then inspect the related profile or post. Decisions and private notes are saved through protected database functions.</p><div class="actions"><button class="btn primary" data-go="reports">Review reports</button><button class="btn" data-go="accounts">Search accounts</button><button class="btn" data-go="content">Inspect recent posts</button></div></div></section>
+<section class="panel" id="panel-reports" hidden><div class="surface"><h2>Report queue</h2><p class="muted">Review user-submitted reports and save a decision with private moderator notes.</p><div class="toolbar"><select id="reportFilter" aria-label="Filter report status"><option value="pending">Pending</option><option value="reviewing">Reviewing</option><option value="resolved">Resolved</option><option value="dismissed">Dismissed</option><option value="">All statuses</option></select><button class="btn" id="loadReports">Load reports</button></div><div id="reportsList"><div class="empty">Loading reports…</div></div></div></section>
+<section class="panel" id="panel-accounts" hidden><div class="surface"><h2>Account directory</h2><p class="muted">Search profile records by username, display name, or exact profile ID. For privacy, this view does not expose emails, credentials, sessions, or private messages.</p><div class="toolbar"><input id="userQuery" type="search" maxlength="120" placeholder="Search username, name, or profile UUID"><button class="btn primary" id="searchUsers">Search accounts</button></div><div id="usersList"><div class="empty">Search to view accounts.</div></div><div class="actions"><button class="btn" id="prevUsers">← Previous</button><button class="btn" id="nextUsers">Next →</button></div></div></section>
+<section class="panel" id="panel-content" hidden><div class="surface"><h2>Recent posts</h2><p class="muted">Search publicly shared posts to review content that may need moderation.</p><div class="toolbar"><input id="postQuery" type="search" maxlength="120" placeholder="Search post text, author, or post UUID"><button class="btn primary" id="searchPosts">Search content</button></div><div id="postsList"><div class="empty">Loading recent posts…</div></div></div></section>
+<section class="panel" id="panel-systems" hidden><div class="surface"><h2>System checks</h2><p class="muted">These are live database counters and authorization checks—not uptime, hosting, billing, or email-delivery monitoring.</p><div id="systemChecks"></div><div class="actions"><button class="btn primary" id="checkSystems">Run checks</button></div></div><div class="surface"><h2>Security boundaries</h2><p>✓ Moderator RPCs check the private moderator allowlist.</p><p>✓ Account directory returns profile-level fields only.</p><p>✓ No service-role key is shipped to this browser page.</p><p>✓ Private messages and authentication credentials are not shown in this dashboard.</p></div></section>
+</div>
+<p class="footer-note">Account suspension, deletion, and authentication-provider actions are not enabled here yet; those need a separate audited server-side workflow.</p>
+</main>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+const client = window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
+const $ = id => document.getElementById(id);
+const status = (message, error=false) => { $('status').textContent=message; $('status').classList.toggle('error',error); $('status').hidden=false; };
+let userOffset=0, authorized=false;
+const safe = value => String(value ?? '');
+const escapeHtml = value => safe(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function rpc(name,args={}) { const result=await client.rpc(name,args); if(result.error) throw result.error; return result.data; }
+function switchTab(name){document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===name)));document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!=='panel-'+name);if(name==='reports')loadReports();if(name==='accounts')loadUsers();if(name==='content')loadPosts();if(name==='systems')loadSystems();}
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.go)));
+async function loadOverview(){
+ const d=await rpc('moderator_dashboard_overview');
+ const items=[['Accounts',d.accounts],['Posts',d.posts],['Comments',d.comments],['Communities',d.communities],['Memberships',d.community_memberships],['Pending reports',d.pending_reports],['In review',d.reviewing_reports],['Messages stored',d.messages]];
+ $('metrics').replaceChildren();
+ items.forEach(([label,value])=>{const el=document.createElement('div');el.className='metric';const l=document.createElement('span');l.textContent=label;const v=document.createElement('strong');v.textContent=Number(value||0).toLocaleString();el.append(l,v);$('metrics').append(el);});
+ $('systemChecks').innerHTML='<div class="item"><span class="pill">Connected</span><p>Protected dashboard RPC responded successfully.</p><small>Last refreshed: '+escapeHtml(new Date(d.generated_at).toLocaleString())+'</small></div>';
+}
+async function loadReports(){
+ const host=$('reportsList');host.replaceChildren();host.innerHTML='<div class="empty">Loading reports…</div>';
+ try{
+  const data=await rpc('moderator_list_reports',{p_status:$('reportFilter').value||null,p_limit:100});
+  host.replaceChildren();if(!data.length){host.innerHTML='<div class="empty">No reports in this queue.</div>';return;}
+  data.forEach(report=>{
+   const card=document.createElement('article');card.className='item';
+   const title=document.createElement('h3');title.textContent=report.reason+' · '+report.status;
+   const meta=document.createElement('p');meta.textContent='Created '+new Date(report.created_at).toLocaleString()+' · Report '+report.id;
+   const target=document.createElement('p');target.textContent='Reporter: '+report.reporter_id+' · Target: '+(report.reported_user_id||report.post_id||report.comment_id||'unknown');
+   const details=document.createElement('p');details.textContent=report.details||'No additional details provided.';
+   const label=document.createElement('label');label.textContent='Decision';
+   const select=document.createElement('select');[['pending','Pending'],['reviewing','Reviewing'],['resolved','Resolved'],['dismissed','Dismissed']].forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;select.append(o)});select.value=report.status;
+   const noteLabel=document.createElement('label');noteLabel.textContent='Private moderator notes';
+   const notes=document.createElement('textarea');notes.maxLength=2000;notes.value=report.moderator_notes||'';
+   const save=document.createElement('button');save.className='btn primary';save.textContent='Save review';
+   save.addEventListener('click',async()=>{save.disabled=true;try{await rpc('moderator_update_report',{p_report_id:report.id,p_status:select.value,p_moderator_notes:notes.value});status('Report review saved.');await loadReports();await loadOverview()}catch(e){status('Could not save review: '+safe(e.message),true)}finally{save.disabled=false}});
+   card.append(title,meta,target,details,label,select,noteLabel,notes,save);host.append(card);
+  });
+ }catch(e){host.innerHTML='<div class="empty">Unable to load reports: '+escapeHtml(e.message)+'</div>'}
+}
+async function loadUsers(){
+ const host=$('usersList');host.replaceChildren();host.innerHTML='<div class="empty">Loading accounts…</div>';
+ try{
+  const data=await rpc('moderator_list_users',{p_query:$('userQuery').value.trim(),p_limit:50,p_offset:userOffset});
+  host.replaceChildren();if(!data.length){host.innerHTML='<div class="empty">No matching accounts.</div>';return;}
+  data.forEach(u=>{
+   const card=document.createElement('article');card.className='item';
+   const title=document.createElement('h3');title.textContent=(u.display_name||u.username||'Unnamed account')+' (@'+u.username+')';
+   const bio=document.createElement('p');bio.textContent=u.bio||'No bio added.';
+   const meta=document.createElement('small');meta.textContent='Joined '+new Date(u.created_at).toLocaleDateString()+' · Profile ID: '+u.id;
+   const details=document.createElement('div');details.className='detail-grid';
+   [['Posts',u.post_count],['Followers',u.follower_count],['Following',u.following_count],['Company',u.company||'—'],['Headline',u.headline||'—'],['Location',u.location||'—']].forEach(([k,v])=>{const cell=document.createElement('div');const b=document.createElement('b');b.textContent=k;const span=document.createElement('span');span.textContent=safe(v);cell.append(b,span);details.append(cell)});
+   card.append(title,bio,meta,details);host.append(card);
+  });
+ }catch(e){host.innerHTML='<div class="empty">Unable to load accounts: '+escapeHtml(e.message)+'</div>'}
+}
+async function loadPosts(){
+ const host=$('postsList');host.replaceChildren();host.innerHTML='<div class="empty">Loading posts…</div>';
+ try{
+  const data=await rpc('moderator_list_recent_posts',{p_query:$('postQuery').value.trim(),p_limit:100});
+  host.replaceChildren();if(!data.length){host.innerHTML='<div class="empty">No matching posts.</div>';return;}
+  data.forEach(p=>{const card=document.createElement('article');card.className='item';const title=document.createElement('h3');title.textContent='@'+(p.username||'unknown author');const content=document.createElement('p');content.textContent=p.content;const meta=document.createElement('small');meta.textContent=new Date(p.created_at).toLocaleString()+' · Post ID: '+p.id;card.append(title,content,meta);host.append(card)});
+ }catch(e){host.innerHTML='<div class="empty">Unable to load posts: '+escapeHtml(e.message)+'</div>'}
+}
+async function loadSystems(){
+ try{const d=await rpc('moderator_dashboard_overview');$('systemChecks').replaceChildren();
+  const checks=[['Database RPC',true,'Moderator authorization and read query succeeded'],['Profile records',true,Number(d.accounts||0)+' profiles available'],['Report queue',true,Number(d.pending_reports||0)+' pending · '+Number(d.reviewing_reports||0)+' in review'],['Content records',true,Number(d.posts||0)+' posts · '+Number(d.comments||0)+' comments'],['Community records',true,Number(d.communities||0)+' communities · '+Number(d.community_memberships||0)+' memberships']];
+  checks.forEach(([name,ok,detail])=>{const el=document.createElement('div');el.className='item';const pill=document.createElement('span');pill.className='pill';pill.textContent=ok?'OK':'Needs attention';const h=document.createElement('h3');h.textContent=name;const p=document.createElement('p');p.textContent=detail;el.append(pill,h,p);$('systemChecks').append(el)});
+ }catch(e){status('System check failed: '+safe(e.message),true)}
+}
+async function init(){
+ try{const {data,error}=await client.auth.getUser();if(error||!data?.user){status('Please sign in to Venturify first, then reopen the moderator dashboard.',true);return}
+  const d=await rpc('moderator_dashboard_overview');authorized=true;$('dashboard').hidden=false;status('Moderator access verified for the signed-in account.');await loadOverview();
+ }catch(e){status(e.code==='42501'?'Access denied: this account is not on the moderator allowlist.':'Could not verify moderator access. The dashboard SQL migration may not be applied yet. '+safe(e.message),true)}
+}
+$('refreshButton').addEventListener('click',async()=>{if(!authorized)return;try{await loadOverview();const active=document.querySelector('[data-tab][aria-selected="true"]')?.dataset.tab;if(active==='reports')await loadReports();if(active==='accounts')await loadUsers();if(active==='content')await loadPosts();if(active==='systems')await loadSystems();status('Dashboard refreshed.')}catch(e){status(safe(e.message),true)}});
+$('loadReports').addEventListener('click',loadReports);$('reportFilter').addEventListener('change',loadReports);
+$('searchUsers').addEventListener('click',()=>{userOffset=0;loadUsers()});$('userQuery').addEventListener('keydown',e=>{if(e.key==='Enter'){userOffset=0;loadUsers()}});
+$('prevUsers').addEventListener('click',()=>{userOffset=Math.max(0,userOffset-50);loadUsers()});$('nextUsers').addEventListener('click',()=>{userOffset+=50;loadUsers()});
+$('searchPosts').addEventListener('click',loadPosts);$('postQuery').addEventListener('keydown',e=>{if(e.key==='Enter')loadPosts()});$('checkSystems').addEventListener('click',loadSystems);
+init();
+})();
+</script>
+</body>
+</html>

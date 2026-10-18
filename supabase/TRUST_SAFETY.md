@@ -54,3 +54,16 @@ where user_id = 'REPLACE-WITH-AUTH-USER-UUID';
 ```
 
 Do not run the placeholder SQL as-is. Provision only trusted accounts. The migration does not automatically make anyone a moderator, and it has not been applied to the live project by this change.
+
+
+## Moderator dashboard
+
+The dedicated `moderator.html` page adds Overview, Reports, Accounts, Content, and Systems tabs. The dashboard migration is additive and adds three guarded RPCs:
+
+- `moderator_dashboard_overview()` returns aggregate counts for profiles, posts, comments, communities, memberships, reports, and messages.
+- `moderator_list_users(query, limit, offset)` searches profile-level fields and follower/post counts. It deliberately does not return email addresses or authentication data.
+- `moderator_list_recent_posts(query, limit)` lists public post content for review.
+
+Apply `supabase/migrations/20261018160000_add_moderator_dashboard.sql` in the Supabase SQL Editor after the moderator review migration. The RPCs verify membership in `private.moderators` on every call. They do not expose private messages, auth credentials, session data, or the moderator allowlist.
+
+The Systems tab reports database query success and current record counts only. It is not a hosting uptime, billing, email-delivery, or incident monitoring system. Account suspension/deletion is intentionally not included; those actions need a separate server-side workflow with an audit trail.
