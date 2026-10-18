@@ -42,6 +42,7 @@ assert.ok(moderatorPage.includes("p_limit:51,p_offset:userOffset"), 'Account que
 assert.ok(moderatorPage.includes('userHasNext=data.length>50'), 'Next page should only be enabled when an extra account proves another page exists');
 assert.ok(moderatorPage.includes('data.slice(0,50).forEach'), 'Account directory should display at most 50 accounts per page');
 assert.ok(moderatorPage.includes('if(!userHasNext)return'), 'Account pagination must prevent advancing past the last page');
+assert.ok(moderatorPage.includes("if(userOffset>0){userOffset=Math.max(0,userOffset-50);updateUserPagination();await loadUsers();return;}"), 'An emptied final account page should fall back to the previous page');
 assert.ok(!moderatorPage.includes('service_role') && !moderatorPage.includes('sb_secret_'), 'Dashboard must not ship service-role or secret keys');
 for (const fn of ['moderator_dashboard_overview', 'moderator_list_users', 'moderator_list_recent_posts']) {
   assert.ok(dashboardMigration.includes(`function public.${fn}(`), `Missing dashboard RPC ${fn}`);
