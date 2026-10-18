@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const profileHtml = readFileSync(new URL('../profile.html', import.meta.url), 'utf8');
 
 // Compile each inline script without executing browser code or touching Supabase.
 const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
@@ -220,3 +221,6 @@ assert.match(discoverHtml, /Users view their own founder shortlist|founder_short
   'Shortlist markup and data flow should be present');
 
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery and shortlist regression checks passed.');
+
+assert.match(profileHtml, /\.reputation-breakdown\s*\{/,
+  'Profile reputation breakdown should have a valid CSS selector');
