@@ -32,7 +32,7 @@
     <select id="ventSafetyReason"><option value="spam">Spam</option><option value="harassment">Harassment</option><option value="fake_or_misleading">Fake or misleading</option><option value="scam">Scam</option><option value="privacy">Privacy concern</option><option value="inappropriate_content">Inappropriate content</option><option value="other">Other</option></select>
     <label for="ventSafetyDetails">Details (optional)</label>
     <textarea id="ventSafetyDetails" maxlength="1000" placeholder="Share enough context for a reviewer"></textarea>
-    <div class="ventSafetyActions"><button id="ventSafetyReport" type="button">Submit report</button><button id="ventSafetyBlock" type="button">Block profile</button><button id="ventSafetyManageBlocks" type="button">Manage blocked accounts</button><button id="ventSafetyModerator" type="button">Moderator review</button><button id="ventSafetyClose" type="button">Close</button></div>
+    <div class="ventSafetyActions"><button id="ventSafetyReport" type="button">Submit report</button><button id="ventSafetyBlock" type="button">Block profile</button><button id="ventSafetyManageBlocks" type="button">Manage blocked accounts</button><button id="ventSafetyModerator" type="button">Moderator review</button><button id="ventSafetyDashboard" type="button">Moderator dashboard</button><button id="ventSafetyClose" type="button">Close</button></div>
     <div id="ventSafetyBlockedList" hidden></div>
     <div id="ventSafetyReview" hidden></div>
     <div id="ventSafetyStatus" role="status" aria-live="polite"></div>`;
@@ -90,7 +90,7 @@
     });
     status('Blocked-account list loaded.');
   });
-  $('ventSafetyModerator').addEventListener('click', async () => {
+  $('ventSafetyDashboard').addEventListener('click', async () => {\n    const user = await signedIn(); if (!user) return;\n    window.location.href = 'moderator.html';\n  });\n  $('ventSafetyModerator').addEventListener('click', async () => {
     const user = await signedIn(); if (!user) return;
     const review = $('ventSafetyReview');
     review.hidden = false;
