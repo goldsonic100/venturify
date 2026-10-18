@@ -90,7 +90,7 @@ grant usage on schema public, auth to authenticated, anon;
 grant execute on function auth.uid() to authenticated, anon;
 grant select on public.profiles, public.posts, public.comments to authenticated, anon;
 grant insert on public.comments, public.messages, public.likes, public.follows to authenticated;
-grant select on public.user_blocks, public.conversation_members, public.messages to authenticated;
+grant select on public.user_blocks, public.conversation_members, public.messages, public.likes, public.follows to authenticated;
 create schema if not exists private;
 grant usage on schema private to authenticated;
 
@@ -117,3 +117,13 @@ insert into public.conversation_members values
 insert into public.messages values
  ('40000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'Blocked conversation'),
  ('40000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003', 'Unblocked conversation');
+
+-- Existing interactions are also hidden after a block is created.
+insert into public.likes (post_id, user_id) values
+ ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003'),
+ ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000002'),
+ ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003');
+insert into public.follows (follower_id, following_id) values
+ ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'),
+ ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000002'),
+ ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000001');
