@@ -16,7 +16,7 @@ begin
   if exists (select 1 from public.messages where id = '40000000-0000-0000-0000-000000000001') then raise exception 'FAIL: blocked conversation message is visible'; end if;
   if not exists (select 1 from public.messages where id = '40000000-0000-0000-0000-000000000002') then raise exception 'FAIL: unrelated conversation message became invisible'; end if;
   if exists (select 1 from public.likes where post_id = '10000000-0000-0000-0000-000000000001') then raise exception 'FAIL: like on blocked author''s post is visible'; end if;
-  if exists (select 1 from public.likes where user_id = '00000000-0000-0000-0000-000000000002') then raise exception 'FAIL: blocked user's likes are visible'; end if;
+  if exists (select 1 from public.likes where user_id = '00000000-0000-0000-0000-000000000002') then raise exception 'FAIL: blocked account likes are visible'; end if;
   if not exists (select 1 from public.likes where post_id = '10000000-0000-0000-0000-000000000002' and user_id = '00000000-0000-0000-0000-000000000003') then raise exception 'FAIL: unrelated like became invisible'; end if;
   if exists (select 1 from public.follows where follower_id = '00000000-0000-0000-0000-000000000002' or following_id = '00000000-0000-0000-0000-000000000002') then raise exception 'FAIL: follow edge involving blocked account is visible'; end if;
   if not exists (select 1 from public.follows where follower_id = '00000000-0000-0000-0000-000000000003' and following_id = '00000000-0000-0000-0000-000000000001') then raise exception 'FAIL: unrelated follow became invisible'; end if;
