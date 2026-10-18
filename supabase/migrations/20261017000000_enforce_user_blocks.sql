@@ -25,8 +25,8 @@ using (
   not exists (
     select 1
     from public.user_blocks b
-    where (b.blocker_id = (select auth.uid()) and b.blocked_id = posts.author_id)
-       or (b.blocked_id = (select auth.uid()) and b.blocker_id = posts.author_id)
+    where (b.blocker_id = (select auth.uid()) and b.blocked_id = posts.user_id)
+       or (b.blocked_id = (select auth.uid()) and b.blocker_id = posts.user_id)
   )
 );
 
@@ -39,8 +39,8 @@ using (
   not exists (
     select 1
     from public.user_blocks b
-    where (b.blocker_id = (select auth.uid()) and b.blocked_id = comments.author_id)
-       or (b.blocked_id = (select auth.uid()) and b.blocker_id = comments.author_id)
+    where (b.blocker_id = (select auth.uid()) and b.blocked_id = comments.user_id)
+       or (b.blocked_id = (select auth.uid()) and b.blocker_id = comments.user_id)
   )
 );
 
@@ -64,8 +64,8 @@ as $block$
     select 1
     from public.posts p
     join public.user_blocks b
-      on (b.blocker_id = (select auth.uid()) and b.blocked_id = p.author_id)
-      or (b.blocked_id = (select auth.uid()) and b.blocker_id = p.author_id)
+      on (b.blocker_id = (select auth.uid()) and b.blocked_id = p.user_id)
+      or (b.blocked_id = (select auth.uid()) and b.blocker_id = p.user_id)
     where p.id = p_post_id
   );
 $block$;
