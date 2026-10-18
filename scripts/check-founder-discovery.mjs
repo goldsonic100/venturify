@@ -224,7 +224,7 @@ console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discov
 
 assert.match(profileHtml, /\.reputation-breakdown\s*\{/,
   'Profile reputation breakdown should have a valid CSS selector');
-const profileScripts = [...profileHtml.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)];
+const profileScripts = [...profileHtml.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
 assert.ok(profileScripts.length > 0, 'profile.html should contain inline scripts');
 for (const [index, match] of profileScripts.entries()) {
   try {
