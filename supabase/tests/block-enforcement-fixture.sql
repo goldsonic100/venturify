@@ -74,7 +74,9 @@ create policy "Profiles are visible to everyone" on public.profiles for select u
 create policy "Posts are public" on public.posts for select using (true);
 create policy "Comments are public" on public.comments for select using (true);
 create policy "Signed-in users create comments as themselves" on public.comments for insert to authenticated with check (auth.uid() = author_id);
+create policy "Likes are public" on public.likes for select using (true);
 create policy "Users like as themselves" on public.likes for insert to authenticated with check (auth.uid() = user_id);
+create policy "Follows are public" on public.follows for select using (true);
 create policy "Users follow as themselves" on public.follows for insert to authenticated with check (auth.uid() = follower_id and follower_id <> following_id);
 create policy "Users can view blocks involving them" on public.user_blocks for select to authenticated using (auth.uid() = blocker_id or auth.uid() = blocked_id);
 create policy "Users can see their own membership rows" on public.conversation_members for select to authenticated using (auth.uid() = user_id);
