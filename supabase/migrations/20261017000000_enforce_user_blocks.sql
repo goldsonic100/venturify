@@ -121,3 +121,31 @@ with check (
   sender_id = (select auth.uid())
   and not private.is_conversation_blocked(messages.conversation_id)
 );
+
+
+-- Blocked users cannot create new likes on one another's posts.
+create policy "Blocked accounts cannot like each other's posts"
+on public.likes
+as restrictive
+for insert
+to authenticated
+with check (
+  user_id = (select auth.uid())
+  and not private.is_post_author_blocked(likes.post_id)
+);
+
+-- A follow is disallowed in either direction when a block exists.
+create policy "Blocked accounts cannot follow each other"
+on public.follows
+as restrictive
+for insert
+to authenticated
+with check (
+  follower_id = (select auth.uid())
+  and not exists (
+    select 1
+    from public.user_blocks b
+    where (b.blocker_id = (select auth.uid()) and b.blocked_id = follows.following_id)
+       or (b.blocked_id = (select auth.uid()) and b.blocker_id = follows.following_id)
+  )
+);
