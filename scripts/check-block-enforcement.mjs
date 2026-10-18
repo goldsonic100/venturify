@@ -11,6 +11,8 @@ const checks = [
   ['comment INSERT WITH CHECK', /create policy "Blocked accounts cannot comment on each other's posts"[\s\S]*?as restrictive\s+for insert\s+to authenticated\s+with check\s*\(/i],
   ['message SELECT policy', /create policy "Blocked accounts cannot read conversation messages"\s+on public\.messages\s+as restrictive\s+for select\s+to authenticated/i],
   ['message INSERT WITH CHECK', /create policy "Blocked accounts cannot send conversation messages"[\s\S]*?as restrictive\s+for insert\s+to authenticated\s+with check\s*\(/i],
+  ['restrictive likes SELECT policy', /create policy "Blocked accounts cannot view each other's likes"\\s+on public\\.likes\\s+as restrictive\\s+for select\\s+to authenticated/i],
+  ['restrictive follows SELECT policy', /create policy "Blocked accounts cannot view each other's follows"\\s+on public\\.follows\\s+as restrictive\\s+for select\\s+to authenticated/i],
   ['restrictive likes INSERT policy', /create policy "Blocked accounts cannot like each other's posts"[\s\S]*?on public\.likes[\s\S]*?as restrictive\s+for insert\s+to authenticated/i],
   ['likes use secure blocked-post predicate', /not private\.is_post_author_blocked\(likes\.post_id\)/i],
   ['restrictive follows INSERT policy', /create policy "Blocked accounts cannot follow each other"[\s\S]*?on public\.follows[\s\S]*?as restrictive\s+for insert\s+to authenticated/i],
