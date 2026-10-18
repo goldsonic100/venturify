@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const discoverHtml = readFileSync(new URL('../discover.html', import.meta.url), 'utf8');
 
 // Compile each inline script without executing browser code or touching Supabase.
 const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
@@ -13,6 +14,19 @@ for (const [index, match] of scripts.entries()) {
     throw new Error('Inline script ' + (index + 1) + ' has a syntax error: ' + error.message);
   }
 }
+
+const discoverScripts = [...discoverHtml.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
+assert.ok(discoverScripts.length > 0, 'discover.html should contain inline scripts');
+for (const [index, match] of discoverScripts.entries()) {
+  try { new Function(match[1]); }
+  catch (error) { throw new Error('discover.html inline script ' + (index + 1) + ' has a syntax error: ' + error.message); }
+}
+assert.ok(discoverHtml.includes('Learn topic preferences from founders the viewer explicitly rated'),
+  'Discover should learn topic preferences from explicit feedback');
+assert.ok(discoverHtml.includes('learnedTopicWeights.get(word)||0'),
+  'Learned feedback topics should influence discovery scoring');
+assert.ok(discoverHtml.includes('Fits topics from founders you rated relevant'),
+  'Discover should explain positive feedback-based personalization');
 
 // Regression checks for the founder-discovery requirements.
 assert.match(html, /communityCounts\.get\(p\.id\)\|\|0\)>=1&&founderLevel\(p\)>=5/,
@@ -149,7 +163,6 @@ assert.match(html, /aHelp=\[\.\.\.askA\]\.filter\(x=>skillsB\.has\(x\)\),bHelp=\
   'Complementary skill comparison should check both directions');
 
 // Founder shortlist regression checks (Discover page + Supabase-backed privacy).
-const discoverHtml = readFileSync(new URL('../discover.html', import.meta.url), 'utf8');
 assert.match(discoverHtml, /data-match-feedback="relevant"/,
   'Founder cards should let users mark a match relevant');
 assert.match(discoverHtml, /data-match-feedback="not_relevant"/,
