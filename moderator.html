@@ -87,7 +87,7 @@ async function loadUsers(){
  const host=$('usersList');host.replaceChildren();host.innerHTML='<div class="empty">Loading accounts…</div>';userHasNext=false;updateUserPagination();
  try{
   const data=await rpc('moderator_list_users',{p_query:$('userQuery').value.trim(),p_limit:51,p_offset:userOffset});
-  host.replaceChildren();userHasNext=data.length>50;updateUserPagination();if(!data.length){host.innerHTML='<div class="empty">No matching accounts.</div>';return;}
+  host.replaceChildren();userHasNext=data.length>50;updateUserPagination();if(!data.length){if(userOffset>0){userOffset=Math.max(0,userOffset-50);updateUserPagination();await loadUsers();return;}host.innerHTML='<div class="empty">No matching accounts.</div>';return;}
   data.slice(0,50).forEach(u=>{
    const card=document.createElement('article');card.className='item';
    const title=document.createElement('h3');title.textContent=(u.display_name||u.username||'Unnamed account')+' (@'+u.username+')';
