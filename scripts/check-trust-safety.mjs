@@ -36,6 +36,9 @@ assert.ok(safetyScript.includes('ventSafetyDashboard'), 'The moderator dashboard
 assert.ok(safetyScript.includes("window.location.href = 'moderator.html'"), 'The safety panel should link to the dashboard');
 assert.ok(moderatorPage.includes('data-tab="accounts"') && moderatorPage.includes('data-tab="content"') && moderatorPage.includes('data-tab="systems"'), 'Dashboard should expose account, content, and systems tabs');
 assert.ok(moderatorPage.includes("client.rpc('moderator_dashboard_overview'") || moderatorPage.includes("rpc('moderator_dashboard_overview'"), 'Dashboard should load guarded overview data');
+assert.ok(moderatorPage.includes('function updateUserPagination()'), 'Account pagination controls should have a shared state updater');
+assert.ok(moderatorPage.includes('userHasNext=data.length===50'), 'Next page should only be enabled when a full page of accounts is returned');
+assert.ok(moderatorPage.includes('if(!userHasNext)return'), 'Account pagination must prevent advancing past the last page');
 assert.ok(!moderatorPage.includes('service_role') && !moderatorPage.includes('sb_secret_'), 'Dashboard must not ship service-role or secret keys');
 for (const fn of ['moderator_dashboard_overview', 'moderator_list_users', 'moderator_list_recent_posts']) {
   assert.ok(dashboardMigration.includes(`function public.${fn}(`), `Missing dashboard RPC ${fn}`);

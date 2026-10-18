@@ -44,7 +44,8 @@ h1{font:500 clamp(32px,5vw,48px) Georgia,serif;letter-spacing:-1.5px;margin:8px 
 const client = window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
 const $ = id => document.getElementById(id);
 const status = (message, error=false) => { $('status').textContent=message; $('status').classList.toggle('error',error); $('status').hidden=false; };
-let userOffset=0, authorized=false;
+let userOffset=0, authorized=false, userHasNext=false;
+function updateUserPagination(){ $('prevUsers').disabled=userOffset===0; $('nextUsers').disabled=!userHasNext; }
 const safe = value => String(value ?? '');
 const escapeHtml = value => safe(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function rpc(name,args={}) { const result=await client.rpc(name,args); if(result.error) throw result.error; return result.data; }
@@ -80,10 +81,10 @@ async function loadReports(){
  }catch(e){host.innerHTML='<div class="empty">Unable to load reports: '+escapeHtml(e.message)+'</div>'}
 }
 async function loadUsers(){
- const host=$('usersList');host.replaceChildren();host.innerHTML='<div class="empty">Loading accounts…</div>';
+ const host=$('usersList');host.replaceChildren();host.innerHTML='<div class="empty">Loading accounts…</div>';userHasNext=false;updateUserPagination();
  try{
   const data=await rpc('moderator_list_users',{p_query:$('userQuery').value.trim(),p_limit:50,p_offset:userOffset});
-  host.replaceChildren();if(!data.length){host.innerHTML='<div class="empty">No matching accounts.</div>';return;}
+  host.replaceChildren();userHasNext=data.length===50;updateUserPagination();if(!data.length){host.innerHTML='<div class="empty">No matching accounts.</div>';return;}
   data.forEach(u=>{
    const card=document.createElement('article');card.className='item';
    const title=document.createElement('h3');title.textContent=(u.display_name||u.username||'Unnamed account')+' (@'+u.username+')';
@@ -93,7 +94,7 @@ async function loadUsers(){
    [['Posts',u.post_count],['Followers',u.follower_count],['Following',u.following_count],['Company',u.company||'—'],['Headline',u.headline||'—'],['Location',u.location||'—']].forEach(([k,v])=>{const cell=document.createElement('div');const b=document.createElement('b');b.textContent=k;const span=document.createElement('span');span.textContent=safe(v);cell.append(b,span);details.append(cell)});
    card.append(title,bio,meta,details);host.append(card);
   });
- }catch(e){host.innerHTML='<div class="empty">Unable to load accounts: '+escapeHtml(e.message)+'</div>'}
+ }catch(e){userHasNext=false;updateUserPagination();host.innerHTML='<div class="empty">Unable to load accounts: '+escapeHtml(e.message)+'</div>'}
 }
 async function loadPosts(){
  const host=$('postsList');host.replaceChildren();host.innerHTML='<div class="empty">Loading posts…</div>';
@@ -117,7 +118,8 @@ async function init(){
 $('refreshButton').addEventListener('click',async()=>{if(!authorized)return;try{await loadOverview();const active=document.querySelector('[data-tab][aria-selected="true"]')?.dataset.tab;if(active==='reports')await loadReports();if(active==='accounts')await loadUsers();if(active==='content')await loadPosts();if(active==='systems')await loadSystems();status('Dashboard refreshed.')}catch(e){status(safe(e.message),true)}});
 $('loadReports').addEventListener('click',loadReports);$('reportFilter').addEventListener('change',loadReports);
 $('searchUsers').addEventListener('click',()=>{userOffset=0;loadUsers()});$('userQuery').addEventListener('keydown',e=>{if(e.key==='Enter'){userOffset=0;loadUsers()}});
-$('prevUsers').addEventListener('click',()=>{userOffset=Math.max(0,userOffset-50);loadUsers()});$('nextUsers').addEventListener('click',()=>{userOffset+=50;loadUsers()});
+$('prevUsers').addEventListener('click',()=>{if(userOffset===0)return;userOffset=Math.max(0,userOffset-50);loadUsers()});$('nextUsers').addEventListener('click',()=>{if(!userHasNext)return;userOffset+=50;loadUsers()});
+updateUserPagination();
 $('searchPosts').addEventListener('click',loadPosts);$('postQuery').addEventListener('keydown',e=>{if(e.key==='Enter')loadPosts()});$('checkSystems').addEventListener('click',loadSystems);
 init();
 })();
