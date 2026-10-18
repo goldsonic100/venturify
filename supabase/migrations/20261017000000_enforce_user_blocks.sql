@@ -149,3 +149,37 @@ with check (
        or (b.blocked_id = (select auth.uid()) and b.blocker_id = follows.following_id)
   )
 );
+
+
+-- Hide likes involving a blocked account or a blocked post from signed-in viewers.
+create policy "Blocked accounts cannot view each other's likes"
+on public.likes
+as restrictive
+for select
+to authenticated
+using (
+  not private.is_post_author_blocked(likes.post_id)
+  and not exists (
+    select 1
+    from public.user_blocks b
+    where (b.blocker_id = (select auth.uid()) and b.blocked_id = likes.user_id)
+       or (b.blocked_id = (select auth.uid()) and b.blocker_id = likes.user_id)
+  )
+);
+
+-- Hide follow edges involving an account blocked by or blocking the signed-in viewer.
+create policy "Blocked accounts cannot view each other's follows"
+on public.follows
+as restrictive
+for select
+to authenticated
+using (
+  not exists (
+    select 1
+    from public.user_blocks b
+    where (b.blocker_id = (select auth.uid()) and b.blocked_id = follows.follower_id)
+       or (b.blocked_id = (select auth.uid()) and b.blocker_id = follows.follower_id)
+       or (b.blocker_id = (select auth.uid()) and b.blocked_id = follows.following_id)
+       or (b.blocked_id = (select auth.uid()) and b.blocker_id = follows.following_id)
+  )
+);
