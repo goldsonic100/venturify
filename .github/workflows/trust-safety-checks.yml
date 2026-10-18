@@ -7,6 +7,7 @@ on:
       - 'scripts/trust-safety.js'
       - 'supabase/migrations/20261016000000_add_trust_safety_foundation.sql'
       - 'supabase/migrations/20261017000000_enforce_user_blocks.sql'
+      - 'supabase/migrations/20261018150000_add_moderator_review_workflow.sql'
       - '.github/workflows/trust-safety-checks.yml'
   push:
     branches: [main]
