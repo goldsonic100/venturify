@@ -91,6 +91,7 @@ grant execute on function auth.uid() to authenticated, anon;
 grant select on public.profiles, public.posts, public.comments to authenticated, anon;
 grant insert on public.comments, public.messages, public.likes, public.follows to authenticated;
 grant select on public.user_blocks, public.conversation_members, public.messages to authenticated;
+create schema if not exists private;
 grant usage on schema private to authenticated;
 
 insert into public.profiles (id, display_name) values
