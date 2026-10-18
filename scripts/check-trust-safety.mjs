@@ -54,6 +54,7 @@ assert.ok(safetyScript.includes("client.rpc('moderator_list_reports'"), 'The mod
 assert.ok(safetyScript.includes("client.rpc('moderator_update_report'"), 'The moderator panel should use the protected report-update RPC');
 assert.ok(moderatorPage.includes("rpc('moderator_list_reports_page'") && moderatorPage.includes('p_limit:51,p_offset:reportOffset'), 'Report queue should use a paginated protected RPC with a lookahead row');
 assert.ok(moderatorPage.includes('reportHasNext=data.length>50') && moderatorPage.includes('visibleReports=data.slice(0,50)'), 'Report queue should display at most 50 rows and detect a next page');
+assert.ok(moderatorPage.includes('if(reportOffset>0){reportOffset=Math.max(0,reportOffset-50);updateReportPagination();await loadReports();return;}'), 'An emptied final page should fall back to the previous report page after reviews change its contents');
 assert.ok(moderatorPage.includes("$('reportFilter').addEventListener('change',()=>{reportOffset=0;loadReports()})"), 'Changing report status should reset report pagination');
 assert.ok(reportPaginationMigration.includes('function public.moderator_list_reports_page('), 'Missing paginated moderator report RPC');
 assert.ok(reportPaginationMigration.includes('security definer') && reportPaginationMigration.includes("set search_path = ''"), 'Paginated report RPC must be hardened');
