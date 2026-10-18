@@ -62,7 +62,7 @@ create policy "Posts are public" on public.posts for select using (true);
 create policy "Comments are public" on public.comments for select using (true);
 create policy "Signed-in users create comments as themselves" on public.comments for insert to authenticated with check (auth.uid() = author_id);
 create policy "Users can view blocks involving them" on public.user_blocks for select to authenticated using (auth.uid() = blocker_id or auth.uid() = blocked_id);
-create policy "Conversation members can see membership rows" on public.conversation_members for select to authenticated using (true);
+create policy "Users can see their own membership rows" on public.conversation_members for select to authenticated using (auth.uid() = user_id);
 create policy "Members can read messages" on public.messages for select to authenticated using (
   exists (select 1 from public.conversation_members cm where cm.conversation_id = messages.conversation_id and cm.user_id = auth.uid())
 );
