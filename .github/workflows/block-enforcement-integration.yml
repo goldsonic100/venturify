@@ -9,6 +9,7 @@ on:
       - '.github/workflows/block-enforcement-integration.yml'
   push:
     branches:
+      - main
       - feature/enforce-user-blocks
     paths:
       - 'supabase/migrations/20261017000000_enforce_user_blocks.sql'
