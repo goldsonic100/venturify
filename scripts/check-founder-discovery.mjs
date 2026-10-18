@@ -173,6 +173,10 @@ assert.match(discoverHtml, /matchFeedback\.get\(p\.id\)!=='not_relevant'/,
   'Future daily recommendations should exclude founders marked not relevant');
 assert.match(discoverHtml, /matchFeedback\.get\(p\.id\)==='relevant'\?15:0/,
   'Relevant feedback should boost future match ranking');
+assert.match(discoverHtml, /Past feedback adjusted this match by '\+?'\+feedbackBonus\+' points based on topics in founders you rated\./,
+  'Discover should explain the numeric feedback adjustment to each match score');
+assert.match(discoverHtml, /You previously rated this founder relevant, so they receive a small preference boost/,
+  'Discover should explain when a previously relevant rating boosts a founder');
 assert.match(discoverHtml, /Math\.max\(0,6-dailyMatchIds\.length\)/,
   'Personalized daily recommendations should remain capped at six');
 
