@@ -5,6 +5,8 @@ import assert from 'node:assert/strict';
 const foundation = readFileSync('supabase/migrations/20261016000000_add_trust_safety_foundation.sql', 'utf8');
 const blockMigration = readFileSync('supabase/migrations/20261017000000_enforce_user_blocks.sql', 'utf8');
 const moderatorMigration = readFileSync('supabase/migrations/20261018150000_add_moderator_review_workflow.sql', 'utf8');
+const dashboardMigration = readFileSync('supabase/migrations/20261018160000_add_moderator_dashboard.sql', 'utf8');
+const moderatorPage = readFileSync('moderator.html', 'utf8');
 const safetyScript = readFileSync('scripts/trust-safety.js', 'utf8');
 
 // Base safety schema and row-level security controls must not silently disappear.
@@ -30,6 +32,18 @@ assert.ok(safetyScript.toLowerCase().includes('maxlength="1000"'), 'Report detai
 assert.ok(safetyScript.includes('auth.getUser('), 'Safety actions must check signed-in user context');
 assert.ok(safetyScript.includes("type === 'user' && id === user.id"), 'The UI should prevent self-report attempts');
 assert.ok(safetyScript.includes('ventSafetyModerator'), 'The moderator review control should exist');
+assert.ok(safetyScript.includes('ventSafetyDashboard'), 'The moderator dashboard entry point should exist');
+assert.ok(safetyScript.includes("window.location.href = 'moderator.html'"), 'The safety panel should link to the dashboard');
+assert.ok(moderatorPage.includes('data-tab="accounts"') && moderatorPage.includes('data-tab="content"') && moderatorPage.includes('data-tab="systems"'), 'Dashboard should expose account, content, and systems tabs');
+assert.ok(moderatorPage.includes("client.rpc('moderator_dashboard_overview'") || moderatorPage.includes("rpc('moderator_dashboard_overview'"), 'Dashboard should load guarded overview data');
+assert.ok(!moderatorPage.includes('service_role') && !moderatorPage.includes('sb_secret_'), 'Dashboard must not ship service-role or secret keys');
+for (const fn of ['moderator_dashboard_overview', 'moderator_list_users', 'moderator_list_recent_posts']) {
+  assert.ok(dashboardMigration.includes(`function public.${fn}(`), `Missing dashboard RPC ${fn}`);
+  assert.ok(dashboardMigration.includes(`grant execute on function public.${fn}`), `Missing authenticated execute grant for ${fn}`);
+}
+assert.ok(dashboardMigration.includes("using errcode = '42501'"), 'Dashboard RPCs must reject non-moderators');
+assert.ok(dashboardMigration.includes("set search_path = ''"), 'Dashboard RPCs must pin an empty search_path');
+assert.ok(dashboardMigration.includes('left(trim(coalesce(p_query, \'\')), 120)'), 'Search terms must be length-limited');
 assert.ok(safetyScript.includes("client.rpc('moderator_list_reports'"), 'The moderator panel should use the protected report-list RPC');
 assert.ok(safetyScript.includes("client.rpc('moderator_update_report'"), 'The moderator panel should use the protected report-update RPC');
 assert.ok(moderatorMigration.includes('create table if not exists private.moderators'), 'Missing private moderator allowlist');
