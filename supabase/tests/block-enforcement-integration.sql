@@ -55,7 +55,7 @@ begin
     raise exception 'FAIL: blocked account could follow blocker';
   exception when insufficient_privilege then null;
   end;
-end $;
+end $$;
 reset role;
 
 -- Bob (the blocked party) must also be unable to read Alice's content/messages.
