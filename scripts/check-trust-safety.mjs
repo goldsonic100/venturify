@@ -6,6 +6,7 @@ const foundation = readFileSync('supabase/migrations/20261016000000_add_trust_sa
 const blockMigration = readFileSync('supabase/migrations/20261017000000_enforce_user_blocks.sql', 'utf8');
 const moderatorMigration = readFileSync('supabase/migrations/20261018150000_add_moderator_review_workflow.sql', 'utf8');
 const dashboardMigration = readFileSync('supabase/migrations/20261018160000_add_moderator_dashboard.sql', 'utf8');
+const reportPaginationMigration = readFileSync('supabase/migrations/20261018170000_paginate_moderator_reports.sql', 'utf8');
 const moderatorPage = readFileSync('moderator.html', 'utf8');
 const safetyScript = readFileSync('scripts/trust-safety.js', 'utf8');
 
@@ -51,6 +52,15 @@ assert.ok(dashboardMigration.includes("set search_path = ''"), 'Dashboard RPCs m
 assert.ok(dashboardMigration.includes('left(trim(coalesce(p_query, \'\')), 120)'), 'Search terms must be length-limited');
 assert.ok(safetyScript.includes("client.rpc('moderator_list_reports'"), 'The moderator panel should use the protected report-list RPC');
 assert.ok(safetyScript.includes("client.rpc('moderator_update_report'"), 'The moderator panel should use the protected report-update RPC');
+assert.ok(moderatorPage.includes("rpc('moderator_list_reports_page'") && moderatorPage.includes('p_limit:51,p_offset:reportOffset'), 'Report queue should use a paginated protected RPC with a lookahead row');
+assert.ok(moderatorPage.includes('reportHasNext=data.length>50') && moderatorPage.includes('visibleReports=data.slice(0,50)'), 'Report queue should display at most 50 rows and detect a next page');
+assert.ok(moderatorPage.includes("$('reportFilter').addEventListener('change',()=>{reportOffset=0;loadReports()})"), 'Changing report status should reset report pagination');
+assert.ok(reportPaginationMigration.includes('function public.moderator_list_reports_page('), 'Missing paginated moderator report RPC');
+assert.ok(reportPaginationMigration.includes('security definer') && reportPaginationMigration.includes("set search_path = ''"), 'Paginated report RPC must be hardened');
+assert.ok(reportPaginationMigration.includes("using errcode = '42501'"), 'Paginated report RPC must reject non-moderators');
+assert.ok(reportPaginationMigration.includes('offset greatest(0, least(coalesce(p_offset, 0), 1000000))'), 'Report offset must be bounded');
+assert.ok(reportPaginationMigration.includes('revoke all on function public.moderator_list_reports_page(text, integer, integer) from public, anon'), 'Paginated RPC must revoke public and anonymous execution');
+assert.ok(reportPaginationMigration.includes('grant execute on function public.moderator_list_reports_page(text, integer, integer) to authenticated'), 'Paginated RPC should be callable by authenticated clients, with moderator checks inside');
 assert.ok(moderatorMigration.includes('create table if not exists private.moderators'), 'Missing private moderator allowlist');
 assert.ok(moderatorMigration.includes('revoke all on table private.moderators from public, anon, authenticated'), 'Moderator allowlist must not be client-readable');
 assert.ok(moderatorMigration.includes('grant execute on function public.moderator_list_reports(text, integer) to authenticated'), 'Authenticated clients need only the guarded report-list RPC');
