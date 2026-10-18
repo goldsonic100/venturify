@@ -23,7 +23,7 @@
   panel.hidden = true;
   panel.innerHTML = `
     <h3>Safety & reporting</h3>
-    <p>Report a profile or post, or block an account. Please select a profile or post on the page first, or paste its ID below.</p>
+    <p>Report a profile or post, or block an account. Select a profile or post on the page first, or paste its ID below. You can also manage accounts you have blocked.</p>
     <label for="ventSafetyTargetType">What are you reporting?</label>
     <select id="ventSafetyTargetType"><option value="user">Founder profile</option><option value="post">Post</option></select>
     <label for="ventSafetyTargetId">Profile or post ID</label>
@@ -32,7 +32,8 @@
     <select id="ventSafetyReason"><option value="spam">Spam</option><option value="harassment">Harassment</option><option value="fake_or_misleading">Fake or misleading</option><option value="scam">Scam</option><option value="privacy">Privacy concern</option><option value="inappropriate_content">Inappropriate content</option><option value="other">Other</option></select>
     <label for="ventSafetyDetails">Details (optional)</label>
     <textarea id="ventSafetyDetails" maxlength="1000" placeholder="Share enough context for a reviewer"></textarea>
-    <div class="ventSafetyActions"><button id="ventSafetyReport" type="button">Submit report</button><button id="ventSafetyBlock" type="button">Block profile</button><button id="ventSafetyClose" type="button">Close</button></div>
+    <div class="ventSafetyActions"><button id="ventSafetyReport" type="button">Submit report</button><button id="ventSafetyBlock" type="button">Block profile</button><button id="ventSafetyManageBlocks" type="button">Manage blocked accounts</button><button id="ventSafetyClose" type="button">Close</button></div>
+    <div id="ventSafetyBlockedList" hidden></div>
     <div id="ventSafetyStatus" role="status" aria-live="polite"></div>`;
   document.body.appendChild(panel);
   const launcher = document.createElement('button');
@@ -55,6 +56,39 @@
     open(to ? 'user' : undefined, to || undefined);
   });
   $('ventSafetyClose').addEventListener('click', () => { panel.hidden = true; launcher.setAttribute('aria-expanded','false'); });
+  $('ventSafetyManageBlocks').addEventListener('click', async () => {
+    const user = await signedIn(); if (!user) return;
+    const list = $('ventSafetyBlockedList');
+    list.hidden = false;
+    list.replaceChildren();
+    const heading = document.createElement('p');
+    heading.textContent = 'Accounts you blocked';
+    heading.style.fontWeight = '700';
+    list.appendChild(heading);
+    const {data, error} = await client.from('user_blocks').select('blocked_id, created_at').eq('blocker_id', user.id).order('created_at', {ascending:false}).limit(100);
+    if (error) { status('Could not load your blocked accounts. Check that the trust-and-safety migration is applied.'); return; }
+    if (!data?.length) {
+      const empty = document.createElement('p'); empty.textContent = 'You have not blocked any accounts.'; list.appendChild(empty); status('Blocked-account list loaded.'); return;
+    }
+    data.forEach(block => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid #e2e6dc;overflow-wrap:anywhere';
+      const id = document.createElement('span');
+      id.textContent = block.blocked_id;
+      id.style.cssText = 'font-size:10px;flex:1;min-width:0';
+      const button = document.createElement('button');
+      button.type = 'button'; button.textContent = 'Unblock';
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        const {error: deleteError} = await client.from('user_blocks').delete().eq('blocker_id', user.id).eq('blocked_id', block.blocked_id);
+        if (deleteError) { button.disabled = false; status('Could not unblock this account. Please try again.'); return; }
+        row.remove(); status('Account unblocked. Refresh the page to reload content.');
+        if (!list.querySelector('div')) { const empty = document.createElement('p'); empty.textContent = 'You have not blocked any accounts.'; list.appendChild(empty); }
+      });
+      row.append(id, button); list.appendChild(row);
+    });
+    status('Blocked-account list loaded.');
+  });
   document.addEventListener('click', event => {
     const post = event.target.closest('article[id^="post-"]');
     const profile = event.target.closest('[data-profile]');
@@ -90,6 +124,6 @@
     const {error} = await client.from('user_blocks').upsert({blocker_id:user.id, blocked_id:id}, {onConflict:'blocker_id,blocked_id', ignoreDuplicates:true});
     $('ventSafetyBlock').disabled = false;
     if (error) { status(error.code === '42P01' || error.code === 'PGRST205' ? 'Blocking is not set up yet. Apply the trust-safety SQL migration first.' : 'Could not block this account. Check that the migration is applied and try again.'); return; }
-    status('Account blocked. Full filtering across feeds and messages is the next enforcement step.');
+    status('Account blocked. Database-level filtering will take effect after the block-enforcement migration is applied.');
   });
 })();
