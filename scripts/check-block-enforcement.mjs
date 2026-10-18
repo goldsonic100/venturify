@@ -12,7 +12,7 @@ const checks = [
   ['message SELECT policy', /create policy "Blocked accounts cannot read conversation messages"\s+on public\.messages\s+as restrictive\s+for select\s+to authenticated/i],
   ['message INSERT WITH CHECK', /create policy "Blocked accounts cannot send conversation messages"[\s\S]*?as restrictive\s+for insert\s+to authenticated\s+with check\s*\(/i],
   ['restrictive likes INSERT policy', /create policy "Blocked accounts cannot like each other's posts"[\s\S]*?on public\.likes[\s\S]*?as restrictive\s+for insert\s+to authenticated/i],
-  ['likes use secure blocked-post predicate', /not private\\.is_post_author_blocked\\(likes\\.post_id\\)/i],
+  ['likes use secure blocked-post predicate', /not private\.is_post_author_blocked\(likes\.post_id\)/i],
   ['restrictive follows INSERT policy', /create policy "Blocked accounts cannot follow each other"[\s\S]*?on public\.follows[\s\S]*?as restrictive\s+for insert\s+to authenticated/i],
   ['follows reject either block direction', /on public\.follows[\s\S]*?b\.blocker_id\s*=\s*\(select auth\.uid\(\)\)[\s\S]*?b\.blocked_id\s*=\s*follows\.following_id[\s\S]*?or[\s\S]*?b\.blocked_id\s*=\s*\(select auth\.uid\(\)\)[\s\S]*?b\.blocker_id\s*=\s*follows\.following_id/i],
   ['message sender identity validation', /sender_id\s*=\s*\(select auth\.uid\(\)\)/i],
