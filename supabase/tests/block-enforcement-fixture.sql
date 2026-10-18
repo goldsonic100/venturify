@@ -31,6 +31,17 @@ create table public.comments (
   author_id uuid not null references public.profiles(id),
   body text not null
 );
+create table public.likes (
+  post_id uuid not null references public.posts(id),
+  user_id uuid not null references public.profiles(id),
+  primary key (post_id, user_id)
+);
+create table public.follows (
+  follower_id uuid not null references public.profiles(id),
+  following_id uuid not null references public.profiles(id),
+  primary key (follower_id, following_id),
+  check (follower_id <> following_id)
+);
 create table public.user_blocks (
   blocker_id uuid not null references public.profiles(id),
   blocked_id uuid not null references public.profiles(id),
@@ -54,6 +65,8 @@ alter table public.profiles enable row level security;
 alter table public.posts enable row level security;
 alter table public.comments enable row level security;
 alter table public.user_blocks enable row level security;
+alter table public.likes enable row level security;
+alter table public.follows enable row level security;
 alter table public.conversation_members enable row level security;
 alter table public.messages enable row level security;
 
@@ -61,6 +74,8 @@ create policy "Profiles are visible to everyone" on public.profiles for select u
 create policy "Posts are public" on public.posts for select using (true);
 create policy "Comments are public" on public.comments for select using (true);
 create policy "Signed-in users create comments as themselves" on public.comments for insert to authenticated with check (auth.uid() = author_id);
+create policy "Users like as themselves" on public.likes for insert to authenticated with check (auth.uid() = user_id);
+create policy "Users follow as themselves" on public.follows for insert to authenticated with check (auth.uid() = follower_id and follower_id <> following_id);
 create policy "Users can view blocks involving them" on public.user_blocks for select to authenticated using (auth.uid() = blocker_id or auth.uid() = blocked_id);
 create policy "Users can see their own membership rows" on public.conversation_members for select to authenticated using (auth.uid() = user_id);
 create policy "Members can read messages" on public.messages for select to authenticated using (
@@ -74,8 +89,9 @@ create policy "Members can send messages as themselves" on public.messages for i
 grant usage on schema public, auth to authenticated, anon;
 grant execute on function auth.uid() to authenticated, anon;
 grant select on public.profiles, public.posts, public.comments to authenticated, anon;
-grant insert on public.comments, public.messages to authenticated;
+grant insert on public.comments, public.messages, public.likes, public.follows to authenticated;
 grant select on public.user_blocks, public.conversation_members, public.messages to authenticated;
+grant usage on schema private to authenticated;
 
 insert into public.profiles (id, display_name) values
  ('00000000-0000-0000-0000-000000000001', 'Alice'),
