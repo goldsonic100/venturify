@@ -15,7 +15,7 @@ for (const [index, match] of scripts.entries()) {
   }
 }
 
-const discoverScripts = [...discoverHtml.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)];
+const discoverScripts = [...discoverHtml.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
 assert.ok(discoverScripts.length > 0, 'discover.html should contain inline scripts');
 for (const [index, match] of discoverScripts.entries()) {
   try { new Function(match[1]); }
