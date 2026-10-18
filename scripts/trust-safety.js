@@ -90,7 +90,11 @@
     });
     status('Blocked-account list loaded.');
   });
-  $('ventSafetyDashboard').addEventListener('click', async () => {\n    const user = await signedIn(); if (!user) return;\n    window.location.href = 'moderator.html';\n  });\n  $('ventSafetyModerator').addEventListener('click', async () => {
+  $('ventSafetyDashboard').addEventListener('click', async () => {
+    const user = await signedIn(); if (!user) return;
+    window.location.href = 'moderator.html';
+  });
+  $('ventSafetyModerator').addEventListener('click', async () => {
     const user = await signedIn(); if (!user) return;
     const review = $('ventSafetyReview');
     review.hidden = false;
