@@ -838,6 +838,7 @@ renderCases();
   const memberRows=memberships.error?[]:(memberships.data||[]);
   communityCounts=new Map();communityIdsByUser=new Map();const followerCounts=new Map(),postCounts=new Map(),commentCounts=new Map();
   memberRows.forEach(x=>{communityCounts.set(x.user_id,(communityCounts.get(x.user_id)||0)+1);if(!communityIdsByUser.has(x.user_id))communityIdsByUser.set(x.user_id,new Set());communityIdsByUser.get(x.user_id).add(x.community_id)});
+  ownCommunityIds=new Set(communityIdsByUser.get(currentUser?.id)||[]);
   (followersResult.data||[]).forEach(x=>followerCounts.set(x.following_id,(followerCounts.get(x.following_id)||0)+1));
   (postsResult.data||[]).forEach(x=>postCounts.set(x.user_id,(postCounts.get(x.user_id)||0)+1));
   (commentsResult.data||[]).forEach(x=>{if(x.user_id)commentCounts.set(x.user_id,(commentCounts.get(x.user_id)||0)+1)});
