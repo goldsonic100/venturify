@@ -163,7 +163,6 @@ assert.match(html, /aHelp=\[\.\.\.askA\]\.filter\(x=>skillsB\.has\(x\)\),bHelp=\
   'Complementary skill comparison should check both directions');
 
 // Founder shortlist regression checks (Discover page + Supabase-backed privacy).
-const discoverHtml = readFileSync(new URL('../discover.html', import.meta.url), 'utf8');
 assert.match(discoverHtml, /data-match-feedback="relevant"/,
   'Founder cards should let users mark a match relevant');
 assert.match(discoverHtml, /data-match-feedback="not_relevant"/,
