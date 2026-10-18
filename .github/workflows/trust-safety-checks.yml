@@ -10,6 +10,7 @@ on:
       - 'supabase/migrations/20261017000000_enforce_user_blocks.sql'
       - 'supabase/migrations/20261018150000_add_moderator_review_workflow.sql'
       - 'supabase/migrations/20261018160000_add_moderator_dashboard.sql'
+      - 'supabase/migrations/20261018170000_paginate_moderator_reports.sql'
       - '.github/workflows/trust-safety-checks.yml'
   push:
     branches: [main]
