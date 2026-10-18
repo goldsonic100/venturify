@@ -62,8 +62,12 @@ The dedicated `moderator.html` page adds Overview, Reports, Accounts, Content, a
 
 - `moderator_dashboard_overview()` returns aggregate counts for profiles, posts, comments, communities, memberships, reports, and messages.
 - `moderator_list_users(query, limit, offset)` searches profile-level fields and follower/post counts. It deliberately does not return email addresses or authentication data.
-- `moderator_list_recent_posts(query, limit)` lists public post content for review.
+- `moderator_list_recent_posts(query, limit)` lists public post content for review (legacy compatibility).
+- `moderator_list_recent_posts_page(query, limit, offset)` returns one page of public post content for review, with a bounded offset and moderator allowlist check.
 
 Apply `supabase/migrations/20261018160000_add_moderator_dashboard.sql` in the Supabase SQL Editor after the moderator review migration. The RPCs verify membership in `private.moderators` on every call. They do not expose private messages, auth credentials, session data, or the moderator allowlist.
 
 The Systems tab reports database query success and current record counts only. It is not a hosting uptime, billing, email-delivery, or incident monitoring system. Account suspension/deletion is intentionally not included; those actions need a separate server-side workflow with an audit trail.
+
+
+The paginated moderator content queue uses `supabase/migrations/20261018180000_paginate_moderator_posts.sql`. Apply it in Supabase SQL Editor after the dashboard migration before using the updated Content tab. The browser fetches 51 rows to display 50 and reliably detects whether another page exists.
