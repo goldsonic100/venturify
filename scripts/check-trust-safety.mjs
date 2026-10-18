@@ -8,7 +8,10 @@ const safetyScript = readFileSync('scripts/trust-safety.js', 'utf8');
 
 // Base safety schema and row-level security controls must not silently disappear.
 for (const table of ['user_blocks', 'content_reports']) {
-  assert.match(foundation, new RegExp('create table if not exists public\\\\.' + table, 'i'), `Missing ${table} table`);
+  assert.ok(
+    foundation.toLowerCase().includes(`create table if not exists public.${table}`),
+    `Missing ${table} table`
+  );
 }
 for (const policy of [
   'Users can view blocks involving them',
@@ -22,8 +25,8 @@ for (const policy of [
 for (const control of ['ventSafetyLauncher', 'ventSafetyPanel', 'ventSafetyReport', 'ventSafetyBlock']) {
   assert.ok(safetyScript.includes(control), `Missing safety UI control: ${control}`);
 }
-assert.match(safetyScript, /maxlength="1000"/i, 'Report details should remain length-limited');
-assert.match(safetyScript, /auth\\.getUser\\(/, 'Safety actions must check signed-in user context');
+assert.ok(safetyScript.toLowerCase().includes('maxlength="1000"'), 'Report details should remain length-limited');
+assert.ok(safetyScript.includes('auth.getUser('), 'Safety actions must check signed-in user context');
 
 // The database-level block migration must retain every restrictive policy.
 for (const policy of [
@@ -41,17 +44,22 @@ for (const policy of [
   assert.ok(blockMigration.includes(policy), `Missing block enforcement policy: ${policy}`);
 }
 for (const fn of ['is_post_author_blocked', 'is_conversation_blocked']) {
-  assert.match(blockMigration, new RegExp('function private\\\\.' + fn + '\\\\('), `Missing private helper ${fn}`);
+  assert.ok(blockMigration.includes(`function private.${fn}(`), `Missing private helper ${fn}`);
 }
-assert.match(blockMigration, /security definer[\\s\\S]*?set search_path = ''/i,
-  'Privileged block-check helpers must pin an empty search_path');
-assert.match(blockMigration, /revoke all on function private\\.is_post_author_blocked\\(uuid\\) from public, anon/i,
-  'Post helper must not be executable by PUBLIC or anon');
-assert.match(blockMigration, /revoke all on function private\\.is_conversation_blocked\\(uuid\\) from public, anon/i,
-  'Conversation helper must not be executable by PUBLIC or anon');
+assert.ok(
+  blockMigration.toLowerCase().includes('security definer') &&
+  blockMigration.includes("set search_path = ''"),
+  'Privileged block-check helpers must pin an empty search_path'
+);
+assert.ok(
+  blockMigration.includes('revoke all on function private.is_post_author_blocked(uuid) from public, anon'),
+  'Post helper must not be executable by PUBLIC or anon'
+);
+assert.ok(
+  blockMigration.includes('revoke all on function private.is_conversation_blocked(uuid) from public, anon'),
+  'Conversation helper must not be executable by PUBLIC or anon'
+);
 
-for (const path of ['scripts/trust-safety.js']) {
-  const syntax = spawnSync(process.execPath, ['--check', path], { encoding: 'utf8' });
-  assert.equal(syntax.status, 0, syntax.stderr || `Syntax check failed for ${path}`);
-}
+const syntax = spawnSync(process.execPath, ['--check', 'scripts/trust-safety.js'], { encoding: 'utf8' });
+assert.equal(syntax.status, 0, syntax.stderr || 'Safety script syntax check failed');
 console.log('Trust & safety regression checks passed.');
