@@ -187,7 +187,7 @@ assert.match(discoverHtml, /sharedCommunityCount=.*Math\.min\(sharedCommunityCou
   'Daily recommendations should also reward shared communities');
 assert.match(discoverHtml, /Communities you both joined:/,
   'Match insights should name the communities shared by both founders');
-assert.match(discoverHtml, /Complementary skills:/,
+assert.match(discoverHtml, /Skills that fit your goals:/,
   'Match insights should explain complementary skills');
 assert.match(discoverHtml, /Collaboration goals:/,
   'Match insights should explain collaboration goals');
