@@ -27,6 +27,8 @@ for (const control of ['ventSafetyLauncher', 'ventSafetyPanel', 'ventSafetyRepor
 }
 assert.ok(safetyScript.toLowerCase().includes('maxlength="1000"'), 'Report details should remain length-limited');
 assert.ok(safetyScript.includes('auth.getUser('), 'Safety actions must check signed-in user context');
+assert.ok(safetyScript.includes("type === 'user' && id === user.id"), 'The UI should prevent self-report attempts');
+assert.ok(safetyScript.includes('Their profile, posts, and interactions are filtered while you are signed in'), 'Block confirmation should describe active database filtering');
 
 // The database-level block migration must retain every restrictive policy.
 for (const policy of [
