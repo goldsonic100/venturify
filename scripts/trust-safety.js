@@ -105,6 +105,7 @@
     const user = await signedIn(); if (!user) return;
     const type = $('ventSafetyTargetType').value, id = $('ventSafetyTargetId').value.trim();
     if (!validUuid(id)) { status('Select a profile or post on the page, or enter a valid ID.'); return; }
+    if (type === 'user' && id === user.id) { status('You cannot report your own account.'); return; }
     const payload = {reporter_id:user.id, reason:$('ventSafetyReason').value, details:$('ventSafetyDetails').value.trim()};
     payload[type === 'user' ? 'reported_user_id' : 'post_id'] = id;
     $('ventSafetyReport').disabled = true;
@@ -124,6 +125,6 @@
     const {error} = await client.from('user_blocks').upsert({blocker_id:user.id, blocked_id:id}, {onConflict:'blocker_id,blocked_id', ignoreDuplicates:true});
     $('ventSafetyBlock').disabled = false;
     if (error) { status(error.code === '42P01' || error.code === 'PGRST205' ? 'Blocking is not set up yet. Apply the trust-safety SQL migration first.' : 'Could not block this account. Check that the migration is applied and try again.'); return; }
-    status('Account blocked. Database-level filtering will take effect after the block-enforcement migration is applied.');
+    status('Account blocked. Their profile, posts, and interactions are filtered while you are signed in. Refresh the page to reload visible content.');
   });
 })();
