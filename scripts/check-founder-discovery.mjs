@@ -25,8 +25,8 @@ assert.ok(discoverHtml.includes('Learn topic preferences from founders the viewe
   'Discover should learn topic preferences from explicit feedback');
 assert.ok(discoverHtml.includes('learnedTopicWeights.get(word)||0'),
   'Learned feedback topics should influence discovery scoring');
-assert.ok(discoverHtml.includes('Fits topics from founders you rated relevant'),
-  'Discover should explain positive feedback-based personalization');
+assert.ok(discoverHtml.includes('Past feedback adjusted this match by '),
+  'Discover should explain positive and negative feedback-based personalization');
 
 // Regression checks for the founder-discovery requirements.
 assert.match(html, /communityCounts\.get\(p\.id\)\|\|0\)>=1&&founderLevel\(p\)>=5/,
