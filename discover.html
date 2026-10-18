@@ -818,7 +818,7 @@ renderCases();
    if(shared.length){reasons.push('Shared skills');insights.push('Shared skills: '+shared.slice(0,3).join(', '))}
    if(sharedCommunities.length){reasons.push('Same communities');insights.push('Communities you both joined: '+sharedCommunities.slice(0,3).join(', '))}
    if(sharedTopics.length){reasons.push('Similar topics');insights.push('Related profile topics: '+sharedTopics.slice(0,3).join(', '))}
-   if(feedbackBonus>=5)insights.push('Fits topics from founders you rated relevant');else if(feedbackBonus<=-5)insights.push('Adjusted using your past recommendation feedback');
+   if(feedbackBonus!==0){const points=(feedbackBonus>0?'+':'')+feedbackBonus;insights.push('Past feedback adjusted this match by '+points+' points based on topics in founders you rated.')}if(matchFeedback.get(p.id)==='relevant')insights.push('You previously rated this founder relevant, so they receive a small preference boost');
    if(collab){reasons.push('Open to collaboration');insights.push('Collaboration goals: their profile says they are open to a cofounder, partner, or teammate')}
    return {score,reasons:reasons.slice(0,2),insights:insights.slice(0,4)}
   };
