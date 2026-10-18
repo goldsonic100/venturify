@@ -31,7 +31,7 @@ h1{font:500 clamp(32px,5vw,48px) Georgia,serif;letter-spacing:-1.5px;margin:8px 
 <button type="button" data-tab="systems" aria-selected="false">Systems</button>
 </nav>
 <section class="panel" id="panel-overview"><div class="cards" id="metrics"></div><div class="surface"><h2>Moderator quick notes</h2><p class="muted">Start with pending reports, then inspect the related profile or post. Decisions and private notes are saved through protected database functions.</p><div class="actions"><button class="btn primary" data-go="reports">Review reports</button><button class="btn" data-go="accounts">Search accounts</button><button class="btn" data-go="content">Inspect recent posts</button></div></div></section>
-<section class="panel" id="panel-reports" hidden><div class="surface"><h2>Report queue</h2><p class="muted">Review user-submitted reports and save a decision with private moderator notes.</p><div class="toolbar"><select id="reportFilter" aria-label="Filter report status"><option value="pending">Pending</option><option value="reviewing">Reviewing</option><option value="resolved">Resolved</option><option value="dismissed">Dismissed</option><option value="">All statuses</option></select><button class="btn" id="loadReports">Load reports</button></div><div id="reportsList"><div class="empty">Loading reports…</div></div></div></section>
+<section class="panel" id="panel-reports" hidden><div class="surface"><h2>Report queue</h2><p class="muted">Review user-submitted reports and save a decision with private moderator notes.</p><div class="toolbar"><select id="reportFilter" aria-label="Filter report status"><option value="pending">Pending</option><option value="reviewing">Reviewing</option><option value="resolved">Resolved</option><option value="dismissed">Dismissed</option><option value="">All statuses</option></select><button class="btn" id="loadReports">Load reports</button></div><div id="reportsList"><div class="empty">Loading reports…</div></div><div class="actions"><button class="btn" id="prevReports" type="button">← Previous</button><button class="btn" id="nextReports" type="button">Next →</button><span id="reportPageLabel" class="muted">Page 1</span></div></div></section>
 <section class="panel" id="panel-accounts" hidden><div class="surface"><h2>Account directory</h2><p class="muted">Search profile records by username, display name, or exact profile ID. For privacy, this view does not expose emails, credentials, sessions, or private messages.</p><div class="toolbar"><input id="userQuery" type="search" maxlength="120" placeholder="Search username, name, or profile UUID"><button class="btn primary" id="searchUsers">Search accounts</button></div><div id="usersList"><div class="empty">Search to view accounts.</div></div><div class="actions"><button class="btn" id="prevUsers">← Previous</button><button class="btn" id="nextUsers">Next →</button></div></div></section>
 <section class="panel" id="panel-content" hidden><div class="surface"><h2>Recent posts</h2><p class="muted">Search publicly shared posts to review content that may need moderation.</p><div class="toolbar"><input id="postQuery" type="search" maxlength="120" placeholder="Search post text, author, or post UUID"><button class="btn primary" id="searchPosts">Search content</button></div><div id="postsList"><div class="empty">Loading recent posts…</div></div></div></section>
 <section class="panel" id="panel-systems" hidden><div class="surface"><h2>System checks</h2><p class="muted">These are live database counters and authorization checks—not uptime, hosting, billing, or email-delivery monitoring.</p><div id="systemChecks"></div><div class="actions"><button class="btn primary" id="checkSystems">Run checks</button></div></div><div class="surface"><h2>Security boundaries</h2><p>✓ Moderator RPCs check the private moderator allowlist.</p><p>✓ Account directory returns profile-level fields only.</p><p>✓ No service-role key is shipped to this browser page.</p><p>✓ Private messages and authentication credentials are not shown in this dashboard.</p></div></section>
@@ -44,8 +44,9 @@ h1{font:500 clamp(32px,5vw,48px) Georgia,serif;letter-spacing:-1.5px;margin:8px 
 const client = window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
 const $ = id => document.getElementById(id);
 const status = (message, error=false) => { $('status').textContent=message; $('status').classList.toggle('error',error); $('status').hidden=false; };
-let userOffset=0, authorized=false, userHasNext=false;
+let userOffset=0, authorized=false, userHasNext=false, reportOffset=0, reportHasNext=false;
 function updateUserPagination(){ $('prevUsers').disabled=userOffset===0; $('nextUsers').disabled=!userHasNext; }
+function updateReportPagination(){ $('prevReports').disabled=reportOffset===0; $('nextReports').disabled=!reportHasNext; $('reportPageLabel').textContent='Page '+(Math.floor(reportOffset/50)+1); }
 const safe = value => String(value ?? '');
 const escapeHtml = value => safe(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function rpc(name,args={}) { const result=await client.rpc(name,args); if(result.error) throw result.error; return result.data; }
@@ -62,9 +63,11 @@ async function loadOverview(){
 async function loadReports(){
  const host=$('reportsList');host.replaceChildren();host.innerHTML='<div class="empty">Loading reports…</div>';
  try{
-  const data=await rpc('moderator_list_reports',{p_status:$('reportFilter').value||null,p_limit:100});
-  host.replaceChildren();if(!data.length){host.innerHTML='<div class="empty">No reports in this queue.</div>';return;}
-  data.forEach(report=>{
+  const data=await rpc('moderator_list_reports_page',{p_status:$('reportFilter').value||null,p_limit:51,p_offset:reportOffset});
+  reportHasNext=data.length>50;updateReportPagination();
+  const visibleReports=data.slice(0,50);
+  host.replaceChildren();if(!visibleReports.length){host.innerHTML='<div class="empty">No reports on this page.</div>';return;}
+  visibleReports.forEach(report=>{
    const card=document.createElement('article');card.className='item';
    const title=document.createElement('h3');title.textContent=report.reason+' · '+report.status;
    const meta=document.createElement('p');meta.textContent='Created '+new Date(report.created_at).toLocaleString()+' · Report '+report.id;
@@ -78,7 +81,7 @@ async function loadReports(){
    save.addEventListener('click',async()=>{save.disabled=true;try{await rpc('moderator_update_report',{p_report_id:report.id,p_status:select.value,p_moderator_notes:notes.value});status('Report review saved.');await loadReports();await loadOverview()}catch(e){status('Could not save review: '+safe(e.message),true)}finally{save.disabled=false}});
    card.append(title,meta,target,details,label,select,noteLabel,notes,save);host.append(card);
   });
- }catch(e){host.innerHTML='<div class="empty">Unable to load reports: '+escapeHtml(e.message)+'</div>'}
+ }catch(e){reportHasNext=false;updateReportPagination();host.innerHTML='<div class="empty">Unable to load reports: '+escapeHtml(e.message)+'</div>'}
 }
 async function loadUsers(){
  const host=$('usersList');host.replaceChildren();host.innerHTML='<div class="empty">Loading accounts…</div>';userHasNext=false;updateUserPagination();
@@ -116,7 +119,8 @@ async function init(){
  }catch(e){status(e.code==='42501'?'Access denied: this account is not on the moderator allowlist.':'Could not verify moderator access. The dashboard SQL migration may not be applied yet. '+safe(e.message),true)}
 }
 $('refreshButton').addEventListener('click',async()=>{if(!authorized)return;try{await loadOverview();const active=document.querySelector('[data-tab][aria-selected="true"]')?.dataset.tab;if(active==='reports')await loadReports();if(active==='accounts')await loadUsers();if(active==='content')await loadPosts();if(active==='systems')await loadSystems();status('Dashboard refreshed.')}catch(e){status(safe(e.message),true)}});
-$('loadReports').addEventListener('click',loadReports);$('reportFilter').addEventListener('change',loadReports);
+$('loadReports').addEventListener('click',loadReports);$('reportFilter').addEventListener('change',()=>{reportOffset=0;loadReports()});
+$('prevReports').addEventListener('click',()=>{if(reportOffset===0)return;reportOffset=Math.max(0,reportOffset-50);loadReports()});$('nextReports').addEventListener('click',()=>{if(!reportHasNext)return;reportOffset+=50;loadReports()});updateReportPagination();
 $('searchUsers').addEventListener('click',()=>{userOffset=0;loadUsers()});$('userQuery').addEventListener('keydown',e=>{if(e.key==='Enter'){userOffset=0;loadUsers()}});
 $('prevUsers').addEventListener('click',()=>{if(userOffset===0)return;userOffset=Math.max(0,userOffset-50);loadUsers()});$('nextUsers').addEventListener('click',()=>{if(!userHasNext)return;userOffset+=50;loadUsers()});
 updateUserPagination();
