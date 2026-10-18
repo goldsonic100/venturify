@@ -8,7 +8,7 @@
   const css = document.createElement('style');
   css.textContent = `
     #ventSafetyLauncher{position:fixed;right:16px;bottom:16px;z-index:1000;border:1px solid #cbd8c2;border-radius:999px;padding:11px 15px;background:#183326;color:#f5f8ee;font:700 12px system-ui;box-shadow:0 5px 22px #0002;cursor:pointer}
-    #ventSafetyPanel{position:fixed;right:16px;bottom:66px;z-index:1001;width:min(350px,calc(100vw - 32px));background:#fffefa;border:1px solid #dce4d6;border-radius:14px;padding:17px;box-shadow:0 14px 48px #0003;color:#243126;font:12px system-ui}
+    #ventSafetyPanel{position:fixed;right:16px;bottom:66px;z-index:1001;width:min(350px,calc(100vw - 32px));max-height:calc(100dvh - 88px);overflow:auto;background:#fffefa;border:1px solid #dce4d6;border-radius:14px;padding:17px;box-shadow:0 14px 48px #0003;color:#243126;font:12px system-ui}
     #ventSafetyPanel[hidden]{display:none}#ventSafetyPanel h3{margin:0 0 8px;font:600 21px Georgia,serif}
     #ventSafetyPanel p{color:#6b776f;line-height:1.5}#ventSafetyPanel label{display:block;font-weight:700;margin:10px 0 5px}
     #ventSafetyPanel input,#ventSafetyPanel select,#ventSafetyPanel textarea{width:100%;box-sizing:border-box;border:1px solid #dce4d6;border-radius:7px;padding:9px;background:white;font:12px system-ui}
@@ -32,8 +32,9 @@
     <select id="ventSafetyReason"><option value="spam">Spam</option><option value="harassment">Harassment</option><option value="fake_or_misleading">Fake or misleading</option><option value="scam">Scam</option><option value="privacy">Privacy concern</option><option value="inappropriate_content">Inappropriate content</option><option value="other">Other</option></select>
     <label for="ventSafetyDetails">Details (optional)</label>
     <textarea id="ventSafetyDetails" maxlength="1000" placeholder="Share enough context for a reviewer"></textarea>
-    <div class="ventSafetyActions"><button id="ventSafetyReport" type="button">Submit report</button><button id="ventSafetyBlock" type="button">Block profile</button><button id="ventSafetyManageBlocks" type="button">Manage blocked accounts</button><button id="ventSafetyClose" type="button">Close</button></div>
+    <div class="ventSafetyActions"><button id="ventSafetyReport" type="button">Submit report</button><button id="ventSafetyBlock" type="button">Block profile</button><button id="ventSafetyManageBlocks" type="button">Manage blocked accounts</button><button id="ventSafetyModerator" type="button">Moderator review</button><button id="ventSafetyClose" type="button">Close</button></div>
     <div id="ventSafetyBlockedList" hidden></div>
+    <div id="ventSafetyReview" hidden></div>
     <div id="ventSafetyStatus" role="status" aria-live="polite"></div>`;
   document.body.appendChild(panel);
   const launcher = document.createElement('button');
@@ -88,6 +89,71 @@
       row.append(id, button); list.appendChild(row);
     });
     status('Blocked-account list loaded.');
+  });
+  $('ventSafetyModerator').addEventListener('click', async () => {
+    const user = await signedIn(); if (!user) return;
+    const review = $('ventSafetyReview');
+    review.hidden = false;
+    review.replaceChildren();
+    const heading = document.createElement('h4');
+    heading.textContent = 'Moderator report queue';
+    review.appendChild(heading);
+    const filter = document.createElement('select');
+    filter.setAttribute('aria-label', 'Filter reports by status');
+    [['pending','Pending'],['reviewing','Reviewing'],['resolved','Resolved'],['dismissed','Dismissed'],['','All statuses']].forEach(([value,label]) => {
+      const option = document.createElement('option'); option.value = value; option.textContent = label; filter.appendChild(option);
+    });
+    review.appendChild(filter);
+    const results = document.createElement('div');
+    review.appendChild(results);
+    const loadReports = async () => {
+      results.replaceChildren();
+      const {data, error} = await client.rpc('moderator_list_reports', {
+        p_status: filter.value || null, p_limit: 50
+      });
+      if (error) {
+        const message = document.createElement('p');
+        message.textContent = error.code === '42501'
+          ? 'Moderator access is restricted. If you should have access, ask the project administrator to provision your account.'
+          : 'Could not load reports. Confirm the moderator-review migration is applied.';
+        results.appendChild(message); return;
+      }
+      if (!data?.length) {
+        const empty = document.createElement('p'); empty.textContent = 'No reports in this queue.'; results.appendChild(empty); return;
+      }
+      data.forEach(report => {
+        const card = document.createElement('article');
+        card.style.cssText = 'border-top:1px solid #e2e6dc;padding:12px 0;overflow-wrap:anywhere';
+        const title = document.createElement('strong');
+        title.textContent = report.reason + ' · ' + report.status;
+        const target = document.createElement('p');
+        target.textContent = 'Report ID: ' + report.id + ' · Reporter: ' + report.reporter_id;
+        const details = document.createElement('p');
+        details.textContent = 'Target: ' + (report.reported_user_id || report.post_id || report.comment_id || 'unknown') + ' · ' + (report.details || 'No extra details');
+        const statusLabel = document.createElement('label'); statusLabel.textContent = 'Decision';
+        const statusSelect = document.createElement('select');
+        [['pending','Pending'],['reviewing','Reviewing'],['resolved','Resolved'],['dismissed','Dismissed']].forEach(([value,label]) => {
+          const option = document.createElement('option'); option.value = value; option.textContent = label; statusSelect.appendChild(option);
+        });
+        statusSelect.value = report.status;
+        const notesLabel = document.createElement('label'); notesLabel.textContent = 'Private moderator notes';
+        const notes = document.createElement('textarea'); notes.maxLength = 2000; notes.value = report.moderator_notes || '';
+        const save = document.createElement('button'); save.type = 'button'; save.textContent = 'Save review';
+        save.addEventListener('click', async () => {
+          save.disabled = true;
+          const {error: saveError} = await client.rpc('moderator_update_report', {
+            p_report_id: report.id, p_status: statusSelect.value, p_moderator_notes: notes.value
+          });
+          save.disabled = false;
+          if (saveError) { status('Could not save review. Confirm moderator access and try again.'); return; }
+          status('Report review saved.'); await loadReports();
+        });
+        card.append(title, target, details, statusLabel, statusSelect, notesLabel, notes, save);
+        results.appendChild(card);
+      });
+    };
+    filter.addEventListener('change', loadReports);
+    await loadReports();
   });
   document.addEventListener('click', event => {
     const post = event.target.closest('article[id^="post-"]');

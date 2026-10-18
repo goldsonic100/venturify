@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 
 const foundation = readFileSync('supabase/migrations/20261016000000_add_trust_safety_foundation.sql', 'utf8');
 const blockMigration = readFileSync('supabase/migrations/20261017000000_enforce_user_blocks.sql', 'utf8');
+const moderatorMigration = readFileSync('supabase/migrations/20261018150000_add_moderator_review_workflow.sql', 'utf8');
 const safetyScript = readFileSync('scripts/trust-safety.js', 'utf8');
 
 // Base safety schema and row-level security controls must not silently disappear.
@@ -28,6 +29,17 @@ for (const control of ['ventSafetyLauncher', 'ventSafetyPanel', 'ventSafetyRepor
 assert.ok(safetyScript.toLowerCase().includes('maxlength="1000"'), 'Report details should remain length-limited');
 assert.ok(safetyScript.includes('auth.getUser('), 'Safety actions must check signed-in user context');
 assert.ok(safetyScript.includes("type === 'user' && id === user.id"), 'The UI should prevent self-report attempts');
+assert.ok(safetyScript.includes('ventSafetyModerator'), 'The moderator review control should exist');
+assert.ok(safetyScript.includes("client.rpc('moderator_list_reports'"), 'The moderator panel should use the protected report-list RPC');
+assert.ok(safetyScript.includes("client.rpc('moderator_update_report'"), 'The moderator panel should use the protected report-update RPC');
+assert.ok(moderatorMigration.includes('create table if not exists private.moderators'), 'Missing private moderator allowlist');
+assert.ok(moderatorMigration.includes('revoke all on table private.moderators from public, anon, authenticated'), 'Moderator allowlist must not be client-readable');
+assert.ok(moderatorMigration.includes('grant execute on function public.moderator_list_reports(text, integer) to authenticated'), 'Authenticated clients need only the guarded report-list RPC');
+assert.ok(moderatorMigration.includes('grant execute on function public.moderator_update_report(uuid, text, text) to authenticated'), 'Authenticated clients need only the guarded report-update RPC');
+for (const fn of ['moderator_list_reports', 'moderator_update_report']) {
+  assert.ok(moderatorMigration.includes(`function public.${fn}(`) && moderatorMigration.includes('security definer') && moderatorMigration.includes("set search_path = ''"), `Missing hardened moderator RPC: ${fn}`);
+}
+assert.ok(moderatorMigration.includes("using errcode = '42501'"), 'Moderator RPCs must reject non-moderators');
 assert.ok(safetyScript.includes('Their profile, posts, and interactions are filtered while you are signed in'), 'Block confirmation should describe active database filtering');
 
 // The database-level block migration must retain every restrictive policy.
