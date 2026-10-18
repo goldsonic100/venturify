@@ -25,3 +25,32 @@ This is a database foundation, not a complete user-facing moderation feature yet
 - Add abuse-rate limits, appeal/deletion handling, and test with two accounts before launch.
 
 Reports are private to the reporter under the current client policies. There is intentionally no public client policy that lets users browse all reports or alter moderation decisions.
+
+
+## Protected moderator review workflow
+
+The moderator review migration adds a private allowlist and two guarded RPCs:
+- `public.moderator_list_reports(status, limit)` lists reports only for provisioned moderators.
+- `public.moderator_update_report(report_id, status, notes)` records a decision, private notes, reviewer ID, and review time.
+- The Safety panel's **Moderator review** control uses these RPCs. Ordinary signed-in users may see the control, but the database denies access unless their account is on the allowlist.
+- The allowlist is in the non-exposed `private.moderators` table and is not readable/writable by browser roles. Authorization does not rely on user-editable profile metadata.
+- The service-role/secret key must never be placed in browser code.
+
+### Provision a moderator
+
+After the migration has been reviewed and applied, a trusted project administrator must find the intended person's UUID in Supabase Dashboard → Authentication → Users, then run this in SQL Editor as the database owner (replace the placeholder with that exact UUID):
+
+```sql
+insert into private.moderators (user_id)
+values ('REPLACE-WITH-AUTH-USER-UUID')
+on conflict (user_id) do nothing;
+```
+
+To revoke moderator access:
+
+```sql
+delete from private.moderators
+where user_id = 'REPLACE-WITH-AUTH-USER-UUID';
+```
+
+Do not run the placeholder SQL as-is. Provision only trusted accounts. The migration does not automatically make anyone a moderator, and it has not been applied to the live project by this change.
