@@ -32,7 +32,25 @@ begin
     raise exception 'FAIL: message to blocked account was accepted';
   exception when insufficient_privilege then null;
   end;
-end $$;
+  begin
+    insert into public.likes (post_id, user_id) values
+      ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001');
+    raise exception 'FAIL: like on blocked account post was accepted';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    insert into public.follows (follower_id, following_id) values
+      ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002');
+    raise exception 'FAIL: follow to blocked account was accepted';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    insert into public.follows (follower_id, following_id) values
+      ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001');
+    raise exception 'FAIL: blocked account could follow blocker';
+  exception when insufficient_privilege then null;
+  end;
+end $;
 reset role;
 
 -- Bob (the blocked party) must also be unable to read Alice's content/messages.
