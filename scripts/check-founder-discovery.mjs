@@ -105,7 +105,7 @@ assert.match(html, /feedbackByCandidate\.get\(profile\.id\)==='relevant'\?4:-5/,
   'Relevant feedback should reinforce profile topics and not-relevant feedback should discourage them');
 assert.match(html, /feedbackBonus=Math\.max\(-15,Math\.min\(15,feedbackSignal\)\)/,
   'Learned topic influence should be capped so feedback cannot dominate every other match signal');
-assert.match(html, /reasons\.push\('Fits feedback you liked'\)/,
+assert.match(html, /reasons\.push\('Fits feedback you liked:/,
   'Match explanations should identify when feedback preferences influenced a recommendation');
 assert.match(html, /learnedTopicWeights\.get\(word\)\|\|0/,
   'Both daily ranking and displayed scores should use learned topic preferences');
