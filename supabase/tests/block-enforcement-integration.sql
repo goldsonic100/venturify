@@ -26,13 +26,13 @@ end $$;
 do $$
 begin
   begin
-    insert into public.comments (id, post_id, author_id, body) values
+    insert into public.comments (id, post_id, user_id, content) values
       ('20000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Should fail');
     raise exception 'FAIL: comment on blocked account post was accepted';
   exception when insufficient_privilege then null;
   end;
   begin
-    insert into public.messages (id, conversation_id, sender_id, body) values
+    insert into public.messages (id, conversation_id, sender_id, content) values
       ('40000000-0000-0000-0000-000000000003', '30000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Should fail');
     raise exception 'FAIL: message to blocked account was accepted';
   exception when insufficient_privilege then null;
