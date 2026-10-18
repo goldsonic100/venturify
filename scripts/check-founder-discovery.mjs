@@ -173,7 +173,9 @@ assert.match(discoverHtml, /matchFeedback\.get\(p\.id\)!=='not_relevant'/,
   'Future daily recommendations should exclude founders marked not relevant');
 assert.match(discoverHtml, /matchFeedback\.get\(p\.id\)==='relevant'\?15:0/,
   'Relevant feedback should boost future match ranking');
-assert.match(discoverHtml, /Past feedback adjusted this match by '\+?'\+feedbackBonus\+' points based on topics in founders you rated\./,
+assert.ok(discoverHtml.includes("const points=(feedbackBonus>0?'+':'')+feedbackBonus"),
+  'Discover should format positive and negative feedback adjustments clearly');
+assert.ok(discoverHtml.includes('Past feedback adjusted this match by '+"'+points+'"+' points based on topics in founders you rated.'),
   'Discover should explain the numeric feedback adjustment to each match score');
 assert.match(discoverHtml, /You previously rated this founder relevant, so they receive a small preference boost/,
   'Discover should explain when a previously relevant rating boosts a founder');
