@@ -7,6 +7,7 @@ const blockMigration = readFileSync('supabase/migrations/20261017000000_enforce_
 const moderatorMigration = readFileSync('supabase/migrations/20261018150000_add_moderator_review_workflow.sql', 'utf8');
 const dashboardMigration = readFileSync('supabase/migrations/20261018160000_add_moderator_dashboard.sql', 'utf8');
 const reportPaginationMigration = readFileSync('supabase/migrations/20261018170000_paginate_moderator_reports.sql', 'utf8');
+const contentPaginationMigration = readFileSync('supabase/migrations/20261018180000_paginate_moderator_posts.sql', 'utf8');
 const moderatorPage = readFileSync('moderator.html', 'utf8');
 const safetyScript = readFileSync('scripts/trust-safety.js', 'utf8');
 
@@ -43,6 +44,15 @@ assert.ok(moderatorPage.includes('userHasNext=data.length>50'), 'Next page shoul
 assert.ok(moderatorPage.includes('data.slice(0,50).forEach'), 'Account directory should display at most 50 accounts per page');
 assert.ok(moderatorPage.includes('if(!userHasNext)return'), 'Account pagination must prevent advancing past the last page');
 assert.ok(moderatorPage.includes("if(userOffset>0){userOffset=Math.max(0,userOffset-50);updateUserPagination();await loadUsers();return;}"), 'An emptied final account page should fall back to the previous page');
+assert.ok(moderatorPage.includes("rpc('moderator_list_recent_posts_page'") && moderatorPage.includes('p_limit:51,p_offset:postOffset'), 'Content review should use a paginated protected RPC with a lookahead row');
+assert.ok(moderatorPage.includes('postHasNext=data.length>50') && moderatorPage.includes('visiblePosts=data.slice(0,50)'), 'Content review should display at most 50 rows and detect a next page');
+assert.ok(moderatorPage.includes("if(postOffset>0){postOffset=Math.max(0,postOffset-50);updatePostPagination();await loadPosts();return;}"), 'An emptied final content page should fall back to the previous page');
+assert.ok(contentPaginationMigration.includes('function public.moderator_list_recent_posts_page('), 'Missing paginated moderator content RPC');
+assert.ok(contentPaginationMigration.includes('security definer') && contentPaginationMigration.includes("set search_path = ''"), 'Paginated content RPC must be hardened');
+assert.ok(contentPaginationMigration.includes("using errcode = '42501'"), 'Paginated content RPC must reject non-moderators');
+assert.ok(contentPaginationMigration.includes('offset greatest(0, least(coalesce(p_offset, 0), 1000000))'), 'Content offset must be bounded');
+assert.ok(contentPaginationMigration.includes('revoke all on function public.moderator_list_recent_posts_page(text, integer, integer) from public, anon'), 'Paginated content RPC must revoke public and anonymous execution');
+assert.ok(contentPaginationMigration.includes('grant execute on function public.moderator_list_recent_posts_page(text, integer, integer) to authenticated'), 'Paginated content RPC should be callable by authenticated clients, with moderator checks inside');
 assert.ok(!moderatorPage.includes('service_role') && !moderatorPage.includes('sb_secret_'), 'Dashboard must not ship service-role or secret keys');
 for (const fn of ['moderator_dashboard_overview', 'moderator_list_users', 'moderator_list_recent_posts']) {
   assert.ok(dashboardMigration.includes(`function public.${fn}(`), `Missing dashboard RPC ${fn}`);
