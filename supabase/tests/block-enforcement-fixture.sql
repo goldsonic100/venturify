@@ -22,14 +22,14 @@ create table public.profiles (
 );
 create table public.posts (
   id uuid primary key,
-  author_id uuid not null references public.profiles(id),
-  body text not null
+  user_id uuid not null references public.profiles(id),
+  content text not null
 );
 create table public.comments (
   id uuid primary key,
   post_id uuid not null references public.posts(id),
-  author_id uuid not null references public.profiles(id),
-  body text not null
+  user_id uuid not null references public.profiles(id),
+  content text not null
 );
 create table public.likes (
   post_id uuid not null references public.posts(id),
@@ -58,7 +58,7 @@ create table public.messages (
   id uuid primary key,
   conversation_id uuid not null references public.conversations(id),
   sender_id uuid not null references public.profiles(id),
-  body text not null
+  content text not null
 );
 
 alter table public.profiles enable row level security;
@@ -73,7 +73,7 @@ alter table public.messages enable row level security;
 create policy "Profiles are visible to everyone" on public.profiles for select using (true);
 create policy "Posts are public" on public.posts for select using (true);
 create policy "Comments are public" on public.comments for select using (true);
-create policy "Signed-in users create comments as themselves" on public.comments for insert to authenticated with check (auth.uid() = author_id);
+create policy "Signed-in users create comments as themselves" on public.comments for insert to authenticated with check (auth.uid() = user_id);
 create policy "Likes are public" on public.likes for select using (true);
 create policy "Users like as themselves" on public.likes for insert to authenticated with check (auth.uid() = user_id);
 create policy "Follows are public" on public.follows for select using (true);
@@ -100,10 +100,10 @@ insert into public.profiles (id, display_name) values
  ('00000000-0000-0000-0000-000000000001', 'Alice'),
  ('00000000-0000-0000-0000-000000000002', 'Bob'),
  ('00000000-0000-0000-0000-000000000003', 'Charlie');
-insert into public.posts (id, author_id, body) values
+insert into public.posts (id, user_id, content) values
  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'Bob post'),
  ('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003', 'Charlie post');
-insert into public.comments (id, post_id, author_id, body) values
+insert into public.comments (id, post_id, user_id, content) values
  ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 'Bob comment'),
  ('20000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003', 'Charlie comment');
 insert into public.user_blocks values
