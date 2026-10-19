@@ -66,6 +66,30 @@ $function$;
 revoke all on function public.get_or_create_direct_conversation(uuid) from public, anon;
 grant execute on function public.get_or_create_direct_conversation(uuid) to authenticated;
 
+-- Read-receipt policies need a SECURITY DEFINER lookup because the normal
+-- messages SELECT policy intentionally hides blocked conversations from callers.
+create or replace function private.is_message_in_blocked_conversation(p_message_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $function$
+  select exists (
+    select 1
+    from public.messages m
+    join public.conversation_members cm on cm.conversation_id = m.conversation_id
+    join public.user_blocks b
+      on (b.blocker_id = (select auth.uid()) and b.blocked_id = cm.user_id)
+      or (b.blocked_id = (select auth.uid()) and b.blocker_id = cm.user_id)
+    where m.id = p_message_id
+      and cm.user_id <> (select auth.uid())
+  );
+$function$;
+
+revoke all on function private.is_message_in_blocked_conversation(uuid) from public, anon;
+grant execute on function private.is_message_in_blocked_conversation(uuid) to authenticated;
+
 -- Restrictive policies combine with the existing membership policies using AND.
 drop policy if exists "Blocked accounts cannot view conversation metadata" on public.conversations;
 create policy "Blocked accounts cannot view conversation metadata"
@@ -81,9 +105,7 @@ drop policy if exists "Blocked accounts cannot view message read receipts" on pu
 create policy "Blocked accounts cannot view message read receipts"
 on public.message_reads as restrictive for select to authenticated
 using (
-  not private.is_conversation_blocked((
-    select m.conversation_id from public.messages m where m.id = message_reads.message_id
-  ))
+  not private.is_message_in_blocked_conversation(message_reads.message_id)
 );
 
 drop policy if exists "Blocked accounts cannot create message read receipts" on public.message_reads;
