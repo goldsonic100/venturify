@@ -182,7 +182,7 @@ for (const policy of [
 assert.ok(readReceiptFixMigration.includes('create policy "Blocked accounts cannot create message read receipts"'), 'Missing read-receipt insert policy replacement');
 assert.ok(readReceiptFixMigration.includes('not private.is_message_in_blocked_conversation(message_id)'), 'Read-receipt inserts must use the protected block lookup');
 assert.ok(!readReceiptFixMigration.includes('select m.conversation_id from public.messages m'), 'Read-receipt insert policy must not rely on an RLS-filtered message lookup');
-assert.match(readReceiptFixMigration, /create policy[\\s\\S]*?as\\s+restrictive/i, 'Read-receipt insert policy must remain RESTRICTIVE');
+assert.match(readReceiptFixMigration, /create policy[\s\S]*?as\s+restrictive/i, 'Read-receipt insert policy must remain RESTRICTIVE');
 
 // Poll votes must select an option from the same poll as the vote row.
 assert.ok(pollVoteIntegrityMigration.includes('where o.id = post_poll_votes.option_id'), 'Poll vote policy must validate the selected option');
