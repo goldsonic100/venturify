@@ -190,4 +190,13 @@ assert.ok(pollVoteIntegrityMigration.includes('and o.poll_id = post_poll_votes.p
 assert.ok(!pollVoteIntegrityMigration.includes('o.poll_id = o.poll_id'), 'Poll vote policy must not contain a tautological poll comparison');
 assert.ok(pollVoteIntegrityMigration.includes('user_id = (select auth.uid())'), 'Poll vote policy must enforce the signed-in voter identity');
 
+// Workspace task assignees must be one of the two participants in the accepted collaboration.
+const taskAssigneeMigration = readFileSync('supabase/migrations/20261019050000_validate_workspace_task_assignees.sql', 'utf8');
+assert.ok(taskAssigneeMigration.includes('function private.guard_workspace_task_assignee()'), 'Missing workspace task assignee guard');
+assert.ok(taskAssigneeMigration.includes('r.status = \'accepted\''), 'Task assignee guard must require an accepted collaboration');
+assert.ok(taskAssigneeMigration.includes('new.assigned_to is distinct from requester') && taskAssigneeMigration.includes('new.assigned_to is distinct from recipient'), 'Task assignees must be limited to the collaboration participants');
+assert.ok(taskAssigneeMigration.includes('before insert or update of assigned_to, workspace_id'), 'Assignee validation must run for both task creation and reassignment');
+assert.ok(taskAssigneeMigration.includes('security invoker') && taskAssigneeMigration.includes("set search_path = ''"), 'Assignee guard must run as invoker with a pinned empty search_path');
+assert.ok(taskAssigneeMigration.includes('revoke all on function private.guard_workspace_task_assignee() from public, anon, authenticated'), 'Assignee guard must not be directly callable by browser roles');
+
 console.log('Trust & safety regression checks passed.');
