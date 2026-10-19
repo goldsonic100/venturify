@@ -13,6 +13,7 @@ on:
       - 'supabase/migrations/20261018170000_paginate_moderator_reports.sql'
       - 'supabase/migrations/20261019030000_harden_blocked_conversation_metadata.sql'
       - 'supabase/migrations/20261019040000_fix_blocked_read_receipt_insert.sql'
+      - 'supabase/migrations/20261019050000_validate_workspace_task_assignees.sql'
       - '.github/workflows/trust-safety-checks.yml'
   push:
     branches: [main]
@@ -27,6 +28,7 @@ on:
       - 'supabase/migrations/20261018170000_paginate_moderator_reports.sql'
       - 'supabase/migrations/20261019030000_harden_blocked_conversation_metadata.sql'
       - 'supabase/migrations/20261019040000_fix_blocked_read_receipt_insert.sql'
+      - 'supabase/migrations/20261019050000_validate_workspace_task_assignees.sql'
       - '.github/workflows/trust-safety-checks.yml'
 
 permissions:
