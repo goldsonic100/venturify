@@ -174,7 +174,7 @@ for (const policy of [
   assert.notEqual(start, -1, 'Missing SQL definition for blocked-conversation policy: ' + policy);
   const end = blockedConversationMigration.indexOf(';', start);
   assert.notEqual(end, -1, 'Unterminated SQL definition for blocked-conversation policy: ' + policy);
-  assert.match(blockedConversationMigration.slice(start, end), /\\bas\\s+restrictive\\b/i, 'Blocked-conversation policy must remain RESTRICTIVE: ' + policy);
+  assert.match(blockedConversationMigration.slice(start, end), /\bas\s+restrictive\b/i, 'Blocked-conversation policy must remain RESTRICTIVE: ' + policy);
 }
 
 // Poll votes must select an option from the same poll as the vote row.
