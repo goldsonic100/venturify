@@ -8,6 +8,7 @@ const moderatorMigration = readFileSync('supabase/migrations/20261018150000_add_
 const dashboardMigration = readFileSync('supabase/migrations/20261018160000_add_moderator_dashboard.sql', 'utf8');
 const reportPaginationMigration = readFileSync('supabase/migrations/20261018170000_paginate_moderator_reports.sql', 'utf8');
 const contentPaginationMigration = readFileSync('supabase/migrations/20261018180000_paginate_moderator_posts.sql', 'utf8');
+const pollVoteIntegrityMigration = readFileSync('supabase/migrations/20261019020000_fix_poll_vote_option_integrity.sql', 'utf8');
 const moderatorPage = readFileSync('moderator.html', 'utf8');
 const safetyScript = readFileSync('scripts/trust-safety.js', 'utf8');
 
@@ -117,4 +118,10 @@ assert.ok(
 
 const syntax = spawnSync(process.execPath, ['--check', 'scripts/trust-safety.js'], { encoding: 'utf8' });
 assert.equal(syntax.status, 0, syntax.stderr || 'Safety script syntax check failed');
+// Poll votes must select an option from the same poll as the vote row.
+assert.ok(pollVoteIntegrityMigration.includes('where o.id = post_poll_votes.option_id'), 'Poll vote policy must validate the selected option');
+assert.ok(pollVoteIntegrityMigration.includes('and o.poll_id = post_poll_votes.poll_id'), 'Poll vote policy must bind the option to the voted poll');
+assert.ok(!pollVoteIntegrityMigration.includes('o.poll_id = o.poll_id'), 'Poll vote policy must not contain a tautological poll comparison');
+assert.ok(pollVoteIntegrityMigration.includes('user_id = (select auth.uid())'), 'Poll vote policy must enforce the signed-in voter identity');
+
 console.log('Trust & safety regression checks passed.');
