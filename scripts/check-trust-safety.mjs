@@ -9,6 +9,7 @@ const dashboardMigration = readFileSync('supabase/migrations/20261018160000_add_
 const reportPaginationMigration = readFileSync('supabase/migrations/20261018170000_paginate_moderator_reports.sql', 'utf8');
 const contentPaginationMigration = readFileSync('supabase/migrations/20261018180000_paginate_moderator_posts.sql', 'utf8');
 const pollVoteIntegrityMigration = readFileSync('supabase/migrations/20261019020000_fix_poll_vote_option_integrity.sql', 'utf8');
+const blockedConversationMigration = readFileSync('supabase/migrations/20261019030000_harden_blocked_conversation_metadata.sql', 'utf8');
 const moderatorPage = readFileSync('moderator.html', 'utf8');
 const safetyScript = readFileSync('scripts/trust-safety.js', 'utf8');
 
@@ -139,6 +140,43 @@ assert.ok(
 
 const syntax = spawnSync(process.execPath, ['--check', 'scripts/trust-safety.js'], { encoding: 'utf8' });
 assert.equal(syntax.status, 0, syntax.stderr || 'Safety script syntax check failed');
+// Blocked users must not open/reuse direct conversations or observe their metadata.
+assert.ok(blockedConversationMigration.includes('function public.get_or_create_direct_conversation(target_user_id uuid)'), 'Blocked-conversation migration must preserve the direct-message RPC');
+assert.ok(blockedConversationMigration.includes('from public.user_blocks b'), 'Direct-message RPC must check the user-block table');
+assert.ok(blockedConversationMigration.includes('Messaging is unavailable because one of these accounts has blocked the other.'), 'Direct-message RPC must reject blocked account pairs');
+assert.ok(blockedConversationMigration.includes("set search_path = ''"), 'Privileged direct-message RPC must pin an empty search_path');
+assert.ok(blockedConversationMigration.includes('grant execute on function public.get_or_create_direct_conversation(uuid) to authenticated'), 'Direct-message RPC should remain available to authenticated users');
+for (const policy of [
+  'Blocked accounts cannot view conversation metadata',
+  'Blocked accounts cannot view conversation membership metadata',
+  'Blocked accounts cannot view message read receipts',
+  'Blocked accounts cannot create message read receipts',
+  'Blocked accounts cannot view conversation typing metadata',
+  'Blocked accounts cannot publish conversation typing metadata',
+  'Blocked accounts cannot update conversation typing metadata',
+  'Blocked accounts cannot delete conversation typing metadata'
+]) {
+  assert.ok(blockedConversationMigration.includes(policy), 'Missing blocked-conversation policy: ' + policy);
+}
+assert.ok(blockedConversationMigration.includes('function private.is_message_in_blocked_conversation(p_message_id uuid)'), 'Read-receipt checks must use a protected message lookup');
+assert.ok(blockedConversationMigration.includes('revoke all on function private.is_message_in_blocked_conversation(uuid) from public, anon'), 'Protected message lookup must not be public or anonymous');
+for (const policy of [
+  'Blocked accounts cannot view conversation metadata',
+  'Blocked accounts cannot view conversation membership metadata',
+  'Blocked accounts cannot view message read receipts',
+  'Blocked accounts cannot create message read receipts',
+  'Blocked accounts cannot view conversation typing metadata',
+  'Blocked accounts cannot publish conversation typing metadata',
+  'Blocked accounts cannot update conversation typing metadata',
+  'Blocked accounts cannot delete conversation typing metadata'
+]) {
+  const start = blockedConversationMigration.indexOf('create policy "' + policy + '"');
+  assert.notEqual(start, -1, 'Missing SQL definition for blocked-conversation policy: ' + policy);
+  const end = blockedConversationMigration.indexOf(';', start);
+  assert.notEqual(end, -1, 'Unterminated SQL definition for blocked-conversation policy: ' + policy);
+  assert.match(blockedConversationMigration.slice(start, end), /\bas\s+restrictive\b/i, 'Blocked-conversation policy must remain RESTRICTIVE: ' + policy);
+}
+
 // Poll votes must select an option from the same poll as the vote row.
 assert.ok(pollVoteIntegrityMigration.includes('where o.id = post_poll_votes.option_id'), 'Poll vote policy must validate the selected option');
 assert.ok(pollVoteIntegrityMigration.includes('and o.poll_id = post_poll_votes.poll_id'), 'Poll vote policy must bind the option to the voted poll');
