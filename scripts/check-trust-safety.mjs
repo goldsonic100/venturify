@@ -10,6 +10,7 @@ const reportPaginationMigration = readFileSync('supabase/migrations/202610181700
 const contentPaginationMigration = readFileSync('supabase/migrations/20261018180000_paginate_moderator_posts.sql', 'utf8');
 const pollVoteIntegrityMigration = readFileSync('supabase/migrations/20261019020000_fix_poll_vote_option_integrity.sql', 'utf8');
 const blockedConversationMigration = readFileSync('supabase/migrations/20261019030000_harden_blocked_conversation_metadata.sql', 'utf8');
+const readReceiptFixMigration = readFileSync('supabase/migrations/20261019040000_fix_blocked_read_receipt_insert.sql', 'utf8');
 const moderatorPage = readFileSync('moderator.html', 'utf8');
 const safetyScript = readFileSync('scripts/trust-safety.js', 'utf8');
 
@@ -176,6 +177,12 @@ for (const policy of [
   assert.notEqual(end, -1, 'Unterminated SQL definition for blocked-conversation policy: ' + policy);
   assert.match(blockedConversationMigration.slice(start, end), /\bas\s+restrictive\b/i, 'Blocked-conversation policy must remain RESTRICTIVE: ' + policy);
 }
+
+// Read-receipt inserts must use the protected message lookup, not a regular message SELECT.
+assert.ok(readReceiptFixMigration.includes('create policy "Blocked accounts cannot create message read receipts"'), 'Missing read-receipt insert policy replacement');
+assert.ok(readReceiptFixMigration.includes('not private.is_message_in_blocked_conversation(message_id)'), 'Read-receipt inserts must use the protected block lookup');
+assert.ok(!readReceiptFixMigration.includes('select m.conversation_id from public.messages m'), 'Read-receipt insert policy must not rely on an RLS-filtered message lookup');
+assert.match(readReceiptFixMigration, /create policy[\s\S]*?as\s+restrictive/i, 'Read-receipt insert policy must remain RESTRICTIVE');
 
 // Poll votes must select an option from the same poll as the vote row.
 assert.ok(pollVoteIntegrityMigration.includes('where o.id = post_poll_votes.option_id'), 'Poll vote policy must validate the selected option');
