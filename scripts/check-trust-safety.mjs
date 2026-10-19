@@ -99,6 +99,27 @@ for (const policy of [
 ]) {
   assert.ok(blockMigration.includes(policy), `Missing block enforcement policy: ${policy}`);
 }
+
+ // Block filters must be RESTRICTIVE; permissive policies are OR-combined
+ // with normal access policies and would not reliably enforce blocking.
+for (const policy of [
+  "Blocked accounts cannot view each other's profiles",
+  "Blocked accounts cannot view each other's posts",
+  "Blocked accounts cannot view each other's comments",
+  "Blocked accounts cannot comment on each other's posts",
+  "Blocked accounts cannot read conversation messages",
+  "Blocked accounts cannot send conversation messages",
+  "Blocked accounts cannot like each other's posts",
+  "Blocked accounts cannot follow each other",
+  "Blocked accounts cannot view each other's likes",
+  "Blocked accounts cannot view each other's follows"
+]) {
+  const start = blockMigration.indexOf('create policy "' + policy + '"');
+  assert.notEqual(start, -1, 'Missing SQL definition for block policy: ' + policy);
+  const end = blockMigration.indexOf(';', start);
+  assert.notEqual(end, -1, 'Unterminated SQL definition for block policy: ' + policy);
+  assert.match(blockMigration.slice(start, end), /\bas\s+restrictive\b/i, 'Block policy must remain RESTRICTIVE: ' + policy);
+}
 for (const fn of ['is_post_author_blocked', 'is_conversation_blocked']) {
   assert.ok(blockMigration.includes(`function private.${fn}(`), `Missing private helper ${fn}`);
 }
