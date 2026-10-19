@@ -25,8 +25,8 @@ assert.ok(discoverHtml.includes('Learn topic preferences from founders the viewe
   'Discover should learn topic preferences from explicit feedback');
 assert.ok(discoverHtml.includes('learnedTopicWeights.get(word)||0'),
   'Learned feedback topics should influence discovery scoring');
-assert.ok(discoverHtml.includes('Fits topics from founders you rated relevant'),
-  'Discover should explain positive feedback-based personalization');
+assert.ok(discoverHtml.includes('Past feedback adjusted this match by '),
+  'Discover should explain positive and negative feedback-based personalization');
 
 // Regression checks for the founder-discovery requirements.
 assert.match(html, /communityCounts\.get\(p\.id\)\|\|0\)>=1&&founderLevel\(p\)>=5/,
@@ -173,6 +173,12 @@ assert.match(discoverHtml, /matchFeedback\.get\(p\.id\)!=='not_relevant'/,
   'Future daily recommendations should exclude founders marked not relevant');
 assert.match(discoverHtml, /matchFeedback\.get\(p\.id\)==='relevant'\?15:0/,
   'Relevant feedback should boost future match ranking');
+assert.ok(discoverHtml.includes("const points=(feedbackBonus>0?'+':'')+feedbackBonus"),
+  'Discover should format positive and negative feedback adjustments clearly');
+assert.ok(discoverHtml.includes('Past feedback adjusted this match by '+"'+points+'"+' points based on topics in founders you rated.'),
+  'Discover should explain the numeric feedback adjustment to each match score');
+assert.match(discoverHtml, /You previously rated this founder relevant, so they receive a small preference boost/,
+  'Discover should explain when a previously relevant rating boosts a founder');
 assert.match(discoverHtml, /Math\.max\(0,6-dailyMatchIds\.length\)/,
   'Personalized daily recommendations should remain capped at six');
 
