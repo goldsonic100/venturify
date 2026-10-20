@@ -476,6 +476,18 @@ body[data-view="messages"] .messages-composer{flex:0 0 auto!important;position:r
 body[data-view="messages"] .messages-privacy-note{flex:0 0 auto!important;margin:0!important}
 body[data-view="messages"] .chat-message-group{flex-shrink:0!important}
 @media(max-width:760px){body[data-view="messages"] .messages-app{grid-template-columns: minmax(0,1fr)!important;height:calc(100dvh - 96px)!important;min-height:0!important;width:calc(100vw - 12px)!important;margin:0 auto 8px!important}body[data-view="messages"] .messages-sidebar{display:none!important}body[data-view="messages"] .messages-chat{min-height:0!important;height:100%!important}body[data-view="messages"] .messages-chat-body{flex:1 1 0!important;min-height:0!important;height:0!important;padding:8px 10px 4px!important}body[data-view="messages"] .messages-chat-header{flex:0 0 56px!important;height:56px!important}body[data-view="messages"] .messages-composer{padding:8px 10px!important}}
+
+/* Final inbox layout: explicit grid rows keep scrolling inside the transcript. */
+body[data-view="messages"] #messages.messages-app{display:grid!important;grid-template-columns:310px minmax(0,1fr)!important;height:calc(100dvh - 132px)!important;min-height:420px!important;max-height:none!important;overflow:hidden!important}
+body[data-view="messages"] #messages .messages-sidebar{display:flex!important;flex-direction:column!important;min-height:0!important;overflow:hidden!important}
+body[data-view="messages"] #messages .messages-chat{display:grid!important;grid-template-rows:78px minmax(0,1fr) auto auto!important;min-width:0!important;min-height:0!important;height:100%!important;overflow:hidden!important}
+body[data-view="messages"] #messages .messages-chat-header{min-width:0!important}
+body[data-view="messages"] #messages .messages-chat-body{display:grid!important;grid-template-rows:minmax(0,1fr) auto!important;min-width:0!important;min-height:0!important;height:auto!important;flex:none!important;overflow:hidden!important;padding:12px 18px 4px!important}
+body[data-view="messages"] #messages .messages-chat-body .chat-message-list{display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;height:auto!important;max-height:none!important;flex:none!important;overflow-x:hidden!important;overflow-y:scroll!important;overscroll-behavior-y:contain!important;scrollbar-gutter:stable!important;padding:0 5px 18px!important;margin:0!important;gap:6px!important}
+body[data-view="messages"] #messages .messages-chat-body .chat-message-list>*{flex:0 0 auto!important}
+body[data-view="messages"] #messages .messages-composer{position:relative!important;flex:none!important;min-width:0!important;z-index:3!important}
+body[data-view="messages"] #messages .messages-privacy-note{flex:none!important;margin:0!important;padding:6px 14px 10px!important}
+@media(max-width:760px){body[data-view="messages"] #messages.messages-app{grid-template-columns:minmax(0,1fr)!important;width:calc(100vw - 12px)!important;height:calc(100dvh - 100px)!important;min-height:0!important;margin:0 auto 8px!important}body[data-view="messages"] #messages .messages-sidebar{display:none!important}body[data-view="messages"] #messages .messages-chat{grid-template-rows:56px minmax(0,1fr) auto auto!important}body[data-view="messages"] #messages .messages-chat-header{height:56px!important;min-height:56px!important;padding:0 12px!important}body[data-view="messages"] #messages .messages-chat-body{padding:8px 10px 4px!important}body[data-view="messages"] #messages .messages-composer{padding:8px 10px!important}}
 </style>
 </head>
 <body data-view="messages">
@@ -934,7 +946,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
    const picker=reactionChoices.map(emoji=>'<button type="button" data-message-reaction="'+esc(m.id)+'" data-reaction="'+emoji+'" aria-label="React '+emoji+'">'+emoji+'</button>').join('');
    return divider+'<div class="chat-message-group '+(mine?'mine':'')+'"><div class="chat-bubble '+(mine?'mine':'')+'">'+esc(m.content)+'<div class="chat-bubble-meta"><span title="'+esc(new Date(m.created_at).toLocaleString())+'">'+esc(new Date(m.created_at).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}))+'</span>'+(mine&&readAt?'<span class="chat-receipt">Seen</span>':'')+'</div></div><div class="chat-reactions">'+pills+'</div><div class="chat-reaction-picker" aria-label="Add a reaction">'+picker+'</div></div>';
   }).join('')||'<div class="muted-small">Start the conversation below.</div>';
-  const transcript=$('chatMessages'),lastMessage=transcript.lastElementChild;requestAnimationFrame(()=>{transcript.scrollTop=transcript.scrollHeight;if(lastMessage)lastMessage.scrollIntoView({block:'end',behavior:'auto'});const chatBody=$('chatBody');if(chatBody)chatBody.scrollTop=chatBody.scrollHeight});
+  const transcript=$('chatMessages');requestAnimationFrame(()=>{transcript.scrollTop=transcript.scrollHeight});
   try{localStorage.setItem('venturify-read-'+sessionUserId+'-'+conversationId,new Date().toISOString())}catch{}
   if(stillViewing())await loadConversationList();
  }
