@@ -56,8 +56,10 @@
   await load();
   if(status==='accepted')window.location.href='workspace.html?request='+encodeURIComponent(id);
  });
- client.auth.onAuthStateChange(()=>setTimeout(load,0));
- load().catch(()=>{busy=false;notice('Something went wrong loading collaboration requests.',true)});
+ let requestChannel=null;
+ function startRealtime(){if(!user||requestChannel)return;requestChannel=client.channel('collaboration-requests-'+user.id).on('postgres_changes',{event:'*',schema:'public',table:'collaboration_requests',filter:'recipient_id=eq.'+user.id},()=>{load().catch(()=>{})}).on('postgres_changes',{event:'*',schema:'public',table:'collaboration_requests',filter:'requester_id=eq.'+user.id},()=>{load().catch(()=>{})}).subscribe()}
+ client.auth.onAuthStateChange(()=>setTimeout(()=>{requestChannel=null;load().then(startRealtime).catch(()=>{})},0));
+ load().then(startRealtime).catch(()=>{busy=false;notice('Something went wrong loading collaboration requests.',true)});
 })();
 </script>
 </body></html>
