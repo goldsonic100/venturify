@@ -191,7 +191,23 @@ body[data-view="messages"] #messages{display:block!important;max-width:1160px!im
 .messages-sidebar .conversation-copy strong{font-size:12px}
 .messages-sidebar .conversation-copy small{font-size:10px;line-height:1.45}
 .messages-sidebar .conversation-time{font-size:9px}
-.messages-new{border-top:1px solid #e4e9e0;padding-top:15px}
+.messages-new{border-top:1px solid #e4e9e0;padding-top:15px;display:grid;gap:8px}.messages-new-actions{display:flex;gap:8px}.messages-new-actions button{flex:1;border:1px solid #d9dee6;background:#fff;border-radius:9px;padding:10px 8px;font-size:11px;font-weight:750;cursor:pointer}
+body[data-view="messages"]{background:#f2f4f7;overflow-x:hidden}
+body[data-view="messages"] main>.hero,body[data-view="messages"] #library,body[data-view="messages"] #method,body[data-view="messages"] #submit,body[data-view="messages"] footer{display:none!important}
+body[data-view="messages"] #community{padding:94px 0 0!important;background:#f2f4f7!important;min-height:calc(100vh - 74px)}
+body[data-view="messages"] #community>.wrap>.section-head,body[data-view="messages"] #community>.wrap>#notificationPage,body[data-view="messages"] #community>.wrap>#founderDiscovery,body[data-view="messages"] #community>.wrap>#communityHub,body[data-view="messages"] #community>.wrap>.notice{display:none!important}
+body[data-view="messages"] #community .community-layout{display:block!important;margin:0!important}
+body[data-view="messages"] #community .community-main{display:none!important}
+body[data-view="messages"] #community .community-side{display:block!important;width:100%!important;max-width:none!important}
+body[data-view="messages"] #community .community-side>*:not(.messages-app){display:none!important}
+body[data-view="messages"] .messages-app{display:grid!important;grid-template-columns:310px minmax(0,1fr);width:min(1120px,calc(100vw - 32px));height:calc(100vh - 120px);min-height:520px;max-height:850px;margin:0 auto 24px;overflow:hidden}
+body[data-view="messages"] .messages-sidebar{min-height:0}
+body[data-view="messages"] .messages-chat{min-height:0}
+body[data-view="messages"] .messages-sidebar-heading p{display:none}
+body[data-view="messages"] .messages-sidebar-heading{margin-bottom:20px}
+body[data-view="messages"] .messages-chat-body{min-height:0}
+@media(max-width:760px){body[data-view="messages"] #community{padding-top:82px!important}body[data-view="messages"] .messages-app{grid-template-columns:1fr;width:calc(100vw - 18px);height:calc(100vh - 96px);min-height:0;margin-bottom:9px}body[data-view="messages"] .messages-sidebar{max-height:42%;padding:12px;overflow:auto}body[data-view="messages"] .messages-chat{min-height:0;height:100%}body[data-view="messages"] .messages-chat-body{min-height:0;flex:1}body[data-view="messages"] .messages-sidebar-heading{margin-bottom:10px}body[data-view="messages"] .messages-sidebar-heading h1{font-size:24px}body[data-view="messages"] .messages-sidebar .conversation-list{max-height:115px}body[data-view="messages"] .messages-new{padding-top:8px}body[data-view="messages"] .messages-chat-header{height:60px;flex-basis:60px}body[data-view="messages"] .chat-secure-label{display:none}}
+
 .messages-new label{display:block;font-size:11px;font-weight:800;margin-bottom:8px}
 .messages-new select{width:100%;height:40px;padding:0 10px;border:1px solid #dfe5db;border-radius:9px;background:white;color:var(--ink);font-size:11px}
 .messages-chat{display:flex;flex-direction:column;min-width:0;min-height:0;background:#fffefa}
@@ -377,7 +393,7 @@ body[data-view="messages"] .empty-chat-icon{background:#e7f1ff;color:#087cff;bor
         <label class="messages-search-wrap"><span>⌕</span><input id="conversationSearch" class="conversation-search" type="search" maxlength="80" placeholder="Search messages" aria-label="Search conversations"></label>
         <div class="messages-list-heading"><strong>All messages</strong><span id="messageUnreadTotal" class="message-unread-total" hidden>0 unread</span></div>
         <div id="conversationList" class="conversation-list"><div class="muted-small">Sign in to see your conversations.</div></div>
-        <div class="messages-new"><label for="messagePerson">Start a new message</label><select id="messagePerson"><option value="">Choose a founder…</option></select></div>
+        <div class="messages-new"><div class="messages-new-actions"><button type="button" id="newDirectChat">＋ New message</button><button type="button" id="newGroupChat">＋ New group</button></div><label for="messagePerson">Message a founder</label><select id="messagePerson"><option value="">Choose a founder…</option></select></div>
       </aside>
       <section class="messages-chat" aria-label="Conversation">
         <header class="messages-chat-header">
@@ -395,7 +411,9 @@ body[data-view="messages"] .empty-chat-icon{background:#e7f1ff;color:#087cff;bor
         </div>
         <p class="messages-privacy-note" id="messageStatus">Your private messages are only visible to conversation members.</p>
       </section>
-    </div>    <div class="community-card">
+    </div>
+    <div class="modal-backdrop" id="groupChatBackdrop" role="dialog" aria-modal="true" aria-labelledby="groupChatTitle"><div class="modal" style="max-width:520px"><button type="button" class="close" id="closeGroupChat" aria-label="Close group chat dialog">×</button><div class="kicker">Start together</div><h2 id="groupChatTitle">Create a group chat</h2><p class="modal-intro">Name your group and choose at least two other founders.</p><div class="field" style="margin-top:18px"><label for="groupChatName">Group name</label><input id="groupChatName" maxlength="80" placeholder="Startup launch team"></div><div class="field" style="margin-top:14px"><label for="groupParticipants">Choose members (Ctrl/Cmd-click to select multiple)</label><select id="groupParticipants" multiple size="7" style="min-height:160px"></select></div><div class="muted-small" id="groupChatStatus" style="margin:10px 0"></div><button type="button" class="btn btn-primary" id="createGroupChat" style="width:100%">Create group chat ↗</button></div></div>
+    <div class="community-card">
      <div class="kicker">People to follow</div><h3 style="font-family:var(--serif);font-weight:500;font-size:24px;margin:10px 0 17px">Learn from each other.</h3>
      <div class="follow-list" id="peopleList"></div>
     </div>
@@ -542,9 +560,9 @@ $('feed').addEventListener('click',async e=>{
 });
  document.addEventListener('click',async e=>{const mention=e.target.closest('[data-profile-username]');if(!mention)return;const username=mention.dataset.profileUsername;if(!/^[A-Za-z0-9_]{1,30}$/.test(username))return;mention.disabled=true;const result=await client.from('profiles').select('id').ilike('username',username).maybeSingle();mention.disabled=false;if(result.error||!result.data){notice('That username was not found.');return}showProfile(result.data.id)});
 let currentConversation=null,currentConversationChannel=null,currentTypingChannel=null,currentReadChannel=null,globalMessageChannel=null,globalMessageRealtimeUser=null,messagingSessionUserId=null,typingCleanupTimer=null;let conversationOpenRequest=0;
- let activeConversationOtherId=null,activeConversationMessages=[];
+ let activeConversationOtherId=null,activeConversationMessages=[],activeConversationIsGroup=false,activeConversationTitle='';
  function conversationTime(value){if(!value)return '';const date=new Date(value),now=new Date(),sameDay=date.toDateString()===now.toDateString(),yesterday=new Date(now);yesterday.setDate(now.getDate()-1);if(sameDay)return date.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});if(date.toDateString()===yesterday.toDateString())return 'Yesterday';const days=(now-date)/86400000;if(days<7)return date.toLocaleDateString(undefined,{weekday:'short'});return date.toLocaleDateString(undefined,{month:'short',day:'numeric'})}
- function filteredConversationList(){const search=$('conversationSearch')?.value?.trim().toLowerCase()||'';document.querySelectorAll('#conversationList [data-open-conversation]').forEach(button=>{button.hidden=!!search&&!button.textContent.toLowerCase().includes(search)})}
+ function filteredConversationList(){const search=$('conversationSearch')?.value?.trim().toLowerCase()||'';document.querySelectorAll('#conversationList [data-open-conversation],#conversationList [data-open-group]').forEach(button=>{button.hidden=!!search&&!button.textContent.toLowerCase().includes(search)})}
  async function loadConversationList(){
   const box=$('conversationList'),total=$('messageUnreadTotal');
   if(!user){box.innerHTML='<div class="muted-small">Log in to see your conversations.</div>';total.hidden=true;return}
@@ -553,9 +571,10 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(memberships.error){box.innerHTML='<div class="muted-small">Could not load conversations. Refresh and try again.</div>';return}
   const ids=[...new Set((memberships.data||[]).map(x=>x.conversation_id))];
   if(!ids.length){box.innerHTML='<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';total.hidden=true;const navCount=$('messageNavCount');if(navCount){navCount.hidden=true;navCount.textContent='0'}return}
-  const [membersResult,messagesResult]=await Promise.all([
+  const [membersResult,messagesResult,conversationResult]=await Promise.all([
    client.from('conversation_members').select('conversation_id,user_id').in('conversation_id',ids),
-   client.from('messages').select('id,conversation_id,sender_id,content,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(1000)
+   client.from('messages').select('id,conversation_id,sender_id,content,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(1000),
+   client.from('conversations').select('id,title,is_group').in('id',ids)
   ]);
   if(membersResult.error||messagesResult.error){box.innerHTML='<div class="muted-small">Could not load recent conversations. Try refreshing.</div>';return}
   const messages=messagesResult.data||[];
@@ -568,24 +587,24 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   const profileResult=otherIds.length?await client.from('profiles').select('id,username,display_name,avatar_url').in('id',otherIds):{data:[],error:null};
   if(profileResult.error){box.innerHTML='<div class="muted-small">Could not load conversation profiles.</div>';return}
   const profileMap=new Map((profileResult.data||[]).map(p=>[p.id,p]));
+  const conversationMeta=new Map((conversationResult.data||[]).map(x=>[x.id,x]));
   const conversations=ids.map(id=>{
-   const other=(membersResult.data||[]).find(m=>m.conversation_id===id&&m.user_id!==user.id);
-   if(!other)return null;
-   const msgs=messages.filter(m=>m.conversation_id===id);
-   const latest=msgs[0];
-   const unread=unreadCounts.get(id)||0;
-   return {id,otherId:other.user_id,person:profileMap.get(other.user_id)||{display_name:'Venturify member'},latest,unread};
+   const meta=conversationMeta.get(id)||{},participants=(membersResult.data||[]).filter(m=>m.conversation_id===id&&m.user_id!==user.id);
+   if(!participants.length)return null;
+   const msgs=messages.filter(m=>m.conversation_id===id),latest=msgs[0],unread=unreadCounts.get(id)||0;
+   if(meta.is_group)return {id,isGroup:true,title:meta.title||'Group chat',participantNames:participants.map(m=>name(profileMap.get(m.user_id)||{display_name:'Founder'})),latest,unread};
+   const other=participants[0];return {id,otherId:other.user_id,person:profileMap.get(other.user_id)||{display_name:'Venturify member'},latest,unread};
   }).filter(Boolean).sort((a,b)=>new Date(b.latest?.created_at||0)-new Date(a.latest?.created_at||0));
   const unreadTotal=conversations.reduce((sum,item)=>sum+item.unread,0);
   total.textContent=unreadTotal+' unread';total.hidden=unreadTotal===0;const navCount=$('messageNavCount');if(navCount){navCount.textContent=unreadTotal>99?'99+':String(unreadTotal);navCount.hidden=unreadTotal===0;}
   box.innerHTML=conversations.map(item=>{
-   const avatar=safeProfileUrl(item.person.avatar_url);
-   return '<button type="button" class="conversation-item '+(currentConversation===item.id?'active':'')+'" data-open-conversation="'+esc(item.otherId)+'"><span class="conversation-avatar">'+(avatar?'<img src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':esc(initials(name(item.person))))+'</span><span class="conversation-copy"><strong>'+esc(name(item.person))+'</strong><small>'+esc(item.latest?(item.latest.sender_id===user.id?'You: ':'')+String(item.latest.content||'').slice(0,74):'Conversation started')+'</small></span><span class="conversation-trailing">'+(item.latest?'<span class="conversation-time">'+esc(conversationTime(item.latest.created_at))+'</span>':'')+(item.unread?'<span class="conversation-unread">'+item.unread+'</span>':'')+'</span></button>';
+   const avatar=safeProfileUrl(item.person?.avatar_url),title=item.isGroup?item.title:name(item.person),subtitle=item.isGroup?(item.participantNames.join(', ')):(item.latest?(item.latest.sender_id===user.id?'You: ':'')+String(item.latest.content||'').slice(0,74):'Conversation started');
+   return '<button type="button" class="conversation-item '+(currentConversation===item.id?'active':'')+'" '+(item.isGroup?'data-open-group="'+esc(item.id)+'"':'data-open-conversation="'+esc(item.otherId)+'')+'"><span class="conversation-avatar">'+(item.isGroup?'👥':(avatar?'<img src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':esc(initials(name(item.person)))))+'</span><span class="conversation-copy"><strong>'+esc(title)+'</strong><small>'+esc(subtitle)+'</small></span><span class="conversation-trailing">'+(item.latest?'<span class="conversation-time">'+esc(conversationTime(item.latest.created_at))+'</span>':'')+(item.unread?'<span class="conversation-unread">'+item.unread+'</span>':'')+'</span></button>';
   }).join('')||'<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';
   filteredConversationList();
  }
  $('conversationSearch').addEventListener('input',filteredConversationList);
- $('conversationList').addEventListener('click',async e=>{const button=e.target.closest('[data-open-conversation]');if(!button)return;const otherId=button.dataset.openConversation;$('messagePerson').value=otherId;await openConversation(otherId)});
+ $('conversationList').addEventListener('click',async e=>{const group=e.target.closest('[data-open-group]');if(group){await openGroupConversation(group.dataset.openGroup);return}const button=e.target.closest('[data-open-conversation]');if(!button)return;const otherId=button.dataset.openConversation;$('messagePerson').value=otherId;await openConversation(otherId)});
  $('chatMessages').addEventListener('click',async e=>{
   const button=e.target.closest('[data-message-reaction]');if(!button)return;
   if(!user)return loginRequired();
@@ -646,8 +665,8 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(direct.error||!direct.data){currentConversation=null;activeConversationOtherId=null;notice('Could not start chat: '+(direct.error?.message||'Please try again.'));return}
   const conversationId=direct.data;
   if(currentConversation!==conversationId)stopActiveConversationRealtime();
-  currentConversation=conversationId;activeConversationOtherId=otherId;
-  const contact=people.find(p=>p.id===otherId);$('currentChatName').textContent=contact?name(contact):'Founder conversation';$('currentChatSubtitle').textContent=contact?'@'+(contact.username||'founder')+' · Connected on Venturify':'Private conversation';$('currentChatAvatar').innerHTML=contact?.avatar_url&&safeProfileUrl(contact.avatar_url)?'<img src="'+esc(safeProfileUrl(contact.avatar_url))+'" alt="">':esc(initials(contact?name(contact):'Founder'));
+  currentConversation=conversationId;activeConversationOtherId=otherId;activeConversationIsGroup=false;
+  const contact=people.find(p=>p.id===otherId);activeConversationTitle=contact?name(contact):'Founder conversation';$('currentChatName').textContent=activeConversationTitle;$('currentChatSubtitle').textContent=contact?'@'+(contact.username||'founder')+' · Connected on Venturify':'Private conversation';$('currentChatAvatar').innerHTML=contact?.avatar_url&&safeProfileUrl(contact.avatar_url)?'<img src="'+esc(safeProfileUrl(contact.avatar_url))+'" alt="">':esc(initials(contact?name(contact):'Founder'));
   if(!currentConversationChannel)currentConversationChannel=client.channel('venturify-chat-'+conversationId)
    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'conversation_id=eq.'+conversationId},()=>{if(currentConversation===conversationId&&activeConversationOtherId===otherId)showMessages(otherId)})
    .on('postgres_changes',{event:'*',schema:'public',table:'message_reactions'},payload=>{const changed=payload.new||payload.old;if(changed?.message_id&&currentConversation===conversationId&&activeConversationOtherId===otherId&&activeConversationMessages.some(m=>m.id===changed.message_id))showMessages(otherId)})
@@ -656,6 +675,25 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(!currentReadChannel)currentReadChannel=client.channel('venturify-read-'+conversationId).on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reads',filter:'user_id=eq.'+otherId},()=>showMessages(otherId)).subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Live read receipts disconnected',error||status)});
   await showMessages(otherId);await loadTypingStatus();
  }
+ async function openGroupConversation(conversationId){
+  if(!user||!conversationId)return loginRequired();
+  const req=++conversationOpenRequest,uid=user.id;
+  if(currentConversation!==conversationId)stopActiveConversationRealtime();
+  const [meta,members]=await Promise.all([client.from('conversations').select('id,title,is_group').eq('id',conversationId).single(),client.from('conversation_members').select('user_id').eq('conversation_id',conversationId)]);
+  if(req!==conversationOpenRequest||!user||user.id!==uid)return;
+  if(meta.error||!meta.data?.is_group||members.error||!(members.data||[]).some(m=>m.user_id===user.id)){notice('Could not open this group chat.');return}
+  currentConversation=conversationId;activeConversationOtherId='group:'+conversationId;activeConversationIsGroup=true;activeConversationTitle=meta.data.title||'Group chat';
+  const others=(members.data||[]).map(m=>m.user_id).filter(id=>id!==user.id),names=others.map(id=>name(people.find(p=>p.id===id)||{display_name:'Founder'})),key=activeConversationOtherId;
+  $('currentChatName').textContent=activeConversationTitle;$('currentChatSubtitle').textContent=names.join(', ');$('currentChatAvatar').textContent='👥';$('messagePerson').value='';
+  currentConversationChannel=client.channel('venturify-chat-'+conversationId).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'conversation_id=eq.'+conversationId},()=>{if(currentConversation===conversationId&&activeConversationOtherId===key)showMessages(key)}).on('postgres_changes',{event:'*',schema:'public',table:'message_reactions'},payload=>{const changed=payload.new||payload.old;if(changed?.message_id&&currentConversation===conversationId&&activeConversationOtherId===key&&activeConversationMessages.some(m=>m.id===changed.message_id))showMessages(key)}).subscribe((status)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')notice('Live message updates disconnected. Refresh to reconnect.')});
+  currentTypingChannel=client.channel('venturify-typing-'+conversationId).on('postgres_changes',{event:'*',schema:'public',table:'conversation_typing',filter:'conversation_id=eq.'+conversationId},()=>loadTypingStatus()).subscribe();
+  await showMessages(key);await loadTypingStatus();
+ }
+ $('newDirectChat').addEventListener('click',()=>$('messagePerson').focus());
+ $('newGroupChat').addEventListener('click',()=>{if(!user)return loginRequired();$('groupChatName').value='';$('groupChatStatus').textContent='Select at least two other founders.';$('groupParticipants').innerHTML=people.map(p=>'<option value="'+esc(p.id)+'">'+esc(name(p))+' (@'+esc(p.username||'founder')+')</option>').join('');$('groupChatBackdrop').classList.add('open')});
+ $('closeGroupChat').addEventListener('click',()=>$('groupChatBackdrop').classList.remove('open'));
+ $('groupChatBackdrop').addEventListener('click',e=>{if(e.target===$('groupChatBackdrop'))$('groupChatBackdrop').classList.remove('open')});
+ $('createGroupChat').addEventListener('click',async()=>{if(!user)return loginRequired();const title=$('groupChatName').value.trim(),participant_ids=[...$('groupParticipants').selectedOptions].map(o=>o.value);if(title.length<2||title.length>80){$('groupChatStatus').textContent='Enter a group name between 2 and 80 characters.';return}if(participant_ids.length<2){$('groupChatStatus').textContent='Choose at least two other founders.';return}const button=$('createGroupChat');button.disabled=true;button.textContent='Creating…';const result=await client.rpc('create_group_conversation',{group_title:title,participant_ids});button.disabled=false;button.textContent='Create group chat ↗';if(result.error){$('groupChatStatus').textContent='Could not create group: '+result.error.message;return}$('groupChatBackdrop').classList.remove('open');await loadConversationList();await openGroupConversation(result.data);notice('Group chat created.')});
  async function startPendingDirectMessage(){if(!user||!pendingDirectMessage)return;const target=pendingDirectMessage;pendingDirectMessage=null;await openConversation(target);if(pendingMessageDraft&&activeConversationOtherId===target){$('messageText').value=pendingMessageDraft.slice(0,1200);$('messageText').focus();pendingMessageDraft=null}const cleanUrl=new URL(window.location.href);cleanUrl.searchParams.delete('to');cleanUrl.searchParams.delete('draft');window.history.replaceState({},'',cleanUrl.pathname+cleanUrl.search+cleanUrl.hash)}
  async function showMessages(otherId){
   if(!currentConversation||!user)return;
@@ -693,7 +731,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   }
   const reactionsByMessage=new Map();for(const item of reactionRows){if(!reactionsByMessage.has(item.message_id))reactionsByMessage.set(item.message_id,[]);reactionsByMessage.get(item.message_id).push(item)}
   const p=people.find(x=>x.id===otherId);
-  $('messageStatus').textContent='Private conversation with '+name(p)+'. Read receipts and typing status appear when both people use the updated chat.';
+  $('messageStatus').textContent=activeConversationIsGroup?'Private group chat · Members can read messages and react.':'Private conversation with '+name(p)+'. Read receipts and typing status appear when both people use the updated chat.';
   activeConversationMessages=messages;
   const reactionChoices=['❤️','😂','👍','😮','🎉','👀'];let lastDate='';
   $('chatMessages').innerHTML=messages.map(m=>{
