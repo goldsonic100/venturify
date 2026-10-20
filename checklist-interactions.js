@@ -98,7 +98,7 @@
     const cards = taskList.querySelectorAll('article.task');
     cards.forEach(card => {
       const title = card.querySelector('h3')?.textContent || '';
-      const task = taskRowsCache.find(row => row.title === title);
+      const task = taskRowsCache.find(row => row.id === card.dataset.taskId);
       if (!task) return;
       const items = taskChecklistItemsCache.filter(row => row.task_id === task.id);
       const priorityOk = taskPriorityFilter === 'any' || (task.priority || 'medium') === taskPriorityFilter;
@@ -111,4 +111,5 @@
       card.hidden = !(priorityOk && labelOk && checklistOk);
     });
   }
+  renderTasks = function () { originalRenderTasks(); applyChecklistFilters(); };
 })();
