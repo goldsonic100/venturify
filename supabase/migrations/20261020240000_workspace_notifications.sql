@@ -32,7 +32,7 @@ begin
   where w.id = wid and r.status = 'accepted';
 
   if not found then
-    return case when TG_OP = 'DELETE' then OLD else NEW end;
+    if TG_OP = 'DELETE' then return OLD; else return NEW; end if;
   end if;
 
   if TG_OP = 'INSERT' then
@@ -60,7 +60,7 @@ begin
     end if;
   end if;
 
-  return case when TG_OP = 'DELETE' then OLD else NEW end;
+  if TG_OP = 'DELETE' then return OLD; else return NEW; end if;
 end;
 $$;
 revoke all on function public.notify_workspace_task_change() from public, anon, authenticated;
