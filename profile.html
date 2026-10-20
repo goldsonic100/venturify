@@ -677,13 +677,30 @@ renderCases();
     const viewerId=window.venturifyCurrentUserId?.();
     if(!viewerId){document.getElementById('navAccount').click();return}
     const recipientId=sendCollab.dataset.collabSend;
+    if(!recipientId||recipientId===viewerId){notice('You cannot request collaboration with your own account.');return}
     sendCollab.disabled=true;
-    const result=await profileClient.from('collaboration_requests').insert({requester_id:viewerId,recipient_id:recipientId,message:"I'd like to explore whether our skills and goals could be a fit for working together."});
-    sendCollab.disabled=false;
-    if(result.error){notice(result.error.code==='23505'?'You already have a pending collaboration request with this founder.':'Could not send the collaboration request. Please try again.');return}
+    const blocks=await profileClient.from('user_blocks').select('blocker_id').or('and(blocker_id.eq.'+viewerId+',blocked_id.eq.'+recipientId+'),and(blocker_id.eq.'+recipientId+',blocked_id.eq.'+viewerId+')').limit(1);
+    if(blocks.error){sendCollab.disabled=false;notice('Could not verify collaboration permissions. Please try again.');return}
+    if((blocks.data||[]).length){sendCollab.disabled=false;notice('Collaboration requests are unavailable between these accounts.');return}
+    const existing=await profileClient.from('collaboration_requests').select('id,status,requester_id,recipient_id').or('and(requester_id.eq.'+viewerId+',recipient_id.eq.'+recipientId+'),and(requester_id.eq.'+recipientId+',recipient_id.eq.'+viewerId+')').in('status',['pending','accepted']).limit(1);
+    if(existing.error){sendCollab.disabled=false;notice('Could not check existing collaboration requests. Please try again.');return}
+    if((existing.data||[]).length){
+      const row=existing.data[0];
+      sendCollab.disabled=true;
+      sendCollab.textContent=row.status==='accepted'?'✓ Already collaborating':'Request already pending';
+      notice(row.status==='accepted'?'You already have an accepted collaboration with this founder.':'A collaboration request already exists between you. Check your Collaboration Requests page.');
+      return
+    }
+    const message="I'd like to explore whether our skills and goals could be a fit for working together.";
+    const result=await profileClient.from('collaboration_requests').insert({requester_id:viewerId,recipient_id:recipientId,message,status:'pending'}).select('id').single();
+    if(result.error){
+      sendCollab.disabled=false;
+      notice(result.error.code==='23505'?'A collaboration request already exists between you.':'Could not send the collaboration request. Please try again.');
+      return
+    }
     sendCollab.textContent='✓ Request sent';
     sendCollab.disabled=true;
-    notice('Collaboration request sent!');
+    notice('Collaboration request sent! You can track it in Collaboration Requests.');
     return
   }
   const collabResponse=e.target.closest('[data-collab-response]');
