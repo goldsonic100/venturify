@@ -57,7 +57,8 @@ function renderActivity(){const box=$('activityList');const shown=activityItemsC
 async function loadActivity(){if(!workspace)return;const box=$('activityList');box.innerHTML='<div class="empty">Updating activity…</div>';const [mr,tr,fr,er]=await Promise.all([
  db.from('workspace_messages').select('id,sender_id,content,created_at').eq('workspace_id',workspace.id).order('created_at',{ascending:false}).limit(35),
  db.from('workspace_tasks').select('id,title,details,status,assigned_to,created_by,created_at,updated_at').eq('workspace_id',workspace.id).order('updated_at',{ascending:false}).limit(100),
- db.storage.from('workspace-files').list(workspace.id,{limit:100,sortBy:{column:'created_at',order:'desc'}})
+ db.storage.from('workspace-files').list(workspace.id,{limit:100,sortBy:{column:'created_at',order:'desc'}}),
+ db.from('workspace_activity_events').select('id,actor_id,event_type,entity_type,entity_id,summary,details,created_at').eq('workspace_id',workspace.id).order('created_at',{ascending:false}).limit(100)
 ]);if(mr.error||tr.error||fr.error){box.innerHTML='<div class="empty">Some activity could not load. Tap Refresh to try again.</div>';return}
 const items=[];
 items.push(activityItem('🚀','Project workspace created',workspace.title,workspace.created_at,'project'));
