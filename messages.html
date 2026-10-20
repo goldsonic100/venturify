@@ -407,6 +407,64 @@ body[data-view="messages"] .empty-chat-icon{width:54px!important;height:54px!imp
  body[data-view="messages"] .messages-composer{padding:8px 10px!important}
 }
 
+
+/* Apple Messages two-column layout: contact threads on the left, selected chat on the right */
+body[data-view="messages"] #community{padding-top:74px!important}
+body[data-view="messages"] .messages-app{display:grid!important;grid-template-columns:320px minmax(0,1fr)!important;width:calc(100vw - 24px)!important;max-width:1500px!important;height:calc(100dvh - 88px)!important;min-height:500px!important;max-height:none!important;margin:0 auto 10px!important;border:1px solid #d2d2d7!important;border-radius:12px!important;overflow:hidden!important;background:#fff!important;box-shadow:0 1px 4px rgba(0,0,0,.06)!important}
+body[data-view="messages"] .messages-sidebar{display:flex!important;flex-direction:column!important;background:#f5f5f7!important;padding:16px 10px 10px!important;border-right:1px solid #d1d1d6!important;min-height:0!important}
+body[data-view="messages"] .messages-sidebar-heading{margin:0 8px 16px!important;align-items:center!important}
+body[data-view="messages"] .messages-sidebar-heading h1{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif!important;font-size:28px!important;letter-spacing:-.8px!important;font-weight:700!important}
+body[data-view="messages"] .messages-sidebar-heading p{display:none!important}
+body[data-view="messages"] .messages-sidebar .inbox-icon{display:grid!important;place-items:center!important;width:30px!important;height:30px!important;flex:0 0 30px!important;border:0!important;border-radius:50%!important;background:#007aff!important;color:#fff!important;font-size:22px!important;line-height:1!important;cursor:pointer!important}
+body[data-view="messages"] .messages-search-wrap{height:34px!important;flex:0 0 34px!important;margin:0 6px 13px!important;border:0!important;border-radius:9px!important;background:#e5e5ea!important;padding:0 10px!important}
+body[data-view="messages"] .messages-list-heading{margin:0 10px 5px!important;padding:0!important;color:#8e8e93!important;text-transform:uppercase!important;font-size:10px!important;letter-spacing:.4px!important}
+body[data-view="messages"] .messages-list-heading strong{font-size:10px!important;font-weight:650!important}
+body[data-view="messages"] .messages-sidebar .conversation-list{display:flex!important;flex:1 1 auto!important;flex-direction:column!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;margin:0!important;padding:0 2px!important;gap:0!important}
+body[data-view="messages"] .messages-sidebar .conversation-item{display:flex!important;align-items:center!important;width:100%!important;min-height:72px!important;flex:0 0 auto!important;padding:9px 9px!important;gap:10px!important;border:0!important;border-bottom:1px solid #e1e1e6!important;border-radius:0!important;background:transparent!important;text-align:left!important}
+body[data-view="messages"] .messages-sidebar .conversation-item.active{background:#dcecff!important;border-radius:9px!important}
+body[data-view="messages"] .messages-sidebar .conversation-item:hover:not(.active){background:#ebebef!important;border-radius:9px!important}
+body[data-view="messages"] .messages-sidebar .conversation-avatar{width:46px!important;height:46px!important;flex:0 0 46px!important;border:0!important;border-radius:50%!important;background:#cbd7e8!important;color:#fff!important;font-size:13px!important}
+body[data-view="messages"] .messages-sidebar .conversation-copy{min-width:0!important;flex:1!important}
+body[data-view="messages"] .messages-sidebar .conversation-copy strong{display:block!important;font-size:13px!important;font-weight:650!important;color:#1c1c1e!important}
+body[data-view="messages"] .messages-sidebar .conversation-copy small{display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important;font-size:11px!important;line-height:1.35!important;color:#77777d!important}
+body[data-view="messages"] .messages-sidebar .conversation-trailing{align-self:flex-start!important;display:flex!important;flex-direction:column!important;align-items:flex-end!important;gap:5px!important;padding-top:2px!important}
+body[data-view="messages"] .messages-sidebar .conversation-time{font-size:10px!important;color:#8e8e93!important}
+body[data-view="messages"] .messages-new{flex:0 0 auto!important;border-top:1px solid #d1d1d6!important;padding:10px 4px 0!important;margin-top:8px!important}
+body[data-view="messages"] .messages-new-actions{gap:6px!important}
+body[data-view="messages"] .messages-new-actions button{padding:8px 4px!important;border:0!important;border-radius:8px!important;background:#e5e5ea!important;color:#007aff!important;font-size:11px!important;font-weight:600!important}
+body[data-view="messages"] .messages-new label{margin:7px 0 5px!important;color:#77777d!important;font-size:10px!important;font-weight:600!important}
+body[data-view="messages"] .messages-new select{height:32px!important;border:1px solid #d1d1d6!important;border-radius:8px!important;background:#fff!important;font-size:11px!important}
+body[data-view="messages"] .messages-chat{display:flex!important;flex-direction:column!important;min-width:0!important;min-height:0!important;background:#fff!important}
+body[data-view="messages"] .messages-chat-header{height:76px!important;flex:0 0 76px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;gap:3px!important;padding:6px 18px!important;border-bottom:1px solid #e5e5ea!important;background:rgba(255,255,255,.98)!important}
+body[data-view="messages"] .chat-contact-avatar{width:34px!important;height:34px!important;flex:0 0 34px!important;margin:0!important;border-radius:50%!important;background:#cbd7e8!important;color:white!important;font-size:10px!important}
+body[data-view="messages"] .chat-contact-copy{flex:0 1 auto!important;text-align:center!important}
+body[data-view="messages"] .chat-contact-copy strong{font-size:12px!important;font-weight:650!important;color:#1c1c1e!important}
+body[data-view="messages"] .chat-contact-copy span{font-size:10px!important;margin-top:1px!important;color:#8e8e93!important}
+body[data-view="messages"] .chat-secure-label{display:none!important}
+body[data-view="messages"] .messages-chat-body{display:flex!important;flex:1 1 auto!important;min-height:0!important;padding:16px 22px 6px!important;background:#fff!important}
+body[data-view="messages"] .messages-chat-body .chat-message-list{display:flex!important;flex:1 1 auto!important;flex-direction:column!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;gap:4px!important;padding:0 3px 12px!important;background:#fff!important}
+body[data-view="messages"] .chat-message-group{max-width:68%!important;margin:1px 0!important}
+body[data-view="messages"] .chat-bubble{max-width:100%!important;padding:8px 12px!important;border-radius:18px!important;background:#e9e9eb!important;color:#1c1c1e!important;font-size:14px!important;line-height:1.35!important;box-shadow:none!important}
+body[data-view="messages"] .chat-bubble.mine{border-radius:18px!important;background:#007aff!important;color:#fff!important}
+body[data-view="messages"] .chat-bubble-meta{font-size:10px!important;color:#8e8e93!important}
+body[data-view="messages"] .messages-composer{flex:0 0 auto!important;display:flex!important;align-items:center!important;gap:9px!important;padding:10px 16px 12px!important;border-top:1px solid #e5e5ea!important;background:#fff!important}
+body[data-view="messages"] .messages-composer .comment-input{height:38px!important;min-width:0!important;border:1px solid #c7c7cc!important;border-radius:20px!important;background:#fff!important;padding:0 14px!important;font-size:14px!important}
+body[data-view="messages"] .messages-composer .btn{display:grid!important;place-items:center!important;width:34px!important;min-width:34px!important;height:34px!important;padding:0!important;border:0!important;border-radius:50%!important;background:#007aff!important;color:#fff!important;font-size:0!important}
+body[data-view="messages"] .messages-composer .btn span{display:none!important}
+body[data-view="messages"] .messages-composer .btn:after{content:"↑";font-size:20px!important;line-height:1!important;font-weight:700!important}
+body[data-view="messages"] .messages-privacy-note{padding:0 10px 6px!important;text-align:center!important;font-size:9px!important;color:#8e8e93!important}
+@media(max-width:760px){
+ body[data-view="messages"] #community{padding-top:74px!important}
+ body[data-view="messages"] .messages-app{width:100vw!important;height:calc(100dvh - 74px)!important;min-height:0!important;margin:0!important;border-radius:0!important;border-left:0!important;border-right:0!important;grid-template-columns:1fr!important}
+ body[data-view="messages"] .messages-sidebar{max-height:42%!important;padding:8px 10px!important}
+ body[data-view="messages"] .messages-sidebar .conversation-list{max-height:125px!important}
+ body[data-view="messages"] .messages-chat{min-height:0!important}
+ body[data-view="messages"] .messages-chat-header{height:58px!important;flex-basis:58px!important}
+ body[data-view="messages"] .messages-chat-body{padding:10px 8px 5px!important}
+ body[data-view="messages"] .chat-message-group{max-width:84%!important}
+ body[data-view="messages"] .messages-composer{padding:8px 10px!important}
+}
+
 </style>
 </head>
 <body data-view="messages">
@@ -510,11 +568,11 @@ body[data-view="messages"] .empty-chat-icon{width:54px!important;height:54px!imp
     </div>
     <div class="messages-app" id="messages">
       <aside class="messages-sidebar">
-        <div class="messages-sidebar-heading"><div><div class="kicker">YOUR INBOX</div><h1>Messages</h1><p>Private conversations with founders.</p></div><span class="inbox-icon">✉</span></div>
+        <div class="messages-sidebar-heading"><div><div class="kicker">MESSAGES</div><h1>Messages</h1><p>People and group chats</p></div><button type="button" class="inbox-icon" id="newMessageShortcut" aria-label="New message" title="New message">＋</button></div>
         <label class="messages-search-wrap"><span>⌕</span><input id="conversationSearch" class="conversation-search" type="search" maxlength="80" placeholder="Search messages" aria-label="Search conversations"></label>
-        <div class="messages-list-heading"><strong>All messages</strong><span id="messageUnreadTotal" class="message-unread-total" hidden>0 unread</span></div>
+        <div class="messages-list-heading"><strong>Contacts</strong><span id="messageUnreadTotal" class="message-unread-total" hidden>0 unread</span></div>
         <div id="conversationList" class="conversation-list"><div class="muted-small">Sign in to see your conversations.</div></div>
-        <div class="messages-new"><div class="messages-new-actions"><button type="button" id="newDirectChat">＋ New message</button><button type="button" id="newGroupChat">＋ New group</button></div><label for="messagePerson">Message a founder</label><select id="messagePerson"><option value="">Choose a founder…</option></select></div>
+        <div class="messages-new"><div class="messages-new-actions"><button type="button" id="newDirectChat">＋ New message</button><button type="button" id="newGroupChat">＋ New group</button></div><label for="messagePerson">Start a conversation</label><select id="messagePerson"><option value="">Choose a contact…</option></select></div>
       </aside>
       <section class="messages-chat" aria-label="Conversation">
         <header class="messages-chat-header">
@@ -523,7 +581,7 @@ body[data-view="messages"] .empty-chat-icon{width:54px!important;height:54px!imp
           <span class="chat-secure-label"><span></span> Private</span>
         </header>
         <div class="messages-chat-body" id="chatBody">
-          <div id="chatMessages" class="comment-list chat-message-list" aria-live="polite"><div class="messages-empty-state"><div class="empty-chat-icon">✉</div><h2>Your next great connection starts here.</h2><p>Choose a conversation on the left, or pick a founder to send your first message.</p></div></div>
+          <div id="chatMessages" class="comment-list chat-message-list" aria-live="polite"><div class="messages-empty-state"><div class="empty-chat-icon">✉</div><h2>Messages</h2><p>Select a contact from the sidebar to see your conversation.</p></div></div>
           <div id="typingStatus" class="typing-status" aria-live="polite" hidden>Someone is typing…</div>
         </div>
         <div class="messages-composer">
@@ -812,6 +870,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   await showMessages(key);await loadTypingStatus();
  }
  $('newDirectChat').addEventListener('click',()=>$('messagePerson').focus());
+ $('newMessageShortcut')?.addEventListener('click',()=>$('messagePerson').focus());
  $('newGroupChat').addEventListener('click',()=>{if(!user)return loginRequired();$('groupChatName').value='';$('groupChatStatus').textContent='Select at least two other founders.';$('groupParticipants').innerHTML=people.map(p=>'<option value="'+esc(p.id)+'">'+esc(name(p))+' (@'+esc(p.username||'founder')+')</option>').join('');$('groupChatBackdrop').classList.add('open')});
  $('closeGroupChat').addEventListener('click',()=>$('groupChatBackdrop').classList.remove('open'));
  $('groupChatBackdrop').addEventListener('click',e=>{if(e.target===$('groupChatBackdrop'))$('groupChatBackdrop').classList.remove('open')});
