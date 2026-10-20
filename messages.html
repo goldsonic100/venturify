@@ -219,6 +219,40 @@ body[data-view="messages"] #messages{display:block!important;max-width:1160px!im
 .messages-composer .btn{height:44px;border-radius:12px;padding:0 18px;white-space:nowrap}
 .messages-privacy-note{font-size:10px;color:#849080;margin:0;padding:0 22px 13px;text-align:right}
 .messages-chat .typing-status{padding:4px 4px 10px;font-size:11px}
+
+/* iMessage-inspired chat polish */
+body[data-view="messages"] #community{background:#f2f4f7!important}
+body[data-view="messages"] .messages-app{background:#fff;border:1px solid #dce1e8;border-radius:20px;box-shadow:0 18px 55px #17203310}
+body[data-view="messages"] .messages-sidebar{background:#f7f8fa;border-right-color:#e5e8ed}
+body[data-view="messages"] .messages-sidebar-heading h1{font-family:var(--sans);font-weight:750;letter-spacing:-1.1px;font-size:30px}
+body[data-view="messages"] .inbox-icon{border-radius:50%;background:#e6f0ff;color:#087cff}
+body[data-view="messages"] .messages-search-wrap{border-color:#e1e5eb;background:#eceff3;border-radius:11px}
+body[data-view="messages"] .messages-sidebar .conversation-item{border:0;border-radius:12px;padding:11px 9px}
+body[data-view="messages"] .messages-sidebar .conversation-item.active{background:#e5efff}
+body[data-view="messages"] .messages-sidebar .conversation-avatar{border:0;background:#e0e6ee;color:#4c5b70}
+body[data-view="messages"] .messages-sidebar .conversation-copy strong{font-size:13px;font-weight:700}
+body[data-view="messages"] .messages-sidebar .conversation-copy small{font-size:11px;color:#77808d}
+body[data-view="messages"] .messages-new{border-top-color:#e2e6ec}
+body[data-view="messages"] .messages-new select{border-color:#d9dee6;border-radius:10px}
+body[data-view="messages"] .messages-chat-header{border-bottom-color:#e7eaf0;background:#fff}
+body[data-view="messages"] .chat-contact-avatar{background:#e0e6ee;color:#46566d}
+body[data-view="messages"] .chat-contact-copy strong{font-size:14px;font-weight:750}
+body[data-view="messages"] .chat-secure-label{padding:6px 9px;border-radius:99px;background:#f1f7ec;color:#557a43}
+body[data-view="messages"] .messages-chat-body{background:#fff;padding:22px 22px 8px}
+body[data-view="messages"] .messages-chat-body .chat-message-list{gap:7px;padding:0 2px 12px;scroll-behavior:smooth}
+body[data-view="messages"] .chat-bubble{max-width:min(72%,560px);width:fit-content;align-self:flex-start;background:#e9edf2;color:#18202b;border-radius:19px 19px 19px 5px;padding:10px 14px;box-shadow:none;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+body[data-view="messages"] .chat-bubble.mine{align-self:flex-end;background:#087cff;color:white;border-radius:19px 19px 5px 19px}
+body[data-view="messages"] .chat-bubble-meta{display:flex;justify-content:flex-end;gap:7px;font-size:10px;color:#727d8c;margin-top:5px}
+body[data-view="messages"] .chat-bubble.mine .chat-bubble-meta{color:#e4f1ff}
+body[data-view="messages"] .chat-receipt{font-weight:750}
+body[data-view="messages"] .messages-composer{gap:9px;padding:12px 16px;border-top:1px solid #edf0f4;background:#fff}
+body[data-view="messages"] .messages-composer .comment-input{height:44px;background:#f6f7f9;border:1px solid #dfe4eb;border-radius:22px;padding:0 17px;font-size:14px}
+body[data-view="messages"] .messages-composer .comment-input:focus{background:#fff;border-color:#83b8ff;box-shadow:0 0 0 3px #087cff12}
+body[data-view="messages"] .messages-composer .btn{height:42px;width:44px;padding:0;border-radius:50%;font-size:0;background:#087cff;color:#fff;box-shadow:none}
+body[data-view="messages"] .messages-composer .btn span{font-size:19px;transform:rotate(-35deg)}
+body[data-view="messages"] .messages-privacy-note{color:#8a93a0;background:#fff}
+body[data-view="messages"] .empty-chat-icon{background:#e7f1ff;color:#087cff;border-radius:50%}
+@media(max-width:760px){body[data-view="messages"] .messages-app{border-radius:16px}body[data-view="messages"] .chat-bubble{max-width:88%}body[data-view="messages"] .messages-chat-body{padding:15px 12px 6px}}
 @media(max-width:760px){
  body[data-view="messages"] #community{padding-top:14px!important}
  .messages-app{grid-template-columns:1fr;height:auto;min-height:calc(100vh - 145px);max-height:none}
@@ -525,7 +559,8 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   const messages=messagesResult.data||[];
   // Fetch complete unread totals separately from the inbox's 1,000-message preview.
   const unreadResult=await client.rpc('get_my_unread_message_counts');
-  if(unreadResult.error){box.innerHTML='<div class="muted-small">Could not sync unread counts. Please refresh.</div>';return}
+  // An unread-count RPC problem must never hide conversations or prevent opening chats.
+  if(unreadResult.error)console.warn('Unread counts unavailable; showing conversations without badges',unreadResult.error.message);
   const unreadCounts=new Map((unreadResult.data||[]).map(row=>[row.conversation_id,Number(row.unread_count)||0]));
   const otherIds=[...new Set((membersResult.data||[]).filter(m=>m.user_id!==user.id).map(m=>m.user_id))];
   const profileResult=otherIds.length?await client.from('profiles').select('id,username,display_name,avatar_url').in('id',otherIds):{data:[],error:null};
@@ -640,6 +675,8 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
  $('messagePerson').addEventListener('change',e=>{if(e.target.value)openConversation(e.target.value)});
  $('messageText').addEventListener('input',()=>{if(currentConversation&&user)setTyping(!!$('messageText').value.trim())});
  $('messageText').addEventListener('blur',()=>{if(user&&currentConversation)setTyping(false)});
+ // Enter sends like a chat app; Shift+Enter remains available if the composer is later multiline.
+ $('messageText').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('sendMessage').click()}});
  $('sendMessage').addEventListener('click',async()=>{
   if(!user)return loginRequired();
   const otherId=$('messagePerson').value,content=$('messageText').value.trim();
@@ -648,17 +685,23 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(!currentConversation||activeConversationOtherId!==otherId)await openConversation(otherId);
   // Re-check both IDs after the async open; do not send to a stale conversation.
   if(!currentConversation||activeConversationOtherId!==otherId){notice('Could not open that conversation. Please select the founder again.');return}
-  const sendButton=$('sendMessage');if(sendButton.disabled)return;sendButton.disabled=true;
-  const r=await client.from('messages').insert({conversation_id:currentConversation,sender_id:user.id,content});
-  sendButton.disabled=false;
-  if(r.error)notice('Message failed: '+r.error.message);
-  else{
+  const sendButton=$('sendMessage');if(sendButton.disabled)return;
+  const sendingConversation=currentConversation,sendingUserId=user.id;
+  sendButton.disabled=true;sendButton.setAttribute('aria-busy','true');sendButton.title='Sending…';
+  try{
+   const r=await client.from('messages').insert({conversation_id:sendingConversation,sender_id:sendingUserId,content});
+   if(r.error){notice('Message failed: '+r.error.message);return}
    $('messageText').value='';await setTyping(false);
-   // Keep Discover's private founder shortlist in sync with real outreach.
-   // This is best-effort: a shortlist update must never turn a sent message into a reported failure.
-   const shortlistUpdate=await client.from('founder_shortlists').update({status:'Messaged',updated_at:new Date().toISOString()}).eq('user_id',user.id).eq('founder_id',otherId);
-   await showMessages(otherId);await loadConversationList();
-   if(!shortlistUpdate.error)notice('Message sent. If this founder was on your shortlist, their next step is now “Messaged.”');
+   // Keep Discover's private founder shortlist in sync with real outreach; this is best-effort.
+   const shortlistUpdate=await client.from('founder_shortlists').update({status:'Messaged',updated_at:new Date().toISOString()}).eq('user_id',sendingUserId).eq('founder_id',otherId);
+   if(currentConversation===sendingConversation&&activeConversationOtherId===otherId)await showMessages(otherId);
+   await loadConversationList();
+   if(!shortlistUpdate.error)notice('Message sent.');
+  }catch(error){
+   console.error('Message send failed',error);
+   notice('Could not send your message. Check your connection and try again.');
+  }finally{
+   sendButton.disabled=false;sendButton.removeAttribute('aria-busy');sendButton.title='Send message';
   }
  });
 
