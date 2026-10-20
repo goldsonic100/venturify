@@ -75,7 +75,7 @@ $$;
 revoke all on function public.notify_workspace_task_changes() from public, anon, authenticated;
 drop trigger if exists workspace_task_change_notifications on public.workspace_tasks;
 create trigger workspace_task_change_notifications
-after insert or update of assigned_to, status on public.workspace_tasks
+after insert or update on public.workspace_tasks
 for each row execute function public.notify_workspace_task_changes();
 
 create or replace function public.notify_workspace_checklist_completion()
@@ -88,7 +88,6 @@ declare
   v_actor uuid := auth.uid();
   v_recipient uuid;
   v_request public.collaboration_requests%rowtype;
-  v_task_title text;
 begin
   if tg_op <> 'UPDATE' or old.is_complete is true or new.is_complete is not true or v_actor is null then
     return new;
@@ -131,10 +130,6 @@ begin
   ) then
     return new;
   end if;
-
-  select t.title into v_task_title
-  from public.workspace_tasks t
-  where t.id = new.task_id and t.workspace_id = new.workspace_id;
 
   insert into public.notifications
     (recipient_id, actor_id, type, workspace_id, collaboration_request_id, task_id)
