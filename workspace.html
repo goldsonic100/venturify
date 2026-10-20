@@ -109,8 +109,8 @@ function taskMatchesDueFilter(t){if(taskDueFilter==='any')return true;if(taskDue
  $('overviewMilestoneProgress').textContent=completeMilestones+' / '+milestones.length;$('overviewMilestoneBar').style.width=milestonePct+'%';
  const upcoming=milestones.filter(m=>m.target_date).sort((a,b)=>a.target_date.localeCompare(b.target_date)).slice(0,5);
  $('overviewDeadlines').innerHTML=upcoming.length?upcoming.map(m=>{
- const linked=tasks.filter(t=>t.milestone_id===m.id),complete=linked.filter(t=>t.status==='done').length,late=m.target_date<today&&!(linked.length&&complete===linked.length);
- return '<div class="overview-line"><div><strong>'+esc(m.title)+'</strong><small>'+complete+'/'+linked.length+' linked tasks complete</small></div><div style="text-align:right;white-space:nowrap"><strong>'+esc(m.target_date)+'</strong><small style="color:'+(late?'#dc5a5a':'var(--muted)')+'">'+(late?'Overdue':m.target_date===today?'Due today':'Target date')+'</small></div></div>'
+ const linked=tasks.filter(t=>t.milestone_id===m.id),complete=linked.filter(t=>t.status==='done').length,late=m.target_date<today&&!(linked.length&&complete===linked.length),risk=!late&&!!m.target_date&&m.target_date>=today&&m.target_date<=(()=>{const d=new Date(today+'T12:00:00');d.setDate(d.getDate()+3);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')})()&&complete<linked.length;
+ return '<div class="overview-line"><div><strong>'+esc(m.title)+'</strong><small>'+complete+'/'+linked.length+' linked tasks complete</small></div><div style="text-align:right;white-space:nowrap"><strong>'+esc(m.target_date)+'</strong><small style="color:'+(late?'#dc5a5a':risk?'#b56b13':'var(--muted)')+'">'+(late?'Overdue':risk?'At risk':m.target_date===today?'Due today':'Target date')+'</small></div></div>'
  }).join(''):'<div class="overview-empty">No milestone target dates yet.</div>';
  const members=[{id:user.id,name:'You'}, {id:partnerId,name:partnerName}];
  $('overviewWorkload').innerHTML=members.map(member=>{
