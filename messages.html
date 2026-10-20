@@ -209,6 +209,7 @@ body[data-view="messages"] #messages{display:block!important;max-width:1160px!im
 .chat-bubble{max-width:min(76%,520px);padding:11px 14px;font-size:13px;line-height:1.6;border-radius:15px 15px 15px 4px;box-shadow:0 2px 4px #12251505}
 .chat-bubble.mine{border-radius:15px 15px 4px 15px}
 .chat-bubble-meta{font-size:10px;margin-top:6px}
+.chat-message-group{display:flex;flex-direction:column;max-width:min(80%,600px);align-self:flex-start;position:relative}.chat-message-group.mine{align-self:flex-end;align-items:flex-end}.chat-message-group .chat-bubble{max-width:100%;width:fit-content}.chat-reactions{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:3px 5px 0}.chat-reaction{display:inline-flex;align-items:center;gap:4px;border:1px solid #dfe4eb;background:#f7f9fc;color:#263343;border-radius:99px;padding:3px 8px;font-size:12px;cursor:pointer;line-height:1.4}.chat-reaction.mine-reacted{background:#e4f0ff;border-color:#83b8ff} .chat-reaction-picker{display:flex;gap:3px;align-items:center;margin:3px 5px 0;opacity:0;max-height:0;overflow:hidden;transition:opacity .15s}.chat-message-group:hover .chat-reaction-picker,.chat-message-group:focus-within .chat-reaction-picker{opacity:1;max-height:30px;overflow:visible}.chat-reaction-picker button{border:0;background:transparent;border-radius:50%;padding:3px 5px;font-size:14px;cursor:pointer}.chat-reaction-picker button:hover{background:#eaf1fa}.chat-date-divider{display:flex;align-items:center;gap:10px;color:#8a94a3;font-size:11px;justify-content:center;margin:18px 0 10px;align-self:stretch}.chat-date-divider:before,.chat-date-divider:after{content:"";height:1px;background:#e9edf2;flex:1}.chat-message-group .chat-bubble{white-space:pre-wrap}
 .messages-empty-state{margin:auto;max-width:330px;text-align:center;padding:24px}
 .empty-chat-icon{width:62px;height:62px;border-radius:20px;background:#eef4e7;color:#466a3f;display:grid;place-items:center;font-size:28px;margin:0 auto 17px}
 .messages-empty-state h2{font-family:var(--serif);font-size:25px;line-height:1.15;font-weight:500;margin:0 0 10px}
@@ -252,7 +253,7 @@ body[data-view="messages"] .messages-composer .btn{height:42px;width:44px;paddin
 body[data-view="messages"] .messages-composer .btn span{font-size:19px;transform:rotate(-35deg)}
 body[data-view="messages"] .messages-privacy-note{color:#8a93a0;background:#fff}
 body[data-view="messages"] .empty-chat-icon{background:#e7f1ff;color:#087cff;border-radius:50%}
-@media(max-width:760px){body[data-view="messages"] .messages-app{border-radius:16px}body[data-view="messages"] .chat-bubble{max-width:88%}body[data-view="messages"] .messages-chat-body{padding:15px 12px 6px}}
+@media(max-width:760px){body[data-view="messages"] .messages-app{border-radius:16px}body[data-view="messages"] .chat-bubble{max-width:88%}body[data-view="messages"] .messages-chat-body{padding:15px 12px 6px}.chat-reaction-picker{opacity:1;max-height:30px;overflow:visible}}
 @media(max-width:760px){
  body[data-view="messages"] #community{padding-top:14px!important}
  .messages-app{grid-template-columns:1fr;height:auto;min-height:calc(100vh - 145px);max-height:none}
@@ -542,6 +543,7 @@ $('feed').addEventListener('click',async e=>{
  document.addEventListener('click',async e=>{const mention=e.target.closest('[data-profile-username]');if(!mention)return;const username=mention.dataset.profileUsername;if(!/^[A-Za-z0-9_]{1,30}$/.test(username))return;mention.disabled=true;const result=await client.from('profiles').select('id').ilike('username',username).maybeSingle();mention.disabled=false;if(result.error||!result.data){notice('That username was not found.');return}showProfile(result.data.id)});
 let currentConversation=null,currentConversationChannel=null,currentTypingChannel=null,currentReadChannel=null,globalMessageChannel=null,globalMessageRealtimeUser=null,messagingSessionUserId=null,typingCleanupTimer=null;let conversationOpenRequest=0;
  let activeConversationOtherId=null,activeConversationMessages=[];
+ function conversationTime(value){if(!value)return '';const date=new Date(value),now=new Date(),sameDay=date.toDateString()===now.toDateString(),yesterday=new Date(now);yesterday.setDate(now.getDate()-1);if(sameDay)return date.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});if(date.toDateString()===yesterday.toDateString())return 'Yesterday';const days=(now-date)/86400000;if(days<7)return date.toLocaleDateString(undefined,{weekday:'short'});return date.toLocaleDateString(undefined,{month:'short',day:'numeric'})}
  function filteredConversationList(){const search=$('conversationSearch')?.value?.trim().toLowerCase()||'';document.querySelectorAll('#conversationList [data-open-conversation]').forEach(button=>{button.hidden=!!search&&!button.textContent.toLowerCase().includes(search)})}
  async function loadConversationList(){
   const box=$('conversationList'),total=$('messageUnreadTotal');
@@ -578,12 +580,23 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   total.textContent=unreadTotal+' unread';total.hidden=unreadTotal===0;const navCount=$('messageNavCount');if(navCount){navCount.textContent=unreadTotal>99?'99+':String(unreadTotal);navCount.hidden=unreadTotal===0;}
   box.innerHTML=conversations.map(item=>{
    const avatar=safeProfileUrl(item.person.avatar_url);
-   return '<button type="button" class="conversation-item '+(currentConversation===item.id?'active':'')+'" data-open-conversation="'+esc(item.otherId)+'"><span class="conversation-avatar">'+(avatar?'<img src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':esc(initials(name(item.person))))+'</span><span class="conversation-copy"><strong>'+esc(name(item.person))+'</strong><small>'+esc(item.latest?(item.latest.sender_id===user.id?'You: ':'')+String(item.latest.content||'').slice(0,74):'Conversation started')+'</small></span><span class="conversation-trailing">'+(item.latest?'<span class="conversation-time">'+esc(new Date(item.latest.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'}))+'</span>':'')+(item.unread?'<span class="conversation-unread">'+item.unread+'</span>':'')+'</span></button>';
+   return '<button type="button" class="conversation-item '+(currentConversation===item.id?'active':'')+'" data-open-conversation="'+esc(item.otherId)+'"><span class="conversation-avatar">'+(avatar?'<img src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':esc(initials(name(item.person))))+'</span><span class="conversation-copy"><strong>'+esc(name(item.person))+'</strong><small>'+esc(item.latest?(item.latest.sender_id===user.id?'You: ':'')+String(item.latest.content||'').slice(0,74):'Conversation started')+'</small></span><span class="conversation-trailing">'+(item.latest?'<span class="conversation-time">'+esc(conversationTime(item.latest.created_at))+'</span>':'')+(item.unread?'<span class="conversation-unread">'+item.unread+'</span>':'')+'</span></button>';
   }).join('')||'<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';
   filteredConversationList();
  }
  $('conversationSearch').addEventListener('input',filteredConversationList);
  $('conversationList').addEventListener('click',async e=>{const button=e.target.closest('[data-open-conversation]');if(!button)return;const otherId=button.dataset.openConversation;$('messagePerson').value=otherId;await openConversation(otherId)});
+ $('chatMessages').addEventListener('click',async e=>{
+  const button=e.target.closest('[data-message-reaction]');if(!button)return;
+  if(!user)return loginRequired();
+  const messageId=button.dataset.messageReaction,emoji=button.dataset.reaction;if(!messageId||!emoji||!currentConversation)return;
+  button.disabled=true;
+  const existing=await client.from('message_reactions').select('message_id').eq('message_id',messageId).eq('user_id',user.id).eq('reaction',emoji).maybeSingle();
+  if(existing.error){notice('Could not update reaction: '+existing.error.message);button.disabled=false;return}
+  const result=existing.data?await client.from('message_reactions').delete().eq('message_id',messageId).eq('user_id',user.id).eq('reaction',emoji):await client.from('message_reactions').insert({message_id:messageId,user_id:user.id,reaction:emoji});
+  if(result.error)notice('Could not update reaction: '+result.error.message);else await showMessages(activeConversationOtherId);
+  button.disabled=false;
+ });
  function stopActiveConversationRealtime(){
   if(currentConversationChannel){client.removeChannel(currentConversationChannel);currentConversationChannel=null}
   if(currentTypingChannel){client.removeChannel(currentTypingChannel);currentTypingChannel=null}
@@ -635,7 +648,10 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(currentConversation!==conversationId)stopActiveConversationRealtime();
   currentConversation=conversationId;activeConversationOtherId=otherId;
   const contact=people.find(p=>p.id===otherId);$('currentChatName').textContent=contact?name(contact):'Founder conversation';$('currentChatSubtitle').textContent=contact?'@'+(contact.username||'founder')+' · Connected on Venturify':'Private conversation';$('currentChatAvatar').innerHTML=contact?.avatar_url&&safeProfileUrl(contact.avatar_url)?'<img src="'+esc(safeProfileUrl(contact.avatar_url))+'" alt="">':esc(initials(contact?name(contact):'Founder'));
-  if(!currentConversationChannel)currentConversationChannel=client.channel('venturify-chat-'+conversationId).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'conversation_id=eq.'+conversationId},()=>{if(currentConversation===conversationId&&activeConversationOtherId===otherId)showMessages(otherId)}).subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')notice('Live message updates disconnected. Refresh to reconnect.')});
+  if(!currentConversationChannel)currentConversationChannel=client.channel('venturify-chat-'+conversationId)
+   .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'conversation_id=eq.'+conversationId},()=>{if(currentConversation===conversationId&&activeConversationOtherId===otherId)showMessages(otherId)})
+   .on('postgres_changes',{event:'*',schema:'public',table:'message_reactions'},payload=>{const changed=payload.new||payload.old;if(changed?.message_id&&currentConversation===conversationId&&activeConversationOtherId===otherId&&activeConversationMessages.some(m=>m.id===changed.message_id))showMessages(otherId)})
+   .subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')notice('Live message updates disconnected. Refresh to reconnect.')});
   if(!currentTypingChannel)currentTypingChannel=client.channel('venturify-typing-'+conversationId).on('postgres_changes',{event:'*',schema:'public',table:'conversation_typing',filter:'conversation_id=eq.'+conversationId},()=>loadTypingStatus()).subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Live typing updates disconnected',error||status)});
   if(!currentReadChannel)currentReadChannel=client.channel('venturify-read-'+conversationId).on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reads',filter:'user_id=eq.'+otherId},()=>showMessages(otherId)).subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Live read receipts disconnected',error||status)});
   await showMessages(otherId);await loadTypingStatus();
@@ -647,10 +663,17 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   const conversationId=currentConversation,sessionUserId=user.id;
   if(activeConversationOtherId!==otherId)return;
   const stillViewing=()=>!!user&&user.id===sessionUserId&&currentConversation===conversationId&&activeConversationOtherId===otherId;
-  const r=await client.from('messages').select('id,sender_id,content,created_at').eq('conversation_id',conversationId).order('created_at').limit(100);
+  // Fetch history in pages so long-running conversations load from the beginning.
+  const messages=[];let historyOffset=0,historyError=null;
+  while(true){
+   const page=await client.from('messages').select('id,sender_id,content,created_at').eq('conversation_id',conversationId).order('created_at',{ascending:true}).range(historyOffset,historyOffset+499);
+   if(!stillViewing())return;
+   if(page.error){historyError=page.error;break}
+   const rows=page.data||[];messages.push(...rows);historyOffset+=rows.length;
+   if(rows.length<500)break;
+  }
   if(!stillViewing())return;
-  if(r.error){$('chatMessages').innerHTML='<div class="muted-small">'+esc(r.error.message)+'</div>';return}
-  const messages=r.data||[];
+  if(historyError){$('chatMessages').innerHTML='<div class="muted-small">'+esc(historyError.message)+'</div>';return}
   const incoming=messages.filter(m=>m.sender_id!==sessionUserId);
   if(incoming.length){
    const readResult=await client.from('message_reads').upsert(incoming.map(m=>({message_id:m.id,user_id:sessionUserId})),{onConflict:'message_id,user_id',ignoreDuplicates:true});
@@ -661,12 +684,25 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   const reads=outIds.length?await client.from('message_reads').select('message_id,read_at').in('message_id',outIds).neq('user_id',sessionUserId):{data:[]};
   if(!stillViewing())return;
   const readMap=new Map((reads.data||[]).map(x=>[x.message_id,x.read_at]));
+  const messageIds=messages.map(m=>m.id);let reactionRows=[];
+  for(let offset=0;offset<messageIds.length;offset+=150){
+   const reactionResult=await client.from('message_reactions').select('message_id,user_id,reaction').in('message_id',messageIds.slice(offset,offset+150));
+   if(!stillViewing())return;
+   if(reactionResult.error){console.warn('Message reactions unavailable',reactionResult.error.message);break}
+   reactionRows.push(...(reactionResult.data||[]));
+  }
+  const reactionsByMessage=new Map();for(const item of reactionRows){if(!reactionsByMessage.has(item.message_id))reactionsByMessage.set(item.message_id,[]);reactionsByMessage.get(item.message_id).push(item)}
   const p=people.find(x=>x.id===otherId);
   $('messageStatus').textContent='Private conversation with '+name(p)+'. Read receipts and typing status appear when both people use the updated chat.';
   activeConversationMessages=messages;
+  const reactionChoices=['❤️','😂','👍','😮','🎉','👀'];let lastDate='';
   $('chatMessages').innerHTML=messages.map(m=>{
-   const mine=m.sender_id===sessionUserId,readAt=readMap.get(m.id);
-   return '<div class="chat-bubble '+(mine?'mine':'')+'">'+esc(m.content)+'<div class="chat-bubble-meta"><span>'+esc(new Date(m.created_at).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}))+'</span>'+(mine&&readAt?'<span class="chat-receipt">Seen</span>':'')+'</div></div>';
+   const mine=m.sender_id===sessionUserId,readAt=readMap.get(m.id),dayKey=new Date(m.created_at).toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+   const divider=dayKey!==lastDate?'<div class="chat-date-divider">'+esc(dayKey)+'</div>':'';lastDate=dayKey;
+   const grouped=new Map();for(const item of reactionsByMessage.get(m.id)||[]){const state=grouped.get(item.reaction)||{count:0,mine:false};state.count++;if(item.user_id===sessionUserId)state.mine=true;grouped.set(item.reaction,state)}
+   const pills=[...grouped.entries()].map(([emoji,state])=>'<button type="button" class="chat-reaction '+(state.mine?'mine-reacted':'')+'" data-message-reaction="'+esc(m.id)+'" data-reaction="'+esc(emoji)+'" aria-label="React '+esc(emoji)+'; '+state.count+' reactions">'+esc(emoji)+' <span>'+state.count+'</span></button>').join('');
+   const picker=reactionChoices.map(emoji=>'<button type="button" data-message-reaction="'+esc(m.id)+'" data-reaction="'+emoji+'" aria-label="React '+emoji+'">'+emoji+'</button>').join('');
+   return divider+'<div class="chat-message-group '+(mine?'mine':'')+'"><div class="chat-bubble '+(mine?'mine':'')+'">'+esc(m.content)+'<div class="chat-bubble-meta"><span title="'+esc(new Date(m.created_at).toLocaleString())+'">'+esc(new Date(m.created_at).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}))+'</span>'+(mine&&readAt?'<span class="chat-receipt">Seen</span>':'')+'</div></div><div class="chat-reactions">'+pills+'</div><div class="chat-reaction-picker" aria-label="Add a reaction">'+picker+'</div></div>';
   }).join('')||'<div class="muted-small">Start the conversation below.</div>';
   $('chatMessages').scrollTop=$('chatMessages').scrollHeight;
   try{localStorage.setItem('venturify-read-'+sessionUserId+'-'+conversationId,new Date().toISOString())}catch{}

@@ -210,4 +210,14 @@ assert.ok(workspaceIdentityMigration.includes('new.updated_at := now()'), 'Works
 assert.ok(workspaceIdentityMigration.includes('security invoker') && workspaceIdentityMigration.includes("set search_path = ''"), 'Workspace identity guard must use invoker rights and a pinned empty search_path');
 assert.ok(workspaceIdentityMigration.includes('revoke all on function private.guard_workspace_identity_update() from public, anon, authenticated'), 'Workspace identity guard must not be directly callable by browser roles');
 
+
+// Direct-message reactions must persist while remaining scoped to conversation members.
+const messageReactionsMigration = readFileSync('supabase/migrations/20261020020000_add_message_reactions.sql', 'utf8');
+assert.ok(messageReactionsMigration.includes('create table if not exists public.message_reactions'), 'Missing persistent message reactions table');
+assert.ok(messageReactionsMigration.includes('primary key (message_id, user_id, reaction)'), 'Message reactions must prevent duplicate reactions by the same user');
+assert.ok(messageReactionsMigration.includes('user_id = (select auth.uid())'), 'Users may only create reactions as themselves');
+assert.ok(messageReactionsMigration.includes('private.is_conversation_member(m.conversation_id)'), 'Message reactions must be limited to conversation members');
+assert.ok(messageReactionsMigration.includes('not private.is_conversation_blocked(m.conversation_id)'), 'Message reactions must respect conversation blocks');
+assert.ok(messageReactionsMigration.includes('enable row level security'), 'Message reactions must have RLS enabled');
+
 console.log('Trust & safety regression checks passed.');
