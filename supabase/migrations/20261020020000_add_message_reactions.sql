@@ -27,7 +27,7 @@ using (user_id = (select auth.uid()) and exists (select 1 from public.messages m
 
 grant select, insert, delete on public.message_reactions to authenticated;
 
-do $
+do $realtime$
 begin
   if not exists (
     select 1 from pg_publication_tables
@@ -35,4 +35,4 @@ begin
   ) then
     alter publication supabase_realtime add table public.message_reactions;
   end if;
-end $;
+end $realtime$;
