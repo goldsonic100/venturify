@@ -354,6 +354,59 @@ body[data-view="messages"] .messages-empty-state p{font-size:13px!important;colo
  body[data-view="messages"] .messages-composer{padding:9px 10px 12px!important}
 }
 
+
+/* Final pass: macOS Messages / iMessage layout proportions and controls */
+body[data-view="messages"] #community{padding-top:84px!important}
+body[data-view="messages"] .messages-app{width:min(1440px,calc(100vw - 36px))!important;height:calc(100dvh - 102px)!important;grid-template-columns:330px minmax(0,1fr)!important;border-radius:12px!important;border:1px solid #d1d1d6!important;box-shadow:0 1px 3px rgba(0,0,0,.04)!important}
+body[data-view="messages"] .messages-sidebar{padding:18px 10px 12px!important;background:#f6f6f8!important}
+body[data-view="messages"] .messages-sidebar-heading{margin:0 10px 18px!important}
+body[data-view="messages"] .messages-sidebar-heading h1{font-size:30px!important;font-weight:700!important;letter-spacing:-1.25px!important}
+body[data-view="messages"] .messages-sidebar-heading .kicker{display:none!important}
+body[data-view="messages"] .messages-sidebar-heading p{display:none!important}
+body[data-view="messages"] .inbox-icon{width:30px!important;height:30px!important;flex-basis:30px!important;border-radius:50%!important;background:transparent!important;color:#007aff!important;font-size:0!important}
+body[data-view="messages"] .inbox-icon:before{content:"↗";font-size:24px!important;font-weight:400!important}
+body[data-view="messages"] .messages-search-wrap{margin:0 7px 15px!important;height:34px!important;border-radius:9px!important;background:#e5e5ea!important}
+body[data-view="messages"] .messages-list-heading{margin:4px 10px 6px!important;text-transform:uppercase!important;font-size:10px!important;letter-spacing:.4px!important;color:#8e8e93!important}
+body[data-view="messages"] .messages-list-heading strong{font-size:10px!important;font-weight:600!important}
+body[data-view="messages"] .message-unread-total{font-size:10px!important}
+body[data-view="messages"] .messages-sidebar .conversation-item{min-height:70px!important;padding:9px 10px!important;border-bottom:1px solid #e2e2e7!important}
+body[data-view="messages"] .messages-sidebar .conversation-item.active{background:#dcecff!important}
+body[data-view="messages"] .messages-sidebar .conversation-avatar{width:46px!important;height:46px!important;flex-basis:46px!important}
+body[data-view="messages"] .messages-new{padding-top:10px!important}
+body[data-view="messages"] .messages-new-actions button{background:transparent!important;border:1px solid #d1d1d6!important;color:#007aff!important;border-radius:8px!important;font-weight:600!important}
+body[data-view="messages"] .messages-new label{font-size:11px!important;font-weight:600!important;color:#6e6e73!important;margin:4px 0 6px!important}
+body[data-view="messages"] .messages-new select{height:34px!important;font-size:12px!important;border-color:#d1d1d6!important;border-radius:8px!important}
+body[data-view="messages"] .messages-chat-header{height:78px!important;flex-basis:78px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:2px!important;padding:7px 18px!important}
+body[data-view="messages"] .chat-contact-avatar{width:34px!important;height:34px!important;flex-basis:34px!important;font-size:10px!important;margin-bottom:0!important}
+body[data-view="messages"] .chat-contact-copy{text-align:center!important;flex:0 1 auto!important}
+body[data-view="messages"] .chat-contact-copy strong{font-size:12px!important;font-weight:600!important;letter-spacing:-.1px!important}
+body[data-view="messages"] .chat-contact-copy span{font-size:10px!important;margin-top:1px!important}
+body[data-view="messages"] .messages-chat-body{padding:16px 22px 8px!important}
+body[data-view="messages"] .messages-chat-body .chat-message-list{gap:3px!important}
+body[data-view="messages"] .chat-message-group{max-width:68%!important;margin:1px 0!important}
+body[data-view="messages"] .chat-bubble{padding:8px 12px!important;border-radius:18px!important;font-size:14px!important;line-height:1.32!important}
+body[data-view="messages"] .chat-bubble.mine{border-radius:18px!important}
+body[data-view="messages"] .chat-bubble-meta{padding:0 5px!important;font-size:10px!important}
+body[data-view="messages"] .chat-date-divider{margin:18px 0 14px!important;font-weight:500!important}
+body[data-view="messages"] .messages-composer{padding:12px 18px!important;gap:8px!important}
+body[data-view="messages"] .messages-composer .comment-input{height:38px!important;border-radius:20px!important;border-color:#c7c7cc!important;padding:0 14px!important;font-size:14px!important}
+body[data-view="messages"] .messages-composer .btn{height:32px!important;min-width:36px!important;width:36px!important;padding:0!important;border-radius:50%!important;font-size:0!important;display:grid!important;place-items:center!important}
+body[data-view="messages"] .messages-composer .btn span{font-size:0!important}
+body[data-view="messages"] .messages-composer .btn:after{content:"↑";font-size:20px!important;line-height:1!important;font-weight:700!important}
+body[data-view="messages"] .messages-privacy-note{text-align:center!important;padding:0 10px 7px!important;font-size:9px!important}
+body[data-view="messages"] .messages-empty-state{max-width:340px!important}
+body[data-view="messages"] .empty-chat-icon{width:54px!important;height:54px!important;border-radius:50%!important;background:#e5e5ea!important;color:#8e8e93!important;font-size:22px!important}
+@media(max-width:760px){
+ body[data-view="messages"] #community{padding-top:78px!important}
+ body[data-view="messages"] .messages-app{width:100vw!important;height:calc(100dvh - 78px)!important;grid-template-columns:1fr!important;border-radius:0!important}
+ body[data-view="messages"] .messages-sidebar{max-height:36%!important;padding:9px 10px!important}
+ body[data-view="messages"] .messages-sidebar .conversation-list{max-height:104px!important}
+ body[data-view="messages"] .messages-chat-header{height:60px!important;flex-basis:60px!important}
+ body[data-view="messages"] .messages-chat-body{padding:10px 8px 5px!important}
+ body[data-view="messages"] .chat-message-group{max-width:82%!important}
+ body[data-view="messages"] .messages-composer{padding:8px 10px!important}
+}
+
 </style>
 </head>
 <body data-view="messages">
