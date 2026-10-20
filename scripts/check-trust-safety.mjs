@@ -199,4 +199,15 @@ assert.ok(taskAssigneeMigration.includes('before insert or update of assigned_to
 assert.ok(taskAssigneeMigration.includes('security invoker') && taskAssigneeMigration.includes("set search_path = ''"), 'Assignee guard must run as invoker with a pinned empty search_path');
 assert.ok(taskAssigneeMigration.includes('revoke all on function private.guard_workspace_task_assignee() from public, anon, authenticated'), 'Assignee guard must not be directly callable by browser roles');
 
+// Workspace identity fields cannot be reassigned while project title and goal stay editable.
+const workspaceIdentityMigration = readFileSync('supabase/migrations/20261020010000_guard_workspace_identity_updates.sql', 'utf8');
+assert.ok(workspaceIdentityMigration.includes('function private.guard_workspace_identity_update()'), 'Missing workspace identity guard');
+for (const field of ['new.id is distinct from old.id', 'new.collaboration_request_id is distinct from old.collaboration_request_id', 'new.created_by is distinct from old.created_by', 'new.created_at is distinct from old.created_at']) {
+  assert.ok(workspaceIdentityMigration.includes(field), 'Workspace identity guard must protect ' + field);
+}
+assert.ok(workspaceIdentityMigration.includes('before update on public.collaboration_workspaces'), 'Workspace identity guard must run on updates');
+assert.ok(workspaceIdentityMigration.includes('new.updated_at := now()'), 'Workspace edits must refresh updated_at');
+assert.ok(workspaceIdentityMigration.includes('security invoker') && workspaceIdentityMigration.includes("set search_path = ''"), 'Workspace identity guard must use invoker rights and a pinned empty search_path');
+assert.ok(workspaceIdentityMigration.includes('revoke all on function private.guard_workspace_identity_update() from public, anon, authenticated'), 'Workspace identity guard must not be directly callable by browser roles');
+
 console.log('Trust & safety regression checks passed.');
