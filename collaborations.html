@@ -13,7 +13,7 @@
 <header><nav><a href="index.html"><strong>VENTURIFY</strong></a><div><a href="discover.html">Discover</a><a href="feed.html">Feed</a><a href="messages.html">Messages</a><a href="workspace.html">Workspaces</a><a href="profile.html">Profile</a></div></nav></header>
 <main class="wrap"><div class="kicker">Build together</div><h1>Collaboration requests</h1><p class="muted">Keep track of founders who want to build with you, requests you have sent, and accepted collaborations.</p>
 <div id="notice" class="notice">Checking your account…</div>
-<div id="app" class="hidden"><div class="tabs" role="group" aria-label="Filter collaboration requests"><button class="tab active" data-filter="all">All requests</button><button class="tab" data-filter="incoming">Received</button><button class="tab" data-filter="outgoing">Sent</button></div><div class="request-tools"><input id="requestSearch" type="search" placeholder="Search founders or messages…" aria-label="Search collaboration requests"><select id="statusFilter" aria-label="Filter by request status"><option value="all">Every status</option><option value="pending">Pending</option><option value="accepted">Accepted</option><option value="declined">Declined</option></select></div><section class="card"><div id="summary" class="muted" style="margin-bottom:12px"></div><div id="requests"><div class="empty">Loading requests…</div></div></section></div>
+<div id="app" class="hidden"><div class="tabs" role="group" aria-label="Filter collaboration requests"><button class="tab active" data-filter="all">All requests</button><button class="tab" data-filter="incoming">Received</button><button class="tab" data-filter="outgoing">Sent</button></div><div class="request-tools"><input id="requestSearch" type="search" placeholder="Search founders or messages…" aria-label="Search collaboration requests"><select id="statusFilter" aria-label="Filter by request status"><option value="all">Every status</option><option value="pending">Pending</option><option value="accepted">Accepted</option><option value="declined">Declined</option></select><select id="requestSort" aria-label="Sort collaboration requests"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="founder">Founder name A–Z</option></select></div><section class="card"><div id="summary" class="muted" style="margin-bottom:12px"></div><div id="requests"><div class="empty">Loading requests…</div></div></section></div>
 </main>
 <script>
 (()=> {
@@ -21,11 +21,11 @@
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  const initials=v=>(String(v||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
- let user=null,requests=[],profiles=new Map(),filter='all',statusFilter='all',searchTerm='',busy=false;
+ let user=null,requests=[],profiles=new Map(),filter='all',statusFilter='all',searchTerm='',requestSort='newest',busy=false;
  function notice(message,error=false){$('notice').textContent=message;$('notice').classList.toggle('error',error);$('notice').classList.remove('hidden')}
  function date(v){try{return new Date(v).toLocaleString(undefined,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})}catch{return ''}}
  function render(){
-  const filtered=requests.filter(r=>(filter==='all'||(filter==='incoming'?r.recipient_id===user.id:r.requester_id===user.id))&&(statusFilter==='all'||r.status===statusFilter)&&(!searchTerm||((profiles.get(r.requester_id===user.id?r.recipient_id:r.requester_id)?.display_name||'')+' '+(profiles.get(r.requester_id===user.id?r.recipient_id:r.requester_id)?.username||'')+' '+(r.message||'')).toLowerCase().includes(searchTerm)));
+  const filtered=requests.filter(r=>(filter==='all'||(filter==='incoming'?r.recipient_id===user.id:r.requester_id===user.id))&&(statusFilter==='all'||r.status===statusFilter)&&(!searchTerm||((profiles.get(r.requester_id===user.id?r.recipient_id:r.requester_id)?.display_name||'')+' '+(profiles.get(r.requester_id===user.id?r.recipient_id:r.requester_id)?.username||'')+' '+(r.message||'')).toLowerCase().includes(searchTerm))).sort((a,b)=>requestSort==='oldest'?new Date(a.created_at)-new Date(b.created_at):requestSort==='founder'?((profiles.get(a.requester_id===user.id?a.recipient_id:a.requester_id)?.display_name||profiles.get(a.requester_id===user.id?a.recipient_id:a.requester_id)?.username||'').localeCompare(profiles.get(b.requester_id===user.id?b.recipient_id:b.requester_id)?.display_name||profiles.get(b.requester_id===user.id?b.recipient_id:b.requester_id)?.username||'')):new Date(b.created_at)-new Date(a.created_at));
   const pendingIn=requests.filter(r=>r.recipient_id===user.id&&r.status==='pending').length;
   $('summary').textContent=requests.length+' total · '+pendingIn+' awaiting your response · '+requests.filter(r=>r.status==='accepted').length+' accepted';
   $('requests').innerHTML=filtered.map(r=>{
@@ -48,7 +48,7 @@
  }
  document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;render()}));
  $('requestSearch').addEventListener('input',e=>{searchTerm=e.target.value.trim().toLowerCase();render()});
- $('statusFilter').addEventListener('change',e=>{statusFilter=e.target.value;render()});
+ $('statusFilter').addEventListener('change',e=>{statusFilter=e.target.value;render()});$('requestSort').addEventListener('change',e=>{requestSort=e.target.value;render()});
  $('requests').addEventListener('click',async e=>{
   const withdraw=e.target.closest('[data-withdraw]');if(withdraw&&user){const id=withdraw.dataset.withdraw;if(!confirm('Withdraw this pending collaboration request?'))return;withdraw.disabled=true;const removed=await client.from('collaboration_requests').delete().eq('id',id).eq('requester_id',user.id).eq('status','pending').select('id').maybeSingle();if(removed.error||!removed.data){withdraw.disabled=false;notice('Could not withdraw this request. It may already have been handled.',true);return}requests=requests.filter(r=>r.id!==id);render();notice('Collaboration request withdrawn.');return}
   const b=e.target.closest('[data-decision]');if(!b||!user)return;
