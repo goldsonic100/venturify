@@ -23,8 +23,8 @@ begin
   if exists (select 1 from pg_catalog.unnest(member_ids) as candidate(user_id) where not exists (select 1 from public.profiles p where p.id=candidate.user_id)) then
     raise exception 'One or more selected founder profiles could not be found.';
   end if;
-  if exists (select 1 from public.user_blocks b where (b.blocker_id=current_user_id and b.blocked_id=any(member_ids)) or (b.blocked_id=current_user_id and b.blocker_id=any(member_ids))) then
-    raise exception 'A group chat cannot be created with an account involved in a block.';
+  if exists (select 1 from public.user_blocks b where b.blocker_id=any(member_ids) and b.blocked_id=any(member_ids)) then
+    raise exception 'A group chat cannot include members who have blocked one another.';
   end if;
   insert into public.conversations (is_group,title,created_by) values (true,pg_catalog.btrim(group_title),current_user_id) returning id into new_conversation_id;
   insert into public.conversation_members (conversation_id,user_id) select new_conversation_id,x from pg_catalog.unnest(member_ids) as x;
