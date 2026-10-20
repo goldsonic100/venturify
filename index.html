@@ -804,6 +804,7 @@ renderCases();
  const safeUrl=v=>{try{const u=new URL(v);return u.protocol==='https:'||u.protocol==='http:'?u.href:''}catch{return ''}};
  const topicStopWords=new Set('about after again against all also and any are because been before being between both but can could did does doing down each few for from further had has have having here how into its itself just more most not now off once only other our out over own same she should some such than that the their them then there these they this those through too under until very was were what when where which while who why will with would you your yours youre'.split(/\s+/));
  const topicTokens=v=>[...new Set((v||'').toLowerCase().split(/\W+/).filter(x=>x.length>3&&!topicStopWords.has(x)))];
+ const normalizeOpportunityTokens=v=>topicTokens(v).filter(x=>x.length>3);
  let selectedFounderIds=new Set(),comparisonMatchInfo=new Map();
  let currentUser=null,rows=[],following=new Set(),ownSkills=[],ownInterests=[],ownNeeds='',ownText='',engagedTopics=new Set(),dailyMatchIds=[],communityCounts=new Map(),communityIdsByUser=new Map(),ownCommunityIds=new Set(),feedbackByCandidate=new Map(),learnedTopicWeights=new Map(),opportunityByFounder=new Map(),founderLevel=()=>1;
  function render(){
