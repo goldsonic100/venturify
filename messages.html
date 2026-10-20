@@ -193,6 +193,15 @@ body[data-view="messages"] #messages{display:block!important;max-width:1160px!im
 .messages-sidebar .conversation-time{font-size:9px}
 .messages-new{border-top:1px solid #e4e9e0;padding-top:15px;display:grid;gap:8px}.messages-new-actions{display:flex;gap:8px}.messages-new-actions button{flex:1;border:1px solid #d9dee6;background:#fff;border-radius:9px;padding:10px 8px;font-size:11px;font-weight:750;cursor:pointer}
 body[data-view="messages"]{background:#f2f4f7;overflow-x:hidden}
+body[data-view="messages"] .topbar{position:fixed;left:50%;transform:translateX(-50%);background:#fff;color:#1d2935;border-bottom:1px solid #e1e5eb;padding:0 22px;box-sizing:border-box}
+body[data-view="messages"] .topbar .brand{color:#1d2935}
+body[data-view="messages"] .topbar .nav{color:#536172}
+body[data-view="messages"] .topbar .nav a{color:#536172}
+body[data-view="messages"] .topbar .nav a:hover{color:#087cff}
+body[data-view="messages"] .topbar .notification-button{border-color:#dfe4eb;color:#536172;background:#f7f8fa}
+body[data-view="messages"] .topbar .message-nav-count{border-color:#fff}
+@media(max-width:900px){body[data-view="messages"] .topbar{width:100%;height:auto;min-height:74px;left:0;transform:none;padding:12px 18px}}
+
 body[data-view="messages"] main>.hero,body[data-view="messages"] #library,body[data-view="messages"] #method,body[data-view="messages"] #submit,body[data-view="messages"] footer{display:none!important}
 body[data-view="messages"] #community{padding:94px 0 0!important;background:#f2f4f7!important;min-height:calc(100vh - 74px)}
 body[data-view="messages"] #community>.wrap>.section-head,body[data-view="messages"] #community>.wrap>#notificationPage,body[data-view="messages"] #community>.wrap>#founderDiscovery,body[data-view="messages"] #community>.wrap>#communityHub,body[data-view="messages"] #community>.wrap>.notice{display:none!important}
