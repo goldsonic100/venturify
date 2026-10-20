@@ -295,6 +295,65 @@ body[data-view="messages"] .empty-chat-icon{background:#e7f1ff;color:#087cff;bor
 }
 
 .topbar .nav .nav-icon-link{position:relative}.message-nav-count{position:absolute;top:0;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:#c8f169;color:#152319;border:2px solid #13241c;font-size:9px;font-weight:900;line-height:12px;display:inline-flex;align-items:center;justify-content:center}.message-nav-count[hidden]{display:none}
+
+/* iMessage-inspired conversation UI: native Messages layout and visual rhythm */
+body[data-view="messages"]{background:#f5f5f7!important;color:#1c1c1e!important;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Inter,system-ui,sans-serif!important}
+body[data-view="messages"] #community{background:#f5f5f7!important}
+body[data-view="messages"] .messages-app{width:min(1320px,calc(100vw - 28px))!important;height:calc(100dvh - 104px)!important;min-height:480px!important;max-height:none!important;margin:0 auto 12px!important;grid-template-columns:340px minmax(0,1fr)!important;background:#fff!important;border:1px solid #d8d8dc!important;border-radius:13px!important;box-shadow:0 5px 28px rgba(0,0,0,.07)!important}
+body[data-view="messages"] .messages-sidebar{background:#f6f6f8!important;border-right:1px solid #d9d9de!important;padding:18px 12px 12px!important}
+body[data-view="messages"] .messages-sidebar-heading{align-items:center!important;margin:0 8px 16px!important}
+body[data-view="messages"] .messages-sidebar-heading h1{font-family:inherit!important;font-size:30px!important;font-weight:750!important;letter-spacing:-1.2px!important;line-height:1.1!important;margin:0!important;color:#1c1c1e!important}
+body[data-view="messages"] .inbox-icon{width:34px!important;height:34px!important;flex-basis:34px!important;border-radius:50%!important;background:#e5e5ea!important;color:#007aff!important}
+body[data-view="messages"] .messages-search-wrap{height:36px!important;border:0!important;border-radius:10px!important;background:#e5e5ea!important;padding:0 10px!important;margin:0 5px 12px!important;color:#8e8e93!important}
+body[data-view="messages"] .messages-search-wrap input{font-size:14px!important;color:#1c1c1e!important}
+body[data-view="messages"] .messages-list-heading{margin:7px 8px 5px!important;color:#8e8e93!important;font-size:11px!important;text-transform:uppercase!important;letter-spacing:.35px!important}
+body[data-view="messages"] .messages-sidebar .conversation-list{gap:0!important;margin:0!important;padding:0!important}
+body[data-view="messages"] .messages-sidebar .conversation-item{position:relative!important;min-height:72px!important;padding:10px 8px!important;border:0!important;border-radius:0!important;border-bottom:1px solid #e1e1e5!important;background:transparent!important;gap:11px!important}
+body[data-view="messages"] .messages-sidebar .conversation-item:hover{background:#e9e9ee!important}
+body[data-view="messages"] .messages-sidebar .conversation-item.active{background:#dcecff!important}
+body[data-view="messages"] .messages-sidebar .conversation-avatar{width:48px!important;height:48px!important;flex-basis:48px!important;border:0!important;background:linear-gradient(145deg,#cbd9ed,#829bbf)!important;color:#fff!important;font-size:14px!important;font-weight:650!important}
+body[data-view="messages"] .messages-sidebar .conversation-copy strong{font-size:14px!important;font-weight:650!important;color:#1c1c1e!important}
+body[data-view="messages"] .messages-sidebar .conversation-copy small{font-size:12px!important;color:#8e8e93!important;line-height:1.35!important}
+body[data-view="messages"] .messages-sidebar .conversation-time{font-size:11px!important;color:#8e8e93!important}
+body[data-view="messages"] .messages-new{border-top:1px solid #dedee3!important;padding:12px 5px 0!important}
+body[data-view="messages"] .messages-new-actions button{border:0!important;border-radius:9px!important;background:#e5e5ea!important;color:#007aff!important;font-size:12px!important;padding:10px 8px!important}
+body[data-view="messages"] .messages-chat{background:#fff!important}
+body[data-view="messages"] .messages-chat-header{height:72px!important;flex-basis:72px!important;justify-content:center!important;position:relative!important;padding:8px 18px!important;border-bottom:1px solid #e5e5ea!important;background:rgba(255,255,255,.96)!important}
+body[data-view="messages"] .chat-contact-avatar{width:38px!important;height:38px!important;flex-basis:38px!important;background:#c8d5e7!important;color:#fff!important;font-size:12px!important}
+body[data-view="messages"] .chat-contact-copy{flex:0 1 auto!important;text-align:center!important}
+body[data-view="messages"] .chat-contact-copy strong{font-size:13px!important;font-weight:650!important;color:#1c1c1e!important}
+body[data-view="messages"] .chat-contact-copy span{font-size:11px!important;color:#8e8e93!important;margin-top:3px!important}
+body[data-view="messages"] .chat-secure-label{display:none!important}
+body[data-view="messages"] .messages-chat-body{padding:18px 24px 8px!important;background:#fff!important}
+body[data-view="messages"] .messages-chat-body .chat-message-list{gap:5px!important;padding:0 4px 12px!important;background:#fff!important}
+body[data-view="messages"] .chat-message-group{max-width:min(74%,560px)!important;margin:2px 0!important}
+body[data-view="messages"] .chat-bubble{max-width:100%!important;padding:9px 13px!important;border-radius:18px 18px 18px 5px!important;background:#e9e9eb!important;color:#1c1c1e!important;font-size:15px!important;line-height:1.35!important;box-shadow:none!important}
+body[data-view="messages"] .chat-bubble.mine{background:#007aff!important;color:#fff!important;border-radius:18px 18px 5px 18px!important}
+body[data-view="messages"] .chat-bubble-meta{font-size:10px!important;color:#8e8e93!important}
+body[data-view="messages"] .chat-date-divider{font-size:11px!important;color:#8e8e93!important;margin:17px 0 12px!important}
+body[data-view="messages"] .chat-date-divider:before,body[data-view="messages"] .chat-date-divider:after{background:#e5e5ea!important}
+body[data-view="messages"] .chat-reaction{background:#fff!important;border-color:#d1d1d6!important;border-radius:99px!important}
+body[data-view="messages"] .chat-reaction.mine-reacted{background:#dcecff!important;border-color:#8fc2ff!important}
+body[data-view="messages"] .messages-composer{gap:9px!important;padding:12px 16px 14px!important;border-top:1px solid #e5e5ea!important;background:#fff!important}
+body[data-view="messages"] .messages-composer .comment-input{height:42px!important;border:1px solid #c7c7cc!important;border-radius:22px!important;background:#fff!important;padding:0 15px!important;font-size:15px!important;color:#1c1c1e!important}
+body[data-view="messages"] .messages-composer .comment-input:focus{border-color:#8e8e93!important}
+body[data-view="messages"] .messages-composer .btn{height:38px!important;min-width:64px!important;border:0!important;border-radius:20px!important;background:#007aff!important;color:#fff!important;font-size:13px!important;font-weight:650!important;padding:0 16px!important}
+body[data-view="messages"] .messages-privacy-note{color:#8e8e93!important;font-size:10px!important;padding-bottom:8px!important}
+body[data-view="messages"] .messages-empty-state h2{font-family:inherit!important;font-weight:650!important;font-size:22px!important;color:#1c1c1e!important}
+body[data-view="messages"] .messages-empty-state p{font-size:13px!important;color:#8e8e93!important}
+@media(max-width:760px){
+ body[data-view="messages"] .messages-app{width:100vw!important;height:calc(100dvh - 80px)!important;min-height:0!important;margin:0!important;border-radius:0!important;border-left:0!important;border-right:0!important;grid-template-columns:1fr!important}
+ body[data-view="messages"] .messages-sidebar{max-height:44%!important;padding:10px 12px!important}
+ body[data-view="messages"] .messages-sidebar-heading h1{font-size:28px!important}
+ body[data-view="messages"] .messages-sidebar .conversation-list{max-height:135px!important}
+ body[data-view="messages"] .messages-chat{min-height:0!important}
+ body[data-view="messages"] .messages-chat-header{height:58px!important;flex-basis:58px!important}
+ body[data-view="messages"] .messages-chat-body{padding:12px 10px 6px!important}
+ body[data-view="messages"] .chat-message-group{max-width:84%!important}
+ body[data-view="messages"] .chat-bubble{font-size:14px!important}
+ body[data-view="messages"] .messages-composer{padding:9px 10px 12px!important}
+}
+
 </style>
 </head>
 <body data-view="messages">
