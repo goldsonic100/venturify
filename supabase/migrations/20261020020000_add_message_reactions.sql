@@ -26,3 +26,13 @@ on public.message_reactions for delete to authenticated
 using (user_id = (select auth.uid()) and exists (select 1 from public.messages m where m.id = message_reactions.message_id and private.is_conversation_member(m.conversation_id) and not private.is_conversation_blocked(m.conversation_id)));
 
 grant select, insert, delete on public.message_reactions to authenticated;
+
+do $
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'message_reactions'
+  ) then
+    alter publication supabase_realtime add table public.message_reactions;
+  end if;
+end $;
