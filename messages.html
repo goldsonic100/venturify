@@ -209,6 +209,7 @@ body[data-view="messages"] #messages{display:block!important;max-width:1160px!im
 .chat-bubble{max-width:min(76%,520px);padding:11px 14px;font-size:13px;line-height:1.6;border-radius:15px 15px 15px 4px;box-shadow:0 2px 4px #12251505}
 .chat-bubble.mine{border-radius:15px 15px 4px 15px}
 .chat-bubble-meta{font-size:10px;margin-top:6px}
+.chat-message-group{display:flex;flex-direction:column;max-width:min(80%,600px);align-self:flex-start;position:relative}.chat-message-group.mine{align-self:flex-end;align-items:flex-end}.chat-message-group .chat-bubble{max-width:100%;width:fit-content}.chat-reactions{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:3px 5px 0}.chat-reaction{display:inline-flex;align-items:center;gap:4px;border:1px solid #dfe4eb;background:#f7f9fc;color:#263343;border-radius:99px;padding:3px 8px;font-size:12px;cursor:pointer;line-height:1.4}.chat-reaction.mine-reacted{background:#e4f0ff;border-color:#83b8ff}.chat-reaction-picker{display:flex;gap:3px;align-items:center;margin:3px 5px 0;opacity:.72;transition:opacity .15s}.chat-message-group:hover .chat-reaction-picker,.chat-message-group:focus-within .chat-reaction-picker{opacity:1}.chat-reaction-picker button{border:0;background:transparent;border-radius:50%;padding:3px 5px;font-size:14px;cursor:pointer}.chat-reaction-picker button:hover{background:#eaf1fa}.chat-date-divider{display:flex;align-items:center;gap:10px;color:#8a94a3;font-size:11px;justify-content:center;margin:18px 0 10px;align-self:stretch}.chat-date-divider:before,.chat-date-divider:after{content:"";height:1px;background:#e9edf2;flex:1}.chat-message-group .chat-bubble{white-space:pre-wrap}
 .messages-empty-state{margin:auto;max-width:330px;text-align:center;padding:24px}
 .empty-chat-icon{width:62px;height:62px;border-radius:20px;background:#eef4e7;color:#466a3f;display:grid;place-items:center;font-size:28px;margin:0 auto 17px}
 .messages-empty-state h2{font-family:var(--serif);font-size:25px;line-height:1.15;font-weight:500;margin:0 0 10px}
@@ -584,6 +585,17 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
  }
  $('conversationSearch').addEventListener('input',filteredConversationList);
  $('conversationList').addEventListener('click',async e=>{const button=e.target.closest('[data-open-conversation]');if(!button)return;const otherId=button.dataset.openConversation;$('messagePerson').value=otherId;await openConversation(otherId)});
+ $('chatMessages').addEventListener('click',async e=>{
+  const button=e.target.closest('[data-message-reaction]');if(!button)return;
+  if(!user)return loginRequired();
+  const messageId=button.dataset.messageReaction,emoji=button.dataset.reaction;if(!messageId||!emoji||!currentConversation)return;
+  button.disabled=true;
+  const existing=await client.from('message_reactions').select('message_id').eq('message_id',messageId).eq('user_id',user.id).eq('reaction',emoji).maybeSingle();
+  if(existing.error){notice('Could not update reaction: '+existing.error.message);button.disabled=false;return}
+  const result=existing.data?await client.from('message_reactions').delete().eq('message_id',messageId).eq('user_id',user.id).eq('reaction',emoji):await client.from('message_reactions').insert({message_id:messageId,user_id:user.id,reaction:emoji});
+  if(result.error)notice('Could not update reaction: '+result.error.message);else await showMessages(activeConversationOtherId);
+  button.disabled=false;
+ });
  function stopActiveConversationRealtime(){
   if(currentConversationChannel){client.removeChannel(currentConversationChannel);currentConversationChannel=null}
   if(currentTypingChannel){client.removeChannel(currentTypingChannel);currentTypingChannel=null}
@@ -647,10 +659,17 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   const conversationId=currentConversation,sessionUserId=user.id;
   if(activeConversationOtherId!==otherId)return;
   const stillViewing=()=>!!user&&user.id===sessionUserId&&currentConversation===conversationId&&activeConversationOtherId===otherId;
-  const r=await client.from('messages').select('id,sender_id,content,created_at').eq('conversation_id',conversationId).order('created_at').limit(100);
+  // Fetch history in pages so long-running conversations load from the beginning.
+  const messages=[];let historyOffset=0,historyError=null;
+  while(true){
+   const page=await client.from('messages').select('id,sender_id,content,created_at').eq('conversation_id',conversationId).order('created_at',{ascending:true}).range(historyOffset,historyOffset+499);
+   if(!stillViewing())return;
+   if(page.error){historyError=page.error;break}
+   const rows=page.data||[];messages.push(...rows);historyOffset+=rows.length;
+   if(rows.length<500)break;
+  }
   if(!stillViewing())return;
-  if(r.error){$('chatMessages').innerHTML='<div class="muted-small">'+esc(r.error.message)+'</div>';return}
-  const messages=r.data||[];
+  if(historyError){$('chatMessages').innerHTML='<div class="muted-small">'+esc(historyError.message)+'</div>';return}
   const incoming=messages.filter(m=>m.sender_id!==sessionUserId);
   if(incoming.length){
    const readResult=await client.from('message_reads').upsert(incoming.map(m=>({message_id:m.id,user_id:sessionUserId})),{onConflict:'message_id,user_id',ignoreDuplicates:true});
@@ -661,12 +680,25 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   const reads=outIds.length?await client.from('message_reads').select('message_id,read_at').in('message_id',outIds).neq('user_id',sessionUserId):{data:[]};
   if(!stillViewing())return;
   const readMap=new Map((reads.data||[]).map(x=>[x.message_id,x.read_at]));
+  const messageIds=messages.map(m=>m.id);let reactionRows=[];
+  for(let offset=0;offset<messageIds.length;offset+=150){
+   const reactionResult=await client.from('message_reactions').select('message_id,user_id,reaction').in('message_id',messageIds.slice(offset,offset+150));
+   if(!stillViewing())return;
+   if(reactionResult.error){console.warn('Message reactions unavailable',reactionResult.error.message);break}
+   reactionRows.push(...(reactionResult.data||[]));
+  }
+  const reactionsByMessage=new Map();for(const item of reactionRows){if(!reactionsByMessage.has(item.message_id))reactionsByMessage.set(item.message_id,[]);reactionsByMessage.get(item.message_id).push(item)}
   const p=people.find(x=>x.id===otherId);
   $('messageStatus').textContent='Private conversation with '+name(p)+'. Read receipts and typing status appear when both people use the updated chat.';
   activeConversationMessages=messages;
+  const reactionChoices=['❤️','😂','👍','😮','🎉','👀'];let lastDate='';
   $('chatMessages').innerHTML=messages.map(m=>{
-   const mine=m.sender_id===sessionUserId,readAt=readMap.get(m.id);
-   return '<div class="chat-bubble '+(mine?'mine':'')+'">'+esc(m.content)+'<div class="chat-bubble-meta"><span>'+esc(new Date(m.created_at).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}))+'</span>'+(mine&&readAt?'<span class="chat-receipt">Seen</span>':'')+'</div></div>';
+   const mine=m.sender_id===sessionUserId,readAt=readMap.get(m.id),dayKey=new Date(m.created_at).toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+   const divider=dayKey!==lastDate?'<div class="chat-date-divider">'+esc(dayKey)+'</div>':'';lastDate=dayKey;
+   const grouped=new Map();for(const item of reactionsByMessage.get(m.id)||[]){const state=grouped.get(item.reaction)||{count:0,mine:false};state.count++;if(item.user_id===sessionUserId)state.mine=true;grouped.set(item.reaction,state)}
+   const pills=[...grouped.entries()].map(([emoji,state])=>'<button type="button" class="chat-reaction '+(state.mine?'mine-reacted':'')+'" data-message-reaction="'+esc(m.id)+'" data-reaction="'+esc(emoji)+'" aria-label="React '+esc(emoji)+'; '+state.count+' reactions">'+esc(emoji)+' <span>'+state.count+'</span></button>').join('');
+   const picker=reactionChoices.map(emoji=>'<button type="button" data-message-reaction="'+esc(m.id)+'" data-reaction="'+emoji+'" aria-label="React '+emoji+'">'+emoji+'</button>').join('');
+   return divider+'<div class="chat-message-group '+(mine?'mine':'')+'"><div class="chat-bubble '+(mine?'mine':'')+'">'+esc(m.content)+'<div class="chat-bubble-meta"><span title="'+esc(new Date(m.created_at).toLocaleString())+'">'+esc(new Date(m.created_at).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}))+'</span>'+(mine&&readAt?'<span class="chat-receipt">Seen</span>':'')+'</div></div><div class="chat-reactions">'+pills+'</div><div class="chat-reaction-picker" aria-label="Add a reaction">'+picker+'</div></div>';
   }).join('')||'<div class="muted-small">Start the conversation below.</div>';
   $('chatMessages').scrollTop=$('chatMessages').scrollHeight;
   try{localStorage.setItem('venturify-read-'+sessionUserId+'-'+conversationId,new Date().toISOString())}catch{}
