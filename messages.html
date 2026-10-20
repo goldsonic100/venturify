@@ -430,7 +430,7 @@ body[data-view="messages"] .empty-chat-icon{background:#e7f1ff;color:#087cff;bor
 <script>
 (() => {
 const client=window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');window.venturifySupabaseClient=client;
-const $=id=>document.getElementById(id);let user=null,profile=null,mode='login',people=[],communities=[],currentCommunityId=null,communityMemberships=new Set(),pendingDirectMessage=new URLSearchParams(window.location.search).get('to');
+const $=id=>document.getElementById(id);let user=null,profile=null,mode='login',people=[],communities=[],currentCommunityId=null,communityMemberships=new Set(),pendingDirectMessage=new URLSearchParams(window.location.search).get('to'),pendingMessageDraft=new URLSearchParams(window.location.search).get('draft');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const initials=s=>(String(s||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
 const name=p=>p?.display_name||('@'+(p?.username||'founder'));
@@ -656,7 +656,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(!currentReadChannel)currentReadChannel=client.channel('venturify-read-'+conversationId).on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reads',filter:'user_id=eq.'+otherId},()=>showMessages(otherId)).subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Live read receipts disconnected',error||status)});
   await showMessages(otherId);await loadTypingStatus();
  }
- async function startPendingDirectMessage(){if(!user||!pendingDirectMessage)return;const target=pendingDirectMessage;pendingDirectMessage=null;await openConversation(target);const cleanUrl=new URL(window.location.href);cleanUrl.searchParams.delete('to');window.history.replaceState({},'',cleanUrl.pathname+cleanUrl.search+cleanUrl.hash)}
+ async function startPendingDirectMessage(){if(!user||!pendingDirectMessage)return;const target=pendingDirectMessage;pendingDirectMessage=null;await openConversation(target);if(pendingMessageDraft&&activeConversationOtherId===target){$('messageText').value=pendingMessageDraft.slice(0,1200);$('messageText').focus();pendingMessageDraft=null}const cleanUrl=new URL(window.location.href);cleanUrl.searchParams.delete('to');cleanUrl.searchParams.delete('draft');window.history.replaceState({},'',cleanUrl.pathname+cleanUrl.search+cleanUrl.hash)}
  async function showMessages(otherId){
   if(!currentConversation||!user)return;
   // Snapshot the target before any network request; a user may switch chats while a query is in flight.
