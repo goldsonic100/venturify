@@ -1,21 +1,41 @@
 -- Shared task checklist items, scoped to the same workspace/task and accepted collaborators.
-alter table public.workspace_tasks
-  add constraint workspace_tasks_id_workspace_unique unique (id, workspace_id);
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.workspace_tasks'::regclass
+      and conname = 'workspace_tasks_id_workspace_unique'
+  ) then
+    alter table public.workspace_tasks
+      add constraint workspace_tasks_id_workspace_unique unique (id, workspace_id);
+  end if;
+end $$;
 
 create table if not exists public.workspace_task_checklist_items (
   id uuid primary key default gen_random_uuid(),
   workspace_id uuid not null references public.collaboration_workspaces(id) on delete cascade,
-  task_id uuid not null,
+  task_id uuid not null references public.workspace_tasks(id) on delete cascade,
   title text not null check (char_length(btrim(title)) between 1 and 240),
   is_complete boolean not null default false,
   position integer not null default 0 check (position >= 0),
   created_by uuid not null references auth.users(id) on delete cascade,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  constraint workspace_task_checklist_task_workspace_fk
-    foreign key (task_id, workspace_id)
-    references public.workspace_tasks(id, workspace_id) on delete cascade
+  updated_at timestamptz not null default now()
 );
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.workspace_task_checklist_items'::regclass
+      and conname = 'workspace_task_checklist_task_workspace_fk'
+  ) then
+    alter table public.workspace_task_checklist_items
+      add constraint workspace_task_checklist_task_workspace_fk
+      foreign key (task_id, workspace_id)
+      references public.workspace_tasks(id, workspace_id) on delete cascade;
+  end if;
+end $$;
 
 create index if not exists workspace_task_checklist_task_position_idx
   on public.workspace_task_checklist_items (workspace_id, task_id, position, created_at);
