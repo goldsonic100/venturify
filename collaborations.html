@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101a16">
+<title>Collaborations — Venturify</title>
+<style>
+:root{--ink:#15221c;--muted:#68766c;--paper:#f5f6ef;--card:#fffefa;--line:#dfe5d9;--green:#31583a;--lime:#c8f169}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit;text-decoration:none}header{background:#101a16;color:#fff;padding:15px 20px}nav{max-width:920px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}nav>div{display:flex;align-items:center;gap:15px;flex-wrap:wrap}nav a{color:white;font-size:12px}nav a:hover{color:var(--lime)}.wrap{width:min(920px,calc(100% - 28px));margin:32px auto 60px}.kicker{font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:#71816f;font-weight:850}h1{font:500 clamp(32px,5vw,46px)/1.1 Georgia,serif;margin:8px 0}.muted{color:var(--muted);font-size:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:15px 0}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}.tab,.btn{border:1px solid var(--line);border-radius:9px;padding:9px 13px;background:#fff;color:var(--ink);font-size:11px;font-weight:800;cursor:pointer}.tab.active{background:#eaf2e5;border-color:#b7cba9;color:var(--green)}.btn.primary{background:var(--green);border-color:var(--green);color:#fff}.btn:disabled{opacity:.55;cursor:wait}.request{padding:16px 0;border-top:1px solid #e8ece4}.request:first-child{border-top:0;padding-top:2px}.request-head{display:flex;align-items:flex-start;gap:11px}.avatar{width:40px;height:40px;flex:0 0 40px;border-radius:50%;display:grid;place-items:center;background:#eaf2e5;color:var(--green);font-weight:850;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover}.request-main{flex:1;min-width:0}.request-title{font-size:13px;font-weight:850}.request-sub{font-size:11px;color:var(--muted);margin-top:2px}.status{display:inline-flex;border-radius:99px;padding:4px 8px;background:#edf2e7;color:#4e6c4e;font-size:10px;font-weight:850;text-transform:capitalize;white-space:nowrap}.status.pending{background:#fff4df;color:#875a08}.status.declined{background:#fff0ed;color:#9d3930}.message{white-space:pre-wrap;overflow-wrap:anywhere;background:#f6f7f1;border-radius:9px;padding:12px;margin:12px 0;font-size:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.empty{padding:30px 12px;text-align:center;color:var(--muted);font-size:12px}.notice{padding:12px;border-radius:9px;background:#edf3e7;color:#31583a;font-size:12px;margin:14px 0}.notice.error{background:#fff0ed;color:#9d3930}.hidden{display:none!important}@media(max-width:540px){.card{padding:14px}.request-head{gap:8px}.status{font-size:9px}.wrap{margin-top:23px}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<header><nav><a href="index.html"><strong>VENTURIFY</strong></a><div><a href="discover.html">Discover</a><a href="feed.html">Feed</a><a href="messages.html">Messages</a><a href="workspace.html">Workspaces</a><a href="profile.html">Profile</a></div></nav></header>
+<main class="wrap"><div class="kicker">Build together</div><h1>Collaboration requests</h1><p class="muted">Keep track of founders who want to build with you, requests you have sent, and accepted collaborations.</p>
+<div id="notice" class="notice">Checking your account…</div>
+<div id="app" class="hidden"><div class="tabs" role="group" aria-label="Filter collaboration requests"><button class="tab active" data-filter="all">All requests</button><button class="tab" data-filter="incoming">Received</button><button class="tab" data-filter="outgoing">Sent</button></div><section class="card"><div id="summary" class="muted" style="margin-bottom:12px"></div><div id="requests"><div class="empty">Loading requests…</div></div></section></div>
+</main>
+<script>
+(()=> {
+ const client=window.venturifySupabaseClient||window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
+ const $=id=>document.getElementById(id);
+ const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ const initials=v=>(String(v||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
+ let user=null,requests=[],profiles=new Map(),filter='all',busy=false;
+ function notice(message,error=false){$('notice').textContent=message;$('notice').classList.toggle('error',error);$('notice').classList.remove('hidden')}
+ function date(v){try{return new Date(v).toLocaleString(undefined,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})}catch{return ''}}
+ function render(){
+  const filtered=requests.filter(r=>filter==='all'||(filter==='incoming'?r.recipient_id===user.id:r.requester_id===user.id));
+  const pendingIn=requests.filter(r=>r.recipient_id===user.id&&r.status==='pending').length;
+  $('summary').textContent=requests.length+' total · '+pendingIn+' awaiting your response · '+requests.filter(r=>r.status==='accepted').length+' accepted';
+  $('requests').innerHTML=filtered.map(r=>{
+   const incoming=r.recipient_id===user.id,otherId=incoming?r.requester_id:r.recipient_id,p=profiles.get(otherId)||{},name=p.display_name||('@'+(p.username||'founder')),avatar=p.avatar_url&&/^https?:\/\//i.test(p.avatar_url)?'<img src="'+esc(p.avatar_url)+'" alt="">':esc(initials(name));
+   const status=['pending','accepted','declined'].includes(r.status)?r.status:'unknown';
+   return '<article class="request"><div class="request-head"><div class="avatar">'+avatar+'</div><div class="request-main"><div class="request-title">'+(incoming?'Request from ':'Request to ')+esc(name)+'</div><div class="request-sub">'+(p.username?'@'+esc(p.username)+' · ':'')+esc(date(r.created_at))+'</div></div><span class="status '+esc(status)+'">'+esc(status)+'</span></div><div class="message">'+esc(r.message)+'</div><div class="actions">'+(incoming&&status==='pending'?'<button class="btn primary" data-decision="accepted" data-id="'+esc(r.id)+'">Accept &amp; create workspace</button><button class="btn" data-decision="declined" data-id="'+esc(r.id)+'">Decline</button>':'')+(status==='accepted'?'<a class="btn primary" href="workspace.html?request='+encodeURIComponent(r.id)+'">Open workspace</a>':'')+(incoming?'<a class="btn" href="messages.html?to='+encodeURIComponent(r.requester_id)+'">Message founder</a>':'')+'</div></article>';
+  }).join('')||'<div class="empty">'+(filter==='incoming'?'No requests received yet.':filter==='outgoing'?'You have not sent any collaboration requests yet.':'No collaboration requests yet. Find an opportunity in the feed to get started.')+'</div>';
+  document.querySelectorAll('[data-filter]').forEach(b=>{b.classList.toggle('active',b.dataset.filter===filter);b.setAttribute('aria-pressed',String(b.dataset.filter===filter))});
+ }
+ async function load(){
+  if(busy)return;busy=true;
+  const auth=await client.auth.getUser();user=auth.data?.user||null;
+  if(!user){busy=false;$('app').classList.add('hidden');notice('Log in to view your collaboration requests. Open the Feed or Discover page to sign in.',true);return}
+  const result=await client.from('collaboration_requests').select('id,requester_id,recipient_id,message,status,created_at,updated_at').or('requester_id.eq.'+user.id+',recipient_id.eq.'+user.id).order('created_at',{ascending:false}).limit(100);
+  if(result.error){busy=false;notice('Could not load collaboration requests. Please refresh and try again.',true);return}
+  requests=result.data||[];
+  const ids=[...new Set(requests.flatMap(r=>[r.requester_id,r.recipient_id]).filter(id=>id!==user.id))];
+  if(ids.length){const pr=await client.from('profiles').select('id,username,display_name,avatar_url').in('id',ids);if(!pr.error)profiles=new Map((pr.data||[]).map(p=>[p.id,p]))}
+  busy=false;$('app').classList.remove('hidden');$('notice').classList.add('hidden');render();
+ }
+ document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;render()}));
+ $('requests').addEventListener('click',async e=>{
+  const b=e.target.closest('[data-decision]');if(!b||!user)return;
+  const id=b.dataset.id,status=b.dataset.decision;if(!['accepted','declined'].includes(status))return;
+  b.disabled=true;
+  const result=await client.from('collaboration_requests').update({status,updated_at:new Date().toISOString()}).eq('id',id).eq('recipient_id',user.id).eq('status','pending').select('id').maybeSingle();
+  if(result.error||!result.data){b.disabled=false;notice('This request could not be updated. It may already have been handled.',true);return}
+  await load();
+  if(status==='accepted')window.location.href='workspace.html?request='+encodeURIComponent(id);
+ });
+ client.auth.onAuthStateChange(()=>setTimeout(load,0));
+ load().catch(()=>{busy=false;notice('Something went wrong loading collaboration requests.',true)});
+})();
+</script>
+</body></html>
