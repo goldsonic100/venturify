@@ -214,22 +214,6 @@ $('createForm').addEventListener('submit',async e=>{e.preventDefault();const b=e
     }
   });
 
-  const priorityFilter = document.getElementById('taskPriorityFilter');
-  const checklistFilter = document.getElementById('taskChecklistFilter');
-  const labelFilter = document.getElementById('taskLabelFilter');
-  if (priorityFilter) priorityFilter.addEventListener('change', () => {
-    taskPriorityFilter = priorityFilter.value;
-    applyChecklistFilters();
-  });
-  if (checklistFilter) checklistFilter.addEventListener('change', () => {
-    taskChecklistFilter = checklistFilter.value;
-    applyChecklistFilters();
-  });
-  if (labelFilter) labelFilter.addEventListener('input', () => {
-    taskLabelFilter = labelFilter.value.trim().toLowerCase();
-    applyChecklistFilters();
-  });
-
   const originalRenderTasks = renderTasks;
   const originalStartActivityRealtime = startActivityRealtime;
   let checklistRealtimeChannel = null;
