@@ -934,24 +934,36 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
  $('messageText').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('sendMessage').click()}});
  $('sendMessage').addEventListener('click',async()=>{
   if(!user)return loginRequired();
-  const otherId=$('messagePerson').value,content=$('messageText').value.trim();
-  if(!otherId)return notice('Choose a founder first.');
+  const content=$('messageText').value.trim();
   if(!content)return notice('Write a message first.');
-  if(!currentConversation||activeConversationOtherId!==otherId)await openConversation(otherId);
-  // Re-check both IDs after the async open; do not send to a stale conversation.
-  if(!currentConversation||activeConversationOtherId!==otherId){notice('Could not open that conversation. Please select the founder again.');return}
   const sendButton=$('sendMessage');if(sendButton.disabled)return;
-  const sendingConversation=currentConversation,sendingUserId=user.id;
+  // Group chats have no selected direct-contact dropdown value; send to the
+  // currently open conversation instead of requiring a direct recipient.
+  if(activeConversationIsGroup){
+   if(!currentConversation||!activeConversationOtherId?.startsWith('group:'))return notice('Open a group chat first.');
+  }else{
+   const otherId=$('messagePerson').value;
+   if(!otherId)return notice('Choose a founder first.');
+   if(!currentConversation||activeConversationOtherId!==otherId)await openConversation(otherId);
+   // Re-check both IDs after the async open; never send into a stale chat.
+   if(!currentConversation||activeConversationOtherId!==otherId){notice('Could not open that conversation. Please select the founder again.');return}
+  }
+  const sendingConversation=currentConversation,sendingRecipient=activeConversationOtherId,sendingUserId=user.id;
   sendButton.disabled=true;sendButton.setAttribute('aria-busy','true');sendButton.title='Sending…';
   try{
    const r=await client.from('messages').insert({conversation_id:sendingConversation,sender_id:sendingUserId,content});
    if(r.error){notice('Message failed: '+r.error.message);return}
-   $('messageText').value='';await setTyping(false);
-   // Keep Discover's private founder shortlist in sync with real outreach; this is best-effort.
-   const shortlistUpdate=await client.from('founder_shortlists').update({status:'Messaged',updated_at:new Date().toISOString()}).eq('user_id',sendingUserId).eq('founder_id',otherId);
-   if(currentConversation===sendingConversation&&activeConversationOtherId===otherId)await showMessages(otherId);
+   $('messageText').value='';
+   await setTyping(false);
+   // Refresh the transcript from the database after the insert succeeds.
+   if(currentConversation===sendingConversation&&activeConversationOtherId===sendingRecipient)await showMessages(sendingRecipient);
    await loadConversationList();
-   if(!shortlistUpdate.error)notice('Message sent.');
+   // Shortlist status applies only to direct founder outreach.
+   if(!activeConversationIsGroup){
+    const otherId=$('messagePerson').value;
+    await client.from('founder_shortlists').update({status:'Messaged',updated_at:new Date().toISOString()}).eq('user_id',sendingUserId).eq('founder_id',otherId);
+   }
+   notice('Message sent.');
   }catch(error){
    console.error('Message send failed',error);
    notice('Could not send your message. Check your connection and try again.');
