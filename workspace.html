@@ -231,6 +231,17 @@ $('createForm').addEventListener('submit',async e=>{e.preventDefault();const b=e
   });
 
   const originalRenderTasks = renderTasks;
+  const originalStartActivityRealtime = startActivityRealtime;
+  let checklistRealtimeChannel = null;
+  startActivityRealtime = function () {
+    originalStartActivityRealtime();
+    if (!workspace || checklistRealtimeChannel) return;
+    checklistRealtimeChannel = db.channel('workspace-checklist-' + workspace.id)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workspace_task_checklist_items', filter: 'workspace_id=eq.' + workspace.id }, () => {
+        loadTasks();
+        loadActivity();
+      }).subscribe();
+  };
   function applyChecklistFilters() {
     originalRenderTasks();
     const cards = taskList.querySelectorAll('article.task');
