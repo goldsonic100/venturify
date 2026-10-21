@@ -21,7 +21,7 @@ for (const page of pages) {
 
   for (let index = 0; index < scripts.length; index += 1) {
     const tag = scripts[index][0].slice(0, scripts[index][0].indexOf(">"));
-    const type = tag.match(/\\btype\\s*=\\s*["']?([^"'\\s>]+)/i)?.[1]?.toLowerCase();
+    const type = tag.match(/\btype\s*=\s*["']?([^"'\s>]+)/i)?.[1]?.toLowerCase();
     const javascriptTypes = new Set(["text/javascript", "application/javascript", "module", "text/ecmascript", "application/ecmascript"]);
     if (type && !javascriptTypes.has(type)) continue;
 
