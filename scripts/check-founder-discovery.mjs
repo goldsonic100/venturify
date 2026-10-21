@@ -43,7 +43,7 @@ assert.ok(html.includes('communityIdsByUser=new Map(),ownCommunityIds=new Set()'
   'Founder discovery should track each user’s community memberships for overlap scoring');
 assert.ok(html.includes('sharedCommunities=[...(communityIdsByUser.get(p.id)||new Set())].filter(id=>ownCommunityIds.has(id)).length'),
   'Founder match scoring should calculate shared community membership');
-assert.ok(html.includes('Math.min(sharedCommunities,2)*8'),
+assert.ok(html.includes('Math.min(sharedCommunities,2)*5'),
   'Shared communities should provide a capped match-score bonus');
 assert.ok(html.includes("reasons.push('Shares '+sharedCommunities+' communit'+(sharedCommunities===1?'y':'ies')+' with you')"),
   'Match explanations should identify shared communities');
