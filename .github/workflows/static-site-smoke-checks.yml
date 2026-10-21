@@ -21,3 +21,5 @@ jobs:
           node-version: 20
       - name: Compile inline JavaScript in every root HTML page
         run: node scripts/validate-static-site.mjs
+      - name: Check collaboration notification and deep-link invariants
+        run: node scripts/check-workspace-notifications.mjs
