@@ -1,6 +1,5 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 
 const root = process.cwd();
 const entries = await readdir(root, { withFileTypes: true });
@@ -21,6 +20,11 @@ for (const page of pages) {
   const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)];
 
   for (let index = 0; index < scripts.length; index += 1) {
+    const tag = scripts[index][0].slice(0, scripts[index][0].indexOf(">"));
+    const type = tag.match(/\\btype\\s*=\\s*["']?([^"'\\s>]+)/i)?.[1]?.toLowerCase();
+    const javascriptTypes = new Set(["text/javascript", "application/javascript", "module", "text/ecmascript", "application/ecmascript"]);
+    if (type && !javascriptTypes.has(type)) continue;
+
     const source = scripts[index][1].trim();
     if (!source) continue;
     checkedScripts += 1;
