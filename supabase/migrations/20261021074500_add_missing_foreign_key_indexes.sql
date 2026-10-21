@@ -1,0 +1,33 @@
+-- Add indexes for foreign-key lookups that were missing coverage in the live schema.
+-- These are non-unique indexes; existing data and application behavior are unchanged.
+CREATE INDEX IF NOT EXISTS collaboration_workspaces_created_by_idx ON public.collaboration_workspaces (created_by);
+CREATE INDEX IF NOT EXISTS comments_post_id_idx ON public.comments (post_id);
+CREATE INDEX IF NOT EXISTS comments_user_id_idx ON public.comments (user_id);
+CREATE INDEX IF NOT EXISTS communities_created_by_idx ON public.communities (created_by);
+CREATE INDEX IF NOT EXISTS content_reports_comment_id_idx ON public.content_reports (comment_id);
+CREATE INDEX IF NOT EXISTS content_reports_post_id_idx ON public.content_reports (post_id);
+CREATE INDEX IF NOT EXISTS content_reports_reported_user_id_idx ON public.content_reports (reported_user_id);
+CREATE INDEX IF NOT EXISTS content_reports_reviewed_by_idx ON public.content_reports (reviewed_by);
+CREATE INDEX IF NOT EXISTS conversation_members_user_id_idx ON public.conversation_members (user_id);
+CREATE INDEX IF NOT EXISTS conversation_typing_user_id_idx ON public.conversation_typing (user_id);
+CREATE INDEX IF NOT EXISTS conversations_created_by_idx ON public.conversations (created_by);
+CREATE INDEX IF NOT EXISTS follows_following_id_idx ON public.follows (following_id);
+CREATE INDEX IF NOT EXISTS founder_match_feedback_candidate_id_idx ON public.founder_match_feedback (candidate_id);
+CREATE INDEX IF NOT EXISTS founder_match_impressions_candidate_id_idx ON public.founder_match_impressions (candidate_id);
+CREATE INDEX IF NOT EXISTS likes_post_id_idx ON public.likes (post_id);
+CREATE INDEX IF NOT EXISTS message_reactions_user_id_idx ON public.message_reactions (user_id);
+CREATE INDEX IF NOT EXISTS messages_sender_id_idx ON public.messages (sender_id);
+CREATE INDEX IF NOT EXISTS notifications_actor_id_idx ON public.notifications (actor_id);
+CREATE INDEX IF NOT EXISTS notifications_post_id_idx ON public.notifications (post_id);
+CREATE INDEX IF NOT EXISTS post_poll_votes_option_id_idx ON public.post_poll_votes (option_id);
+CREATE INDEX IF NOT EXISTS post_poll_votes_user_id_idx ON public.post_poll_votes (user_id);
+CREATE INDEX IF NOT EXISTS posts_user_id_idx ON public.posts (user_id);
+CREATE INDEX IF NOT EXISTS workspace_activity_events_actor_id_idx ON public.workspace_activity_events (actor_id);
+CREATE INDEX IF NOT EXISTS workspace_messages_sender_id_idx ON public.workspace_messages (sender_id);
+CREATE INDEX IF NOT EXISTS workspace_milestones_created_by_idx ON public.workspace_milestones (created_by);
+CREATE INDEX IF NOT EXISTS workspace_task_checklist_items_created_by_idx ON public.workspace_task_checklist_items (created_by);
+CREATE INDEX IF NOT EXISTS workspace_task_checklist_items_task_workspace_idx ON public.workspace_task_checklist_items (task_id, workspace_id);
+CREATE INDEX IF NOT EXISTS workspace_task_comments_author_id_idx ON public.workspace_task_comments (author_id);
+CREATE INDEX IF NOT EXISTS workspace_task_comments_task_id_idx ON public.workspace_task_comments (task_id);
+CREATE INDEX IF NOT EXISTS workspace_tasks_assigned_to_idx ON public.workspace_tasks (assigned_to);
+CREATE INDEX IF NOT EXISTS workspace_tasks_created_by_idx ON public.workspace_tasks (created_by);
