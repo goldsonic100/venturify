@@ -34,7 +34,7 @@ for (const page of pages) {
       // Compile only; never execute application code or contact Supabase.
       new Script(source, { filename: `${page}:inline-script-${index + 1}` });
     } catch (error) {
-      failures.push(`${page}: inline script ${index + 1}: ${error.message}`);
+      failures.push(`${page}: inline script ${index + 1}: ${error.stack}`);
     }
   }
 }
