@@ -132,6 +132,34 @@ checks AS (
         )
     ),
     'Every public SECURITY DEFINER function pins its search_path'
+
+  UNION ALL
+  SELECT
+    'workspace_created_notification_has_single_source',
+    (
+      NOT EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_proc p
+        JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+        WHERE n.nspname='public'
+          AND p.proname='handle_collaboration_request_status_change'
+          AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'workspace_created') > 0
+      )
+      AND EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_trigger t
+        JOIN pg_catalog.pg_class c ON c.oid=t.tgrelid
+        JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+        JOIN pg_catalog.pg_proc p ON p.oid=t.tgfoid
+        WHERE n.nspname='public'
+          AND c.relname='collaboration_workspaces'
+          AND t.tgname='notify_workspace_activity'
+          AND t.tgenabled='O'
+          AND p.proname='notify_workspace_activity'
+          AND NOT t.tgisinternal
+      )
+    ),
+    'Workspace-created notices are emitted only by the workspace activity trigger'
 )
 SELECT check_name, passed, detail
 FROM checks
