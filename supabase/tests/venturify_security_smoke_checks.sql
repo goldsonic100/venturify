@@ -76,6 +76,62 @@ checks AS (
         AND pg_catalog.has_function_privilege('anon', p.oid, 'EXECUTE')
     ),
     'Sensitive RPCs are not executable by anon'
+
+  UNION ALL
+  SELECT
+    'collaboration_acceptance_workspace_trigger_enabled',
+    EXISTS (
+      SELECT 1 FROM pg_catalog.pg_trigger t
+      JOIN pg_catalog.pg_class c ON c.oid=t.tgrelid
+      JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+      JOIN pg_catalog.pg_proc p ON p.oid=t.tgfoid
+      WHERE n.nspname='public' AND c.relname='collaboration_requests'
+        AND t.tgname='collaboration_request_status_change' AND t.tgenabled='O'
+        AND p.proname='handle_collaboration_request_status_change' AND NOT t.tgisinternal
+    ),
+    'Acceptance trigger for idempotent workspace creation is enabled'
+  UNION ALL
+  SELECT
+    'free_community_membership_limit_guard_enabled',
+    EXISTS (
+      SELECT 1 FROM pg_catalog.pg_trigger t
+      JOIN pg_catalog.pg_class c ON c.oid=t.tgrelid
+      JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+      JOIN pg_catalog.pg_proc p ON p.oid=t.tgfoid
+      WHERE n.nspname='public' AND c.relname='community_members'
+        AND t.tgname='enforce_free_community_membership_limit' AND t.tgenabled='O'
+        AND p.proname='enforce_free_community_membership_limit' AND NOT t.tgisinternal
+    ),
+    'Free-plan community membership cap is enforced in the database'
+  UNION ALL
+  SELECT
+    'daily_founder_match_limit_guards_enabled',
+    (
+      SELECT count(DISTINCT t.tgname)=2
+      FROM pg_catalog.pg_trigger t
+      JOIN pg_catalog.pg_class c ON c.oid=t.tgrelid
+      JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+      JOIN pg_catalog.pg_proc p ON p.oid=t.tgfoid
+      WHERE n.nspname='public' AND c.relname='founder_match_impressions'
+        AND t.tgname IN ('enforce_daily_founder_match_limit','verify_daily_founder_match_limit')
+        AND t.tgenabled='O' AND p.proname IN ('enforce_daily_founder_match_limit','verify_daily_founder_match_limit')
+        AND NOT t.tgisinternal
+    ),
+    'Daily founder-match limit has both enforcement and verification triggers'
+  UNION ALL
+  SELECT
+    'public_security_definer_functions_pin_search_path',
+    NOT EXISTS (
+      SELECT 1 FROM pg_catalog.pg_proc p
+      JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+      WHERE n.nspname='public' AND p.prosecdef
+        AND NOT EXISTS (
+          SELECT 1
+          FROM pg_catalog.unnest(COALESCE(p.proconfig, ARRAY[]::text[])) AS cfg(setting)
+          WHERE cfg.setting LIKE 'search_path=%'
+        )
+    ),
+    'Every public SECURITY DEFINER function pins its search_path'
 )
 SELECT check_name, passed, detail
 FROM checks
