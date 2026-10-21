@@ -777,15 +777,18 @@ $('feed').addEventListener('click',async e=>{
  if(focus)$('feed').querySelector('[data-comment-input="'+focus.dataset.focus+'"]')?.focus();
 });
  document.addEventListener('click',async e=>{const mention=e.target.closest('[data-profile-username]');if(!mention)return;const username=mention.dataset.profileUsername;if(!/^[A-Za-z0-9_]{1,30}$/.test(username))return;mention.disabled=true;const result=await client.from('profiles').select('id').ilike('username',username).maybeSingle();mention.disabled=false;if(result.error||!result.data){notice('That username was not found.');return}showProfile(result.data.id)});
-let currentConversation=null,currentConversationChannel=null,currentTypingChannel=null,currentReadChannel=null,globalMessageChannel=null,globalMessageRealtimeUser=null,messagingSessionUserId=null,typingCleanupTimer=null;let conversationOpenRequest=0;
+let currentConversation=null,currentConversationChannel=null,currentTypingChannel=null,currentReadChannel=null,globalMessageChannel=null,globalMessageRealtimeUser=null,messagingSessionUserId=null,typingCleanupTimer=null;let conversationOpenRequest=0,conversationListLoadRequest=0;
  let activeConversationOtherId=null,activeConversationMessages=[],activeConversationIsGroup=false,activeConversationTitle='';
  function conversationTime(value){if(!value)return '';const date=new Date(value),now=new Date(),sameDay=date.toDateString()===now.toDateString(),yesterday=new Date(now);yesterday.setDate(now.getDate()-1);if(sameDay)return date.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});if(date.toDateString()===yesterday.toDateString())return 'Yesterday';const days=(now-date)/86400000;if(days<7)return date.toLocaleDateString(undefined,{weekday:'short'});return date.toLocaleDateString(undefined,{month:'short',day:'numeric'})}
  function filteredConversationList(){const search=$('conversationSearch')?.value?.trim().toLowerCase()||'';document.querySelectorAll('#conversationList [data-open-conversation],#conversationList [data-open-group]').forEach(button=>{button.hidden=!!search&&!button.textContent.toLowerCase().includes(search)})}
  async function loadConversationList(){
   const box=$('conversationList'),total=$('messageUnreadTotal');
+  const requestId=++conversationListLoadRequest,requestUserId=user?.id||null;
+  const isCurrent=()=>requestId===conversationListLoadRequest&&(user?.id||null)===requestUserId;
   if(!user){box.innerHTML='<div class="muted-small">Log in to see your conversations.</div>';total.hidden=true;return}
   box.innerHTML='<div class="muted-small">Loading conversations…</div>';
-  const memberships=await client.from('conversation_members').select('conversation_id,user_id').eq('user_id',user.id);
+  const memberships=await client.from('conversation_members').select('conversation_id,user_id').eq('user_id',requestUserId);
+  if(!isCurrent())return;
   if(memberships.error){box.innerHTML='<div class="muted-small">Could not load conversations. Refresh and try again.</div>';return}
   const ids=[...new Set((memberships.data||[]).map(x=>x.conversation_id))];
   if(!ids.length){box.innerHTML='<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';total.hidden=true;const navCount=$('messageNavCount');if(navCount){navCount.hidden=true;navCount.textContent='0'}return}
@@ -794,15 +797,18 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
    client.from('messages').select('id,conversation_id,sender_id,content,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(1000),
    client.from('conversations').select('id,title,is_group').in('id',ids)
   ]);
+  if(!isCurrent())return;
   if(membersResult.error||messagesResult.error){box.innerHTML='<div class="muted-small">Could not load recent conversations. Try refreshing.</div>';return}
   const messages=messagesResult.data||[];
   // Fetch complete unread totals separately from the inbox's 1,000-message preview.
   const unreadResult=await client.rpc('get_my_unread_message_counts');
+  if(!isCurrent())return;
   // An unread-count RPC problem must never hide conversations or prevent opening chats.
   if(unreadResult.error)console.warn('Unread counts unavailable; showing conversations without badges',unreadResult.error.message);
   const unreadCounts=new Map((unreadResult.data||[]).map(row=>[row.conversation_id,Number(row.unread_count)||0]));
-  const otherIds=[...new Set((membersResult.data||[]).filter(m=>m.user_id!==user.id).map(m=>m.user_id))];
+  const otherIds=[...new Set((membersResult.data||[]).filter(m=>m.user_id!==requestUserId).map(m=>m.user_id))];
   const profileResult=otherIds.length?await client.from('profiles').select('id,username,display_name,avatar_url').in('id',otherIds):{data:[],error:null};
+  if(!isCurrent())return;
   if(profileResult.error){box.innerHTML='<div class="muted-small">Could not load conversation profiles.</div>';return}
   const profileMap=new Map((profileResult.data||[]).map(p=>[p.id,p]));
   const conversationMeta=new Map((conversationResult.data||[]).map(x=>[x.id,x]));
