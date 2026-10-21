@@ -923,12 +923,11 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
  $('mobileInboxBack').addEventListener('click',()=>document.body.classList.remove('mobile-chat-open'));
  async function startPendingDirectMessage(){if(!user||!pendingDirectMessage)return;const target=pendingDirectMessage;pendingDirectMessage=null;await openConversation(target);if(pendingMessageDraft&&activeConversationOtherId===target){$('messageText').value=pendingMessageDraft.slice(0,1200);$('messageText').focus();pendingMessageDraft=null}const cleanUrl=new URL(window.location.href);cleanUrl.searchParams.delete('to');cleanUrl.searchParams.delete('draft');window.history.replaceState({},'',cleanUrl.pathname+cleanUrl.search+cleanUrl.hash)}
  async function showMessages(otherId){
-  if(!currentConversation||!user)return;
+  if(!currentConversation||!user||activeConversationOtherId!==otherId)return;
   // Latest-request wins: realtime inserts, reaction changes, and read receipts can overlap.
   const requestId=++conversationTranscriptLoadRequest;
   // Snapshot the target before any network request; a user may switch chats while a query is in flight.
   const conversationId=currentConversation,sessionUserId=user.id;
-  if(activeConversationOtherId!==otherId)return;
   const stillViewing=()=>requestId===conversationTranscriptLoadRequest&&!!user&&user.id===sessionUserId&&currentConversation===conversationId&&activeConversationOtherId===otherId;
   // Fetch history in pages so long-running conversations load from the beginning.
   const messages=[];let historyOffset=0,historyError=null;
