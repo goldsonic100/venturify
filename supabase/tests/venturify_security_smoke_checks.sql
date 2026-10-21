@@ -160,6 +160,25 @@ checks AS (
       )
     ),
     'Workspace-created notices are emitted only by the workspace activity trigger'
+
+  UNION ALL
+  SELECT
+    'message_recipient_notification_trigger_enabled',
+    EXISTS (
+      SELECT 1
+      FROM pg_catalog.pg_trigger t
+      JOIN pg_catalog.pg_class c ON c.oid=t.tgrelid
+      JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+      JOIN pg_catalog.pg_proc p ON p.oid=t.tgfoid
+      WHERE n.nspname='public'
+        AND c.relname='messages'
+        AND t.tgname='venturify_notify_message'
+        AND t.tgenabled='O'
+        AND p.proname='venturify_notify_message'
+        AND NOT t.tgisinternal
+        AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'auth.uid() is distinct from new.sender_id') > 0
+    ),
+    'Message sends notify other conversation members only when the authenticated sender matches the message sender'
 )
 SELECT check_name, passed, detail
 FROM checks
