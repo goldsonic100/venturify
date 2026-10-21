@@ -31,9 +31,9 @@ assert.ok(discoverHtml.includes('Past feedback adjusted this match by '),
 // Regression checks for the founder-discovery requirements.
 assert.match(html, /communityCounts\.get\(p\.id\)\|\|0\)>=1&&founderLevel\(p\)>=5/,
   'Discovery must require at least one community and Level 5+');
-assert.match(html, /Math\.min\(sharedInterestCount,\s*3\)\s*\*\s*12/,
+assert.match(html, /Math\.min\(sharedInterestCount,\s*3\)\s*\*\s*8/,
   'Daily ranking should prioritize shared interests');
-assert.match(html, /Math\.min\(sharedInterests\.length,\s*3\)\s*\*\s*12/,
+assert.match(html, /Math\.min\(sharedInterests\.length,\s*3\)\s*\*\s*8/,
   'Displayed match scores should prioritize shared interests');
 assert.match(html, /reasons\.push\('Shared interests: '\+sharedInterests\.slice\(0,2\)\.join\(', '\)\)/,
   'Match explanations should show actual shared interests');
