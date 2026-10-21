@@ -31,9 +31,9 @@ assert.ok(discoverHtml.includes('Past feedback adjusted this match by '),
 // Regression checks for the founder-discovery requirements.
 assert.match(html, /communityCounts\.get\(p\.id\)\|\|0\)>=1&&founderLevel\(p\)>=5/,
   'Discovery must require at least one community and Level 5+');
-assert.match(html, /Math\.min\(sharedInterestCount,3\)\*12/,
+assert.match(html, /Math\.min\(sharedInterestCount,\s*3\)\s*\*\s*8/,
   'Daily ranking should prioritize shared interests');
-assert.match(html, /Math\.min\(sharedInterests\.length,3\)\*12/,
+assert.match(html, /Math\.min\(sharedInterests\.length,\s*3\)\s*\*\s*8/,
   'Displayed match scores should prioritize shared interests');
 assert.match(html, /reasons\.push\('Shared interests: '\+sharedInterests\.slice\(0,2\)\.join\(', '\)\)/,
   'Match explanations should show actual shared interests');
@@ -43,7 +43,7 @@ assert.ok(html.includes('communityIdsByUser=new Map(),ownCommunityIds=new Set()'
   'Founder discovery should track each user’s community memberships for overlap scoring');
 assert.ok(html.includes('sharedCommunities=[...(communityIdsByUser.get(p.id)||new Set())].filter(id=>ownCommunityIds.has(id)).length'),
   'Founder match scoring should calculate shared community membership');
-assert.ok(html.includes('Math.min(sharedCommunities,2)*8'),
+assert.ok(html.includes('Math.min(sharedCommunities,2)*5'),
   'Shared communities should provide a capped match-score bonus');
 assert.ok(html.includes("reasons.push('Shares '+sharedCommunities+' communit'+(sharedCommunities===1?'y':'ies')+' with you')"),
   'Match explanations should identify shared communities');
