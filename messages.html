@@ -777,7 +777,7 @@ $('feed').addEventListener('click',async e=>{
  if(focus)$('feed').querySelector('[data-comment-input="'+focus.dataset.focus+'"]')?.focus();
 });
  document.addEventListener('click',async e=>{const mention=e.target.closest('[data-profile-username]');if(!mention)return;const username=mention.dataset.profileUsername;if(!/^[A-Za-z0-9_]{1,30}$/.test(username))return;mention.disabled=true;const result=await client.from('profiles').select('id').ilike('username',username).maybeSingle();mention.disabled=false;if(result.error||!result.data){notice('That username was not found.');return}showProfile(result.data.id)});
-let currentConversation=null,currentConversationChannel=null,currentTypingChannel=null,currentReadChannel=null,globalMessageChannel=null,globalMessageRealtimeUser=null,messagingSessionUserId=null,typingCleanupTimer=null;let conversationOpenRequest=0,conversationListLoadRequest=0;
+let currentConversation=null,currentConversationChannel=null,currentTypingChannel=null,currentReadChannel=null,globalMessageChannel=null,globalMessageRealtimeUser=null,messagingSessionUserId=null,typingCleanupTimer=null;let conversationOpenRequest=0,conversationListLoadRequest=0,conversationTranscriptLoadRequest=0;
  let activeConversationOtherId=null,activeConversationMessages=[],activeConversationIsGroup=false,activeConversationTitle='';
  function conversationTime(value){if(!value)return '';const date=new Date(value),now=new Date(),sameDay=date.toDateString()===now.toDateString(),yesterday=new Date(now);yesterday.setDate(now.getDate()-1);if(sameDay)return date.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});if(date.toDateString()===yesterday.toDateString())return 'Yesterday';const days=(now-date)/86400000;if(days<7)return date.toLocaleDateString(undefined,{weekday:'short'});return date.toLocaleDateString(undefined,{month:'short',day:'numeric'})}
  function filteredConversationList(){const search=$('conversationSearch')?.value?.trim().toLowerCase()||'';document.querySelectorAll('#conversationList [data-open-conversation],#conversationList [data-open-group]').forEach(button=>{button.hidden=!!search&&!button.textContent.toLowerCase().includes(search)})}
@@ -923,11 +923,12 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
  $('mobileInboxBack').addEventListener('click',()=>document.body.classList.remove('mobile-chat-open'));
  async function startPendingDirectMessage(){if(!user||!pendingDirectMessage)return;const target=pendingDirectMessage;pendingDirectMessage=null;await openConversation(target);if(pendingMessageDraft&&activeConversationOtherId===target){$('messageText').value=pendingMessageDraft.slice(0,1200);$('messageText').focus();pendingMessageDraft=null}const cleanUrl=new URL(window.location.href);cleanUrl.searchParams.delete('to');cleanUrl.searchParams.delete('draft');window.history.replaceState({},'',cleanUrl.pathname+cleanUrl.search+cleanUrl.hash)}
  async function showMessages(otherId){
-  if(!currentConversation||!user)return;
+  if(!currentConversation||!user||activeConversationOtherId!==otherId)return;
+  // Latest-request wins: realtime inserts, reaction changes, and read receipts can overlap.
+  const requestId=++conversationTranscriptLoadRequest;
   // Snapshot the target before any network request; a user may switch chats while a query is in flight.
   const conversationId=currentConversation,sessionUserId=user.id;
-  if(activeConversationOtherId!==otherId)return;
-  const stillViewing=()=>!!user&&user.id===sessionUserId&&currentConversation===conversationId&&activeConversationOtherId===otherId;
+  const stillViewing=()=>requestId===conversationTranscriptLoadRequest&&!!user&&user.id===sessionUserId&&currentConversation===conversationId&&activeConversationOtherId===otherId;
   // Fetch history in pages so long-running conversations load from the beginning.
   const messages=[];let historyOffset=0,historyError=null;
   while(true){
