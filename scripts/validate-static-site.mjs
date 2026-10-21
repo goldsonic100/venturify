@@ -1,3 +1,4 @@
+import { Script } from "node:vm";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -31,7 +32,7 @@ for (const page of pages) {
 
     try {
       // Compile only; never execute application code or contact Supabase.
-      new Function(source);
+      new Script(source, { filename: `${page}:inline-script-${index + 1}` });
     } catch (error) {
       failures.push(`${page}: inline script ${index + 1}: ${error.message}`);
     }
