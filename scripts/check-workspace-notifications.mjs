@@ -14,7 +14,7 @@ const checks = [
   ["workspace deep links accept the collaboration request and task ID", () => {
     assert.match(workspace, /params\.get\('request'\)/);
     assert.match(workspace, /params\.get\('task'\)/);
-    assert.match(workspace, /r\.status\s*===?\s*'accepted'/);
+    assert.match(workspace, /\.eq\('status','accepted'\)/);
     assert.match(workspace, /req\.requester_id,\s*req\.recipient_id\]\s*\.includes\(user\.id\)/);
   }],
   ["workspace task links preserve request and task identifiers", () => {
