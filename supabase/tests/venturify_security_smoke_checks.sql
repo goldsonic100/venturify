@@ -76,7 +76,6 @@ checks AS (
         AND pg_catalog.has_function_privilege('anon', p.oid, 'EXECUTE')
     ),
     'Sensitive RPCs are not executable by anon'
-)
 
   UNION ALL
   SELECT
@@ -133,7 +132,7 @@ checks AS (
         )
     ),
     'Every public SECURITY DEFINER function pins its search_path'
-
+)
 SELECT check_name, passed, detail
 FROM checks
 ORDER BY check_name;
