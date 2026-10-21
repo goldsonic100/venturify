@@ -163,6 +163,36 @@ checks AS (
 
   UNION ALL
   SELECT
+    'workspace_chat_has_single_notification_trigger',
+    (
+      EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_trigger t
+        JOIN pg_catalog.pg_class c ON c.oid=t.tgrelid
+        JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+        JOIN pg_catalog.pg_proc p ON p.oid=t.tgfoid
+        WHERE n.nspname='public'
+          AND c.relname='workspace_messages'
+          AND t.tgname='notify_project_chat_message'
+          AND t.tgenabled='O'
+          AND p.proname='notify_project_chat_message'
+          AND NOT t.tgisinternal
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_trigger t
+        JOIN pg_catalog.pg_class c ON c.oid=t.tgrelid
+        JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+        WHERE n.nspname='public'
+          AND c.relname='workspace_messages'
+          AND t.tgname='workspace_message_notifications'
+          AND NOT t.tgisinternal
+      )
+    ),
+    'Project chat has one notification trigger; duplicate legacy handler is absent'
+
+  UNION ALL
+  SELECT
     'message_recipient_notification_trigger_enabled',
     EXISTS (
       SELECT 1
