@@ -143,7 +143,7 @@ checks AS (
         JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
         WHERE n.nspname='public'
           AND p.proname='handle_collaboration_request_status_change'
-          AND pg_catalog.position('workspace_created' in pg_catalog.pg_get_functiondef(p.oid)) > 0
+          AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'workspace_created') > 0
       )
       AND EXISTS (
         SELECT 1
