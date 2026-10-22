@@ -666,7 +666,7 @@ body[data-view="messages"] #messages .messages-privacy-note{flex:none!important;
 <script>
 (() => {
 const client=window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');window.venturifySupabaseClient=client;
-const $=id=>document.getElementById(id);let user=null,profile=null,mode='login',people=[],messageableFounderIds=new Set(),communities=[],currentCommunityId=null,communityMemberships=new Set(),pendingDirectMessage=new URLSearchParams(window.location.search).get('to'),pendingMessageDraft=new URLSearchParams(window.location.search).get('draft');
+const $=id=>document.getElementById(id);window.venturifyMessageableFounderIds=[];let user=null,profile=null,mode='login',people=[],messageableFounderIds=new Set(),communities=[],currentCommunityId=null,communityMemberships=new Set(),pendingDirectMessage=new URLSearchParams(window.location.search).get('to'),pendingMessageDraft=new URLSearchParams(window.location.search).get('draft');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const initials=s=>(String(s||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
 const name=p=>p?.display_name||('@'+(p?.username||'founder'));
