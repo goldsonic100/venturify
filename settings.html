@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101a16">
+<title>Settings — Venturify</title>
+<style>
+:root{--ink:#17251c;--muted:#69776c;--paper:#f5f6f0;--card:#fffefa;--line:#e0e6dc;--green:#c8f169;--deep:#13241c;--accent:#426b4b;--sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans)}a{color:inherit;text-decoration:none}button,input,select{font:inherit}.topbar{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 max(22px,calc((100vw - 1160px)/2));background:var(--deep);color:#fff;gap:18px}.brand{font-size:21px;font-weight:850;letter-spacing:-.6px}.brand-mark{display:inline-grid;place-items:center;background:var(--green);color:#17251c;width:31px;height:31px;border-radius:9px;margin-right:8px}.toplinks{display:flex;gap:18px;align-items:center;color:#d1ddd2;font-size:13px}.toplinks a:hover{color:var(--green)}.gear{border:1px solid #607165;border-radius:9px;width:42px;height:42px;display:grid;place-items:center;color:var(--green);font-size:22px}
+main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bottom:24px}.eyebrow{font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:1.7px;color:var(--accent)}h1{font-size:clamp(30px,4vw,42px);letter-spacing:-1.6px;margin:9px 0}.intro p{margin:0;color:var(--muted);line-height:1.7;font-size:14px;max-width:660px}.layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:18px;align-items:start}.sidebar,.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}.sidebar{padding:10px;position:sticky;top:15px}.sidebar button{width:100%;text-align:left;border:0;background:transparent;border-radius:8px;padding:12px;font-size:12px;font-weight:750;color:#556357;cursor:pointer}.sidebar button.active,.sidebar button:hover{background:#edf3e6;color:#2e5636}.panel{padding:22px;margin-bottom:14px}.panel h2{font-size:17px;margin:0 0 5px;letter-spacing:-.3px}.panel-intro{font-size:12px;color:var(--muted);line-height:1.65;margin:0 0 13px}.setting{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:15px 0;border-top:1px solid #edf0e9}.setting-copy{min-width:0}.setting-copy strong{display:block;font-size:13px}.setting-copy small{display:block;color:var(--muted);font-size:11px;line-height:1.55;margin-top:4px;max-width:520px}.switch{flex:0 0 auto;width:44px;height:25px;border:0;border-radius:99px;background:#c5cdc2;padding:3px;cursor:pointer;transition:background .15s}.switch:after{content:"";display:block;width:19px;height:19px;border-radius:50%;background:white;box-shadow:0 1px 3px #0002;transition:transform .15s}.switch[aria-checked="true"]{background:#416d48}.switch[aria-checked="true"]:after{transform:translateX(19px)}.select{border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:white;color:var(--ink);font-size:12px;min-width:135px}.savebar{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;bottom:12px;background:#13241cf2;color:white;padding:13px 15px;border-radius:11px;box-shadow:0 8px 28px #15231b20}.savebar span{font-size:11px;color:#d0dcd0}.save{border:0;border-radius:8px;background:var(--green);color:#17251c;font-weight:850;padding:11px 16px;cursor:pointer}.save:disabled{opacity:.55;cursor:wait}.status{font-size:12px;color:var(--accent);margin:12px 0 0;min-height:18px}.danger{border-color:#efd9d5}.danger h2{color:#a23c32}.textlink{display:inline-flex;padding:10px 13px;border:1px solid var(--line);border-radius:8px;font-size:12px;font-weight:750}.textlink:hover{border-color:#a4b99c}@media(max-width:720px){.topbar{padding:0 15px}.toplinks a:not(.gear){display:none}main{margin-top:24px}.layout{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow:auto;gap:4px}.sidebar button{white-space:nowrap;width:auto}.panel{padding:17px}.setting{gap:12px}.savebar{bottom:8px}.savebar span{max-width:55%}}
+</style>
+</head>
+<body>
+<header class="topbar">
+<a class="brand" href="index.html"><span class="brand-mark">v.</span>venturify</a>
+<nav class="toplinks" aria-label="Main navigation"><a href="feed.html">Feed</a><a href="discover.html">Discover</a><a href="communities.html">Communities</a><a href="messages.html">Messages</a><a class="gear" href="settings.html" aria-label="Settings" title="Settings">⚙</a></nav>
+</header>
+<main>
+<div class="intro"><div class="eyebrow">Your account, your rules</div><h1>Settings</h1><p>Control who can discover you, who can message you, which Venturify features you use, and what notifications you receive. Changes save to your account.</p></div>
+<div id="loginNotice" class="panel" hidden><h2>Sign in to manage your settings</h2><p class="panel-intro">Settings are private and saved to your Venturify account.</p><a class="textlink" href="index.html">Go to Venturify to sign in ↗</a></div>
+<div class="layout" id="settingsLayout">
+<aside class="sidebar" aria-label="Settings sections"><button class="active" data-section="privacy">🔒 Privacy</button><button data-section="features">✦ Features</button><button data-section="notifications">♧ Notifications</button><button data-section="appearance">◐ Appearance</button><button data-section="security">🛡 Safety</button></aside>
+<div>
+<section class="panel" id="section-privacy"><h2>Privacy &amp; messaging</h2><p class="panel-intro">Public means discoverable to people on Venturify. Private profiles are visible to you and people you follow. Existing conversations remain available.</p>
+<div class="setting"><div class="setting-copy"><strong>Public account</strong><small>Let people view your founder profile and posts. Turn off to make your profile and posts private to you and founders you follow.</small></div><button class="switch" role="switch" aria-checked="true" data-setting="public_profile" aria-label="Public account"></button></div>
+<div class="setting"><div class="setting-copy"><strong>Public DMs</strong><small>Let any founder start a direct conversation with you. When off, only founders you follow can start a new DM with you; existing chats still work.</small></div><button class="switch" role="switch" aria-checked="true" data-setting="public_dms" aria-label="Public direct messages"></button></div>
+<div class="setting"><div class="setting-copy"><strong>Allow collaboration requests</strong><small>Let other founders send collaboration requests for ideas, resources, and projects.</small></div><button class="switch" role="switch" aria-checked="true" data-setting="allow_collaboration_requests" aria-label="Allow collaboration requests"></button></div>
+<div class="setting"><div class="setting-copy"><strong>Show me in Discover</strong><small>Include your profile in founder discovery when you meet Venturify's Level 5+ and community-membership requirements.</small></div><button class="switch" role="switch" aria-checked="true" data-setting="show_in_discover" aria-label="Show me in Discover"></button></div>
+</section>
+<section class="panel" id="section-features"><h2>Account features</h2><p class="panel-intro">Choose which publishing and opportunity tools you want enabled on your account.</p>
+<div class="setting"><div class="setting-copy"><strong>Stories</strong><small>Allow short-lived story updates on your profile and feed.</small></div><button class="switch" role="switch" aria-checked="true" data-setting="enable_story_posts" aria-label="Enable stories"></button></div>
+<div class="setting"><div class="setting-copy"><strong>Polls</strong><small>Allow polls in posts and community discussions.</small></div><button class="switch" role="switch" aria-checked="true" data-setting="enable_polls" aria-label="Enable polls"></button></div>
+<div class="setting"><div class="setting-copy"><strong>Opportunities</strong><small>Allow you to create and respond to idea, resource, and collaboration opportunities.</small></div><button class="switch" role="switch" aria-checked="true" data-setting="enable_opportunities" aria-label="Enable opportunities"></button></div>
+</section>
+<section class="panel" id="section-notifications"><h2>Notifications</h2><p class="panel-intro">Choose the activity you want Venturify to notify you about.</p>
+<div class="setting"><div class="setting-copy"><strong>New messages</strong><small>Notify you when someone sends you a direct or group message.</small></div><button class="switch" role="switch" aria-checked="true" data-setting="notify_messages" aria-label="New message notifications"></button></div>
+<div class="setting"><div class="setting-copy"><strong>Message reactions</strong><small>Notify you when someone reacts to one of your messages.</small></div><button class="switch" role="switch" aria-checked="true" data-setting="notify_reactions" aria-label="Message reaction notifications"></button></div>
+<div class="setting"><div class="setting-copy"><strong>Group mentions</strong><small>Notify you when someone mentions you in a group chat.</small></div><button class="switch" role="switch" aria-checked="true" data-setting="notify_group_mentions" aria-label="Group mention notifications"></button></div>
+</section>
+<section class="panel" id="section-appearance"><h2>Appearance</h2><p class="panel-intro">Choose your preferred theme. This preference is saved for your account; individual pages may adopt it as theme support is rolled out.</p><div class="setting"><div class="setting-copy"><strong>Theme</strong><small>Use the system default or choose a light or dark appearance.</small></div><select class="select" id="appearance" aria-label="Appearance"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></div></section>
+<section class="panel" id="section-security"><h2>Safety &amp; account</h2><p class="panel-intro">Keep control of your experience. Blocking and reporting remain available across Venturify.</p><a class="textlink" href="messages.html">Manage conversations ↗</a> <a class="textlink" href="profile.html">Edit founder profile ↗</a></section>
+<div class="savebar"><span>Changes are not live until you save.</span><button class="save" id="saveSettings">Save settings</button></div><p class="status" id="status" role="status" aria-live="polite"></p>
+</div>
+</div>
+</main>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+ const client=window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
+ const defaults={public_profile:true,public_dms:true,allow_collaboration_requests:true,show_in_discover:true,enable_story_posts:true,enable_polls:true,enable_opportunities:true,notify_messages:true,notify_reactions:true,notify_group_mentions:true,appearance:'system'};
+ let user=null,dirty=false;
+ const status=document.getElementById('status'),save=document.getElementById('saveSettings');
+ const setStatus=(message)=>{status.textContent=message};
+ function markDirty(){dirty=true;setStatus('You have unsaved changes.')}
+ function apply(values){Object.entries(defaults).forEach(([key,fallback])=>{const value=values?.[key]??fallback;if(key==='appearance')document.getElementById('appearance').value=value;else{const control=document.querySelector('[data-setting="'+key+'"]');if(control)control.setAttribute('aria-checked',String(!!value));}});dirty=false;setStatus('')}
+ document.querySelectorAll('[data-setting]').forEach(button=>button.addEventListener('click',()=>{button.setAttribute('aria-checked',String(button.getAttribute('aria-checked')!=='true'));markDirty()}));
+ document.getElementById('appearance').addEventListener('change',markDirty);
+ document.querySelectorAll('[data-section]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-section]').forEach(x=>x.classList.toggle('active',x===button));document.getElementById('section-'+button.dataset.section).scrollIntoView({behavior:'smooth',block:'start'})}));
+ async function load(){const result=await client.auth.getUser();user=result.data.user;if(!user){document.getElementById('loginNotice').hidden=false;document.getElementById('settingsLayout').hidden=true;return}const response=await client.from('account_settings').select('*').eq('user_id',user.id).maybeSingle();if(response.error){setStatus('Could not load settings: '+response.error.message);return}apply(response.data||defaults)}
+ save.addEventListener('click',async()=>{if(!user)return;save.disabled=true;setStatus('Saving…');const payload={user_id:user.id,updated_at:new Date().toISOString()};Object.entries(defaults).forEach(([key])=>{if(key==='appearance')payload[key]=document.getElementById('appearance').value;else payload[key]=document.querySelector('[data-setting="'+key+'"]').getAttribute('aria-checked')==='true'});const result=await client.from('account_settings').upsert(payload,{onConflict:'user_id'});save.disabled=false;if(result.error){setStatus('Save failed: '+result.error.message);return}dirty=false;setStatus('Settings saved. Privacy and messaging controls are active.')}
+ client.auth.onAuthStateChange(()=>load());load();
+ window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}})
+})();
+</script>
+</body>
+</html>
