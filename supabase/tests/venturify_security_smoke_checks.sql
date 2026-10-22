@@ -193,6 +193,18 @@ checks AS (
 
   UNION ALL
   SELECT
+    'messaging_realtime_tables_published',
+    (
+      SELECT count(DISTINCT tablename)=3
+      FROM pg_catalog.pg_publication_tables
+      WHERE pubname='supabase_realtime'
+        AND schemaname='public'
+        AND tablename IN ('messages','message_reactions','message_reads')
+    ),
+    'Messages, reactions, and read receipts are published for the live chat subscriptions'
+
+  UNION ALL
+  SELECT
     'message_recipient_notification_trigger_enabled',
     EXISTS (
       SELECT 1
