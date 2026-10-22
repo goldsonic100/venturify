@@ -79,6 +79,21 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
 </div>
 </div>
 </main>
+<script id="settings-section-navigation">
+(function(){
+ const buttons=Array.from(document.querySelectorAll('[data-section]'));
+ buttons.forEach(button=>button.addEventListener('click',function(){
+  const target=document.getElementById('section-'+button.dataset.section);
+  if(!target)return;
+  buttons.forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-current',active?'location':'false')});
+  target.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+ }));
+})();
+</script>
+<style>
+#settingsLayout [id^="section-"]{scroll-margin-top:24px}
+#settingsLayout .sidebar button:focus-visible{outline:3px solid #8ab8ff;outline-offset:2px}
+</style>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
 (() => {
@@ -91,7 +106,6 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
  function apply(values){const savedTheme=values?.appearance??defaults.appearance;localStorage.setItem('venturify-theme',savedTheme);window.venturifyApplyTheme?.(savedTheme);Object.entries(defaults).forEach(([key,fallback])=>{const value=values?.[key]??fallback;if(key==='appearance')document.getElementById('appearance').value=value;else{const control=document.querySelector('[data-setting="'+key+'"]');if(control)control.setAttribute('aria-checked',String(!!value));}});dirty=false;setStatus('')}
  document.querySelectorAll('[data-setting]').forEach(button=>button.addEventListener('click',()=>{button.setAttribute('aria-checked',String(button.getAttribute('aria-checked')!=='true'));markDirty()}));
  document.getElementById('appearance').addEventListener('change',()=>{const value=document.getElementById('appearance').value;localStorage.setItem('venturify-theme',value);window.venturifyApplyTheme?.(value);markDirty()});
- document.querySelectorAll('[data-section]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-section]').forEach(x=>x.classList.toggle('active',x===button));document.getElementById('section-'+button.dataset.section).scrollIntoView({behavior:'smooth',block:'start'})}));
  async function load(){const result=await client.auth.getUser();user=result.data.user;if(!user){document.getElementById('loginNotice').hidden=false;document.getElementById('settingsLayout').hidden=true;return}const response=await client.from('account_settings').select('*').eq('user_id',user.id).maybeSingle();if(response.error){setStatus('Could not load settings: '+response.error.message);return}apply(response.data||defaults)}
  save.addEventListener('click',async()=>{if(!user)return;save.disabled=true;setStatus('Saving…');const payload={user_id:user.id,updated_at:new Date().toISOString()};Object.entries(defaults).forEach(([key])=>{if(key==='appearance')payload[key]=document.getElementById('appearance').value;else payload[key]=document.querySelector('[data-setting="'+key+'"]').getAttribute('aria-checked')==='true'});const result=await client.from('account_settings').upsert(payload,{onConflict:'user_id'});save.disabled=false;if(result.error){setStatus('Save failed: '+result.error.message);return}dirty=false;setStatus('Settings saved. Privacy, feature, and notification controls are active.')}
  client.auth.onAuthStateChange(()=>load());load();
