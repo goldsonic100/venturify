@@ -190,7 +190,40 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
 
 .topbar .nav .nav-icon-link{position:relative}.message-nav-count{position:absolute;top:0;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:#c8f169;color:#152319;border:2px solid #13241c;font-size:9px;font-weight:900;line-height:12px;display:inline-flex;align-items:center;justify-content:center}.message-nav-count[hidden]{display:none}
 </style>
-</head>
+<script id="venturify-global-theme">
+(function(){
+ const key='venturify-theme';
+ function apply(theme){
+  const actual=theme==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):theme;
+  document.documentElement.dataset.theme=actual;
+  document.documentElement.style.colorScheme=actual;
+  let style=document.getElementById('venturify-theme-overrides');
+  if(!style){style=document.createElement('style');style.id='venturify-theme-overrides';document.head.appendChild(style)}
+  style.textContent=actual==='dark'?`
+   :root{--paper:#0b1220;--card:#111c2e;--ink:#e7edf7;--muted:#9baac0;--line:#29384d;--deep:#08101c;--accent:#3985ff}
+   body{background:#0b1220!important;color:#e7edf7!important}
+   .topbar,header.topbar,.nav,.site-header{background:#08101c!important;color:#eef4ff!important;border-color:#29384d!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#111c2e!important;color:#e7edf7!important;border-color:#29384d!important}
+   input,textarea,select{background:#111c2e!important;color:#e7edf7!important;border-color:#35465f!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#a8b6ca}
+   a{color:#8ab8ff}
+  `:`
+   :root{--paper:#f5f7fb;--card:#fff;--ink:#182337;--muted:#63718a;--line:#dbe3ee;--deep:#f0f4fa;--accent:#1769e0}
+   body{background:#f5f7fb!important;color:#182337!important}
+   .topbar,header.topbar,.nav,.site-header{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   input,textarea,select{background:#fff!important;color:#182337!important;border-color:#cbd5e1!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#63718a}
+   a{color:#1769e0}
+  `;
+ }
+ let initial=localStorage.getItem(key)||'system';
+ try{const raw=localStorage.getItem('supabase.auth.token');if(raw){const parsed=JSON.parse(raw);const token=parsed?.currentSession?.user?.id;if(token){}}}catch(e){}
+ apply(initial);
+ window.addEventListener('storage',e=>{if(e.key===key)apply(e.newValue||'system')});
+ window.venturifyApplyTheme=apply;
+})();
+</script></head>
 <body data-view="discover">
 <header class="topbar wrap">
   <a class="brand" href="index.html" aria-label="Venturify home"><span class="brand-mark">v.</span> venturify</a>
