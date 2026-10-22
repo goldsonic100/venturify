@@ -236,6 +236,67 @@ checks AS (
 
   UNION ALL
   SELECT
+    'account_feature_preference_guards_enabled',
+    (
+      EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='stories' AND policyname='Account preference guard: story publishing' AND permissive='RESTRICTIVE' AND cmd='INSERT')
+      AND EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='posts' AND policyname='Account preference guard: poll publishing' AND permissive='RESTRICTIVE' AND cmd='INSERT')
+      AND EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='post_polls' AND policyname='Account preference guard: poll records' AND permissive='RESTRICTIVE' AND cmd='INSERT')
+      AND EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='collaboration_requests' AND policyname='Account preference guard: collaboration requests' AND permissive='RESTRICTIVE' AND cmd='INSERT')
+    ),
+    'Story, poll, opportunity, and collaboration request creation respect saved account preferences'
+
+  UNION ALL
+  SELECT
+    'private_story_and_poll_content_guarded',
+    (
+      EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='stories' AND policyname='Active stories respect account privacy' AND cmd='SELECT')
+      AND NOT EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='stories' AND policyname='Active stories are publicly readable')
+      AND EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='post_polls' AND policyname='Polls respect account privacy' AND cmd='SELECT')
+      AND EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='post_poll_options' AND policyname='Poll options respect account privacy' AND cmd='SELECT')
+    ),
+    'Stories, poll questions, and poll options cannot bypass private-account visibility'
+
+  UNION ALL
+  SELECT
+    'message_notification_preference_enabled',
+    EXISTS (
+      SELECT 1 FROM pg_catalog.pg_trigger t
+      JOIN pg_catalog.pg_class c ON c.oid=t.tgrelid
+      JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+      JOIN pg_catalog.pg_proc p ON p.oid=t.tgfoid
+      WHERE n.nspname='public' AND c.relname='messages'
+        AND t.tgname='venturify_notify_message' AND t.tgenabled='O'
+        AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'notify_messages') > 0
+    ),
+    'Message notification delivery respects the recipient preference'
+
+  UNION ALL
+  SELECT
+    'reaction_and_group_mention_notification_preferences_enabled',
+    (
+      EXISTS (
+        SELECT 1 FROM pg_catalog.pg_trigger t
+        JOIN pg_catalog.pg_class c ON c.oid=t.tgrelid
+        JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+        JOIN pg_catalog.pg_proc p ON p.oid=t.tgfoid
+        WHERE n.nspname='public' AND c.relname='message_reactions'
+          AND t.tgname='notify_message_reaction' AND t.tgenabled='O'
+          AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'notify_reactions') > 0
+      )
+      AND EXISTS (
+        SELECT 1 FROM pg_catalog.pg_trigger t
+        JOIN pg_catalog.pg_class c ON c.oid=t.tgrelid
+        JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+        JOIN pg_catalog.pg_proc p ON p.oid=t.tgfoid
+        WHERE n.nspname='public' AND c.relname='messages'
+          AND t.tgname='notify_group_chat_mentions' AND t.tgenabled='O'
+          AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'notify_group_mentions') > 0
+      )
+    ),
+    'Message reactions and group-chat mentions honor the matching notification preferences'
+
+  UNION ALL
+  SELECT
     'message_recipient_notification_trigger_enabled',
     EXISTS (
       SELECT 1
