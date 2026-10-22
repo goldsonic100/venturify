@@ -1,0 +1,59 @@
+/* Venturify social product visual system — layered depth without changing app behavior. */
+:root{
+  --v-bg:#0b1020;--v-panel:#121a2d;--v-panel-raised:#17223a;--v-border:rgba(163,181,220,.17);
+  --v-text:#eef3ff;--v-muted:#9aa9c5;--v-lime:#c8f169;--v-purple:#a78bfa;--v-blue:#7dd3fc;
+  --v-shadow:0 18px 48px rgba(3,7,18,.18);
+}
+html{scroll-behavior:smooth}
+body{
+  background:radial-gradient(ellipse at 8% 0%,rgba(104,91,214,.12),transparent 34%),
+             radial-gradient(ellipse at 92% 4%,rgba(73,193,188,.09),transparent 29%),var(--paper,#f6f6f0);
+}
+body:has(.topbar),body:has(header nav){background:radial-gradient(ellipse at 0% 0%,rgba(123,97,255,.09),transparent 32%),var(--paper,#f6f6f0)}
+.topbar,header{box-shadow:0 1px 0 rgba(255,255,255,.07),0 10px 30px rgba(6,12,24,.08)}
+.brand,.brand-mark{transition:transform .2s ease,filter .2s ease}
+.brand:hover .brand-mark{transform:rotate(-7deg) scale(1.06);filter:drop-shadow(0 0 12px rgba(200,241,105,.3))}
+button,a,[role="button"],input,textarea,select{transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+button:focus-visible,a:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid rgba(167,139,250,.75);outline-offset:3px}
+button:not(:disabled):active,[role="button"]:active{transform:translateY(1px)}
+/* Cards get a social-app feel: subtle borders, rounded corners and depth. */
+.card,.post,.post-card,.community-card,.community,.notification,.notification-card,.panel,.settings-card,.stat-card,.profile-card,.match-card,.opportunity-card,.workspace-card,.conversation-card,.message-panel,.feed-card{
+  border:1px solid var(--line, #e2e6dc);
+  border-radius:18px;
+  box-shadow:0 8px 26px rgba(18,35,28,.045);
+  transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease;
+}
+.card:hover,.community-card:hover,.match-card:hover,.opportunity-card:hover,.profile-card:hover{
+  border-color:rgba(126,112,231,.34);box-shadow:0 14px 34px rgba(28,35,65,.09);transform:translateY(-2px)
+}
+button.primary,button[type="submit"],.primary-button,.btn-primary,.cta,.join-button{
+  box-shadow:0 6px 18px rgba(86,113,58,.14);font-weight:750
+}
+button.primary:hover,button[type="submit"]:hover,.primary-button:hover,.btn-primary:hover,.cta:hover,.join-button:hover{
+  filter:brightness(1.04);box-shadow:0 9px 24px rgba(86,113,58,.22)
+}
+input,textarea,select{
+  border-radius:12px!important;
+}
+input:focus,textarea:focus,select:focus{border-color:#9a8bfa!important;box-shadow:0 0 0 4px rgba(154,139,250,.14)!important}
+a:hover{text-decoration-color:rgba(124,111,230,.55)}
+/* Navigation pills and active destinations feel closer to modern community apps. */
+nav a,.toplink,.sidebar a,.sidebar button,.nav-link{
+  border-radius:10px;transition:background .18s ease,color .18s ease
+}
+nav a:hover,.toplink:hover,.sidebar a:hover,.sidebar button:hover,.nav-link:hover{
+  background:rgba(130,118,230,.10)
+}
+.sidebar button[aria-current="page"],.sidebar button.active,.sidebar a.active,.nav-link.active{
+  background:linear-gradient(135deg,rgba(167,139,250,.17),rgba(125,211,252,.09));
+  border-color:rgba(167,139,250,.3)
+}
+/* Make badges and profile avatars feel intentional, without relying on remote images. */
+.badge,.tag,.pill,.chip{border-radius:999px}
+.avatar,.profile-avatar,.user-avatar{box-shadow:0 0 0 3px rgba(255,255,255,.8),0 0 0 4px rgba(124,111,230,.2)}
+hr{border:0;border-top:1px solid var(--line,#e2e6dc)}
+::selection{background:rgba(167,139,250,.28)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+@media(max-width:700px){
+  .card,.post,.post-card,.community-card,.notification-card,.panel,.settings-card,.feed-card{border-radius:15px}
+}
