@@ -19,7 +19,40 @@
 .overview-bar>span{display:block;height:100%;background:var(--accent,#6d7cff);border-radius:99px}
 .overview-empty{color:var(--muted);font-size:12px;padding:8px 0}
 @media(max-width:680px){.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-columns{grid-template-columns:1fr}.overview-stat .stat-value{font-size:21px}}
-</style></head>
+</style><script id="venturify-global-theme">
+(function(){
+ const key='venturify-theme';
+ function apply(theme){
+  const actual=theme==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):theme;
+  document.documentElement.dataset.theme=actual;
+  document.documentElement.style.colorScheme=actual;
+  let style=document.getElementById('venturify-theme-overrides');
+  if(!style){style=document.createElement('style');style.id='venturify-theme-overrides';document.head.appendChild(style)}
+  style.textContent=actual==='dark'?`
+   :root{--paper:#0b1220;--card:#111c2e;--ink:#e7edf7;--muted:#9baac0;--line:#29384d;--deep:#08101c;--accent:#3985ff}
+   body{background:#0b1220!important;color:#e7edf7!important}
+   .topbar,header.topbar,.nav,.site-header{background:#08101c!important;color:#eef4ff!important;border-color:#29384d!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#111c2e!important;color:#e7edf7!important;border-color:#29384d!important}
+   input,textarea,select{background:#111c2e!important;color:#e7edf7!important;border-color:#35465f!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#a8b6ca}
+   a{color:#8ab8ff}
+  `:`
+   :root{--paper:#f5f7fb;--card:#fff;--ink:#182337;--muted:#63718a;--line:#dbe3ee;--deep:#f0f4fa;--accent:#1769e0}
+   body{background:#f5f7fb!important;color:#182337!important}
+   .topbar,header.topbar,.nav,.site-header{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   input,textarea,select{background:#fff!important;color:#182337!important;border-color:#cbd5e1!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#63718a}
+   a{color:#1769e0}
+  `;
+ }
+ let initial=localStorage.getItem(key)||'system';
+ try{const raw=localStorage.getItem('supabase.auth.token');if(raw){const parsed=JSON.parse(raw);const token=parsed?.currentSession?.user?.id;if(token){}}}catch(e){}
+ apply(initial);
+ window.addEventListener('storage',e=>{if(e.key===key)apply(e.newValue||'system')});
+ window.venturifyApplyTheme=apply;
+})();
+</script></head>
 <body><header><nav><a href="index.html"><strong>VENTURIFY</strong></a><div style="display:flex;gap:15px"><a href="discover.html">Discover</a><a href="messages.html">Messages</a><a href="collaborations.html">Requests</a><a href="profile.html">Profile</a></div></nav></header>
 <main class="wrap"><div class="kicker">Build together</div><h1>Collaboration workspace</h1><p class="muted">Plan your shared goal, assign next steps, and track progress with your collaborator.</p><div id="notice" class="notice">Loading your collaboration…</div>
 <section id="setup" class="card hidden"><div class="kicker">Start a project</div><h2 style="margin-top:5px">Give your collaboration a home</h2><p id="partnerText" class="muted"></p><form id="createForm"><label for="title">Project name</label><input id="title" maxlength="120" required placeholder="e.g. Launch our first prototype"><label for="goal">Shared goal</label><textarea id="goal" maxlength="2000" placeholder="What do you want to accomplish together?"></textarea><button class="btn primary" style="margin-top:12px">Create workspace</button></form></section>
