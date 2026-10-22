@@ -193,6 +193,36 @@ checks AS (
 
   UNION ALL
   SELECT
+    'account_settings_rls_and_owner_policies',
+    (
+      EXISTS (SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='account_settings' AND c.relrowsecurity)
+      AND (SELECT count(*)=3 FROM pg_catalog.pg_policies p WHERE p.schemaname='public' AND p.tablename='account_settings' AND p.policyname IN ('Users can read their own account settings','Users can create their own account settings','Users can update their own account settings'))
+    ),
+    'Account preferences have RLS and owner-only read, create, and update policies'
+
+  UNION ALL
+  SELECT
+    'private_profile_and_post_policies_respect_visibility',
+    (
+      EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='profiles' AND policyname='Profiles are visible by account privacy' AND cmd='SELECT')
+      AND NOT EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='profiles' AND policyname='Profiles are publicly readable')
+      AND EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='posts' AND policyname='Posts respect account privacy' AND cmd='SELECT')
+      AND NOT EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='posts' AND policyname='Posts are publicly readable')
+      AND EXISTS (SELECT 1 FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='private' AND p.proname='is_profile_public' AND p.prosecdef AND EXISTS (SELECT 1 FROM pg_catalog.unnest(COALESCE(p.proconfig, ARRAY[]::text[])) cfg(setting) WHERE cfg.setting LIKE 'search_path=%'))
+    ),
+    'Profile and post public-read policies honor private-account settings through a pinned SECURITY DEFINER helper'
+
+  UNION ALL
+  SELECT
+    'messageable_founder_rpc_and_dm_preference_guard',
+    (
+      EXISTS (SELECT 1 FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='get_messageable_founder_ids' AND p.prosecdef AND EXISTS (SELECT 1 FROM pg_catalog.unnest(COALESCE(p.proconfig, ARRAY[]::text[])) cfg(setting) WHERE cfg.setting LIKE 'search_path=%'))
+      AND EXISTS (SELECT 1 FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='get_or_create_direct_conversation' AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'public_dms') > 0 AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'only accepts messages from people they follow') > 0)
+    ),
+    'Founder picker uses an allowlist RPC and the direct-conversation RPC enforces closed-DM preferences'
+
+  UNION ALL
+  SELECT
     'messaging_realtime_tables_published',
     (
       SELECT count(DISTINCT tablename)=3
