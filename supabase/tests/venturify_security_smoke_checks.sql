@@ -202,6 +202,25 @@ checks AS (
 
   UNION ALL
   SELECT
+    'public_discovery_requires_email_verification',
+    (
+      EXISTS (
+        SELECT 1 FROM pg_catalog.pg_proc p
+        JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+        WHERE n.nspname='public' AND p.proname='get_discoverable_founder_ids'
+          AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'email_confirmed_at') > 0
+      )
+      AND EXISTS (
+        SELECT 1 FROM pg_catalog.pg_proc p
+        JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+        WHERE n.nspname='private' AND p.proname='is_profile_public'
+          AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'email_confirmed_at') > 0
+      )
+    ),
+    'Unverified accounts are excluded from public discovery, profiles, and content visibility'
+
+  UNION ALL
+  SELECT
     'private_profile_and_post_policies_respect_visibility',
     (
       EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='profiles' AND policyname='Profiles are visible by account privacy' AND cmd='SELECT')
