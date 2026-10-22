@@ -50,6 +50,8 @@
  try{const raw=localStorage.getItem('supabase.auth.token');if(raw){const parsed=JSON.parse(raw);const token=parsed?.currentSession?.user?.id;if(token){}}}catch(e){}
  apply(initial);
  window.addEventListener('storage',e=>{if(e.key===key)apply(e.newValue||'system')});
+ const media=window.matchMedia('(prefers-color-scheme: dark)');
+ if(media.addEventListener)media.addEventListener('change',()=>{if((localStorage.getItem(key)||'system')==='system')apply('system')});
  window.venturifyApplyTheme=apply;
 })();
 </script></head>
