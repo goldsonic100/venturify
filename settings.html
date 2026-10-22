@@ -94,10 +94,10 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
 #settingsLayout [id^="section-"]{scroll-margin-top:24px}
 #settingsLayout .sidebar button:focus-visible{outline:3px solid #8ab8ff;outline-offset:2px}
 </style>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (() => {
- const client=window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
+ const client=window.supabase?.createClient ? window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W') : null;
  const defaults={public_profile:true,public_dms:true,allow_collaboration_requests:true,show_in_discover:true,enable_story_posts:true,enable_polls:true,enable_opportunities:true,notify_messages:true,notify_reactions:true,notify_group_mentions:true,appearance:'system'};
  let user=null,dirty=false;
  const status=document.getElementById('status'),save=document.getElementById('saveSettings');
@@ -106,9 +106,9 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
  function apply(values){const savedTheme=values?.appearance??defaults.appearance;localStorage.setItem('venturify-theme',savedTheme);window.venturifyApplyTheme?.(savedTheme);Object.entries(defaults).forEach(([key,fallback])=>{const value=values?.[key]??fallback;if(key==='appearance')document.getElementById('appearance').value=value;else{const control=document.querySelector('[data-setting="'+key+'"]');if(control)control.setAttribute('aria-checked',String(!!value));}});dirty=false;setStatus('')}
  document.querySelectorAll('[data-setting]').forEach(button=>button.addEventListener('click',()=>{button.setAttribute('aria-checked',String(button.getAttribute('aria-checked')!=='true'));markDirty()}));
  document.getElementById('appearance').addEventListener('change',()=>{const value=document.getElementById('appearance').value;localStorage.setItem('venturify-theme',value);window.venturifyApplyTheme?.(value);markDirty()});
- async function load(){const result=await client.auth.getUser();user=result.data.user;if(!user){document.getElementById('loginNotice').hidden=false;document.getElementById('settingsLayout').hidden=true;return}const response=await client.from('account_settings').select('*').eq('user_id',user.id).maybeSingle();if(response.error){setStatus('Could not load settings: '+response.error.message);return}apply(response.data||defaults)}
- save.addEventListener('click',async()=>{if(!user)return;save.disabled=true;setStatus('Saving…');const payload={user_id:user.id,updated_at:new Date().toISOString()};Object.entries(defaults).forEach(([key])=>{if(key==='appearance')payload[key]=document.getElementById('appearance').value;else payload[key]=document.querySelector('[data-setting="'+key+'"]').getAttribute('aria-checked')==='true'});const result=await client.from('account_settings').upsert(payload,{onConflict:'user_id'});save.disabled=false;if(result.error){setStatus('Save failed: '+result.error.message);return}dirty=false;setStatus('Settings saved. Privacy, feature, and notification controls are active.')}
- client.auth.onAuthStateChange(()=>load());load();
+ async function load(){if(!client){setStatus('Settings navigation and appearance work locally, but account settings could not connect. Check your connection and reload.');save.disabled=true;return}const result=await client.auth.getUser();user=result.data.user;if(!user){document.getElementById('loginNotice').hidden=false;document.getElementById('settingsLayout').hidden=true;return}const response=await client.from('account_settings').select('*').eq('user_id',user.id).maybeSingle();if(response.error){setStatus('Could not load settings: '+response.error.message);return}apply(response.data||defaults)}
+ save.addEventListener('click',async()=>{if(!client){setStatus('Cannot save account settings while the connection library is unavailable. Your appearance choice is saved on this device.');return}if(!user)return;save.disabled=true;setStatus('Saving…');const payload={user_id:user.id,updated_at:new Date().toISOString()};Object.entries(defaults).forEach(([key])=>{if(key==='appearance')payload[key]=document.getElementById('appearance').value;else payload[key]=document.querySelector('[data-setting="'+key+'"]').getAttribute('aria-checked')==='true'});const result=await client.from('account_settings').upsert(payload,{onConflict:'user_id'});save.disabled=false;if(result.error){setStatus('Save failed: '+result.error.message);return}dirty=false;setStatus('Settings saved. Privacy, feature, and notification controls are active.')});
+ if(client){client.auth.onAuthStateChange(()=>load())}load();
  window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}})
 })();
 </script>
