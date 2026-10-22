@@ -10,7 +10,40 @@
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans)}a{color:inherit;text-decoration:none}button,input,select{font:inherit}.topbar{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 max(22px,calc((100vw - 1160px)/2));background:var(--deep);color:#fff;gap:18px}.brand{font-size:21px;font-weight:850;letter-spacing:-.6px}.brand-mark{display:inline-grid;place-items:center;background:var(--green);color:#17251c;width:31px;height:31px;border-radius:9px;margin-right:8px}.toplinks{display:flex;gap:18px;align-items:center;color:#d1ddd2;font-size:13px}.toplinks a:hover{color:var(--green)}.gear{border:1px solid #607165;border-radius:9px;width:42px;height:42px;display:grid;place-items:center;color:var(--green);font-size:22px}
 main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bottom:24px}.eyebrow{font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:1.7px;color:var(--accent)}h1{font-size:clamp(30px,4vw,42px);letter-spacing:-1.6px;margin:9px 0}.intro p{margin:0;color:var(--muted);line-height:1.7;font-size:14px;max-width:660px}.layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:18px;align-items:start}.sidebar,.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}.sidebar{padding:10px;position:sticky;top:15px}.sidebar button{width:100%;text-align:left;border:0;background:transparent;border-radius:8px;padding:12px;font-size:12px;font-weight:750;color:#556357;cursor:pointer}.sidebar button.active,.sidebar button:hover{background:#edf3e6;color:#2e5636}.panel{padding:22px;margin-bottom:14px}.panel h2{font-size:17px;margin:0 0 5px;letter-spacing:-.3px}.panel-intro{font-size:12px;color:var(--muted);line-height:1.65;margin:0 0 13px}.setting{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:15px 0;border-top:1px solid #edf0e9}.setting-copy{min-width:0}.setting-copy strong{display:block;font-size:13px}.setting-copy small{display:block;color:var(--muted);font-size:11px;line-height:1.55;margin-top:4px;max-width:520px}.switch{flex:0 0 auto;width:44px;height:25px;border:0;border-radius:99px;background:#c5cdc2;padding:3px;cursor:pointer;transition:background .15s}.switch:after{content:"";display:block;width:19px;height:19px;border-radius:50%;background:white;box-shadow:0 1px 3px #0002;transition:transform .15s}.switch[aria-checked="true"]{background:#416d48}.switch[aria-checked="true"]:after{transform:translateX(19px)}.select{border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:white;color:var(--ink);font-size:12px;min-width:135px}.savebar{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;bottom:12px;background:#13241cf2;color:white;padding:13px 15px;border-radius:11px;box-shadow:0 8px 28px #15231b20}.savebar span{font-size:11px;color:#d0dcd0}.save{border:0;border-radius:8px;background:var(--green);color:#17251c;font-weight:850;padding:11px 16px;cursor:pointer}.save:disabled{opacity:.55;cursor:wait}.status{font-size:12px;color:var(--accent);margin:12px 0 0;min-height:18px}.danger{border-color:#efd9d5}.danger h2{color:#a23c32}.textlink{display:inline-flex;padding:10px 13px;border:1px solid var(--line);border-radius:8px;font-size:12px;font-weight:750}.textlink:hover{border-color:#a4b99c}@media(max-width:720px){.topbar{padding:0 15px}.toplinks a:not(.gear){display:none}main{margin-top:24px}.layout{grid-template-columns:1fr}.sidebar{position:static;display:flex;overflow:auto;gap:4px}.sidebar button{white-space:nowrap;width:auto}.panel{padding:17px}.setting{gap:12px}.savebar{bottom:8px}.savebar span{max-width:55%}}
 </style>
-</head>
+<script id="venturify-global-theme">
+(function(){
+ const key='venturify-theme';
+ function apply(theme){
+  const actual=theme==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):theme;
+  document.documentElement.dataset.theme=actual;
+  document.documentElement.style.colorScheme=actual;
+  let style=document.getElementById('venturify-theme-overrides');
+  if(!style){style=document.createElement('style');style.id='venturify-theme-overrides';document.head.appendChild(style)}
+  style.textContent=actual==='dark'?`
+   :root{--paper:#0b1220;--card:#111c2e;--ink:#e7edf7;--muted:#9baac0;--line:#29384d;--deep:#08101c;--accent:#3985ff}
+   body{background:#0b1220!important;color:#e7edf7!important}
+   .topbar,header.topbar,.nav,.site-header{background:#08101c!important;color:#eef4ff!important;border-color:#29384d!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#111c2e!important;color:#e7edf7!important;border-color:#29384d!important}
+   input,textarea,select{background:#111c2e!important;color:#e7edf7!important;border-color:#35465f!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#a8b6ca}
+   a{color:#8ab8ff}
+  `:`
+   :root{--paper:#f5f7fb;--card:#fff;--ink:#182337;--muted:#63718a;--line:#dbe3ee;--deep:#f0f4fa;--accent:#1769e0}
+   body{background:#f5f7fb!important;color:#182337!important}
+   .topbar,header.topbar,.nav,.site-header{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   input,textarea,select{background:#fff!important;color:#182337!important;border-color:#cbd5e1!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#63718a}
+   a{color:#1769e0}
+  `;
+ }
+ let initial=localStorage.getItem(key)||'system';
+ try{const raw=localStorage.getItem('supabase.auth.token');if(raw){const parsed=JSON.parse(raw);const token=parsed?.currentSession?.user?.id;if(token){}}}catch(e){}
+ apply(initial);
+ window.addEventListener('storage',e=>{if(e.key===key)apply(e.newValue||'system')});
+ window.venturifyApplyTheme=apply;
+})();
+</script></head>
 <body>
 <header class="topbar">
 <a class="brand" href="index.html"><span class="brand-mark">v.</span>venturify</a>
@@ -38,7 +71,7 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
 <div class="setting"><div class="setting-copy"><strong>Message reactions</strong><small>Notify you when someone reacts to one of your messages.</small></div><button class="switch" role="switch" aria-checked="true" data-setting="notify_reactions" aria-label="Message reaction notifications"></button></div>
 <div class="setting"><div class="setting-copy"><strong>Group mentions</strong><small>Notify you when someone mentions you in a group chat.</small></div><button class="switch" role="switch" aria-checked="true" data-setting="notify_group_mentions" aria-label="Group mention notifications"></button></div>
 </section>
-<section class="panel" id="section-appearance"><h2>Appearance</h2><p class="panel-intro">Choose your preferred theme. This preference is saved for your account; individual pages may adopt it as theme support is rolled out.</p><div class="setting"><div class="setting-copy"><strong>Theme</strong><small>Use the system default or choose a light or dark appearance.</small></div><select class="select" id="appearance" aria-label="Appearance"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></div></section>
+<section class="panel" id="section-appearance"><h2>Appearance</h2><p class="panel-intro">Choose light or dark mode for every Venturify page. Your choice applies immediately and is saved to your account.</p><div class="setting"><div class="setting-copy"><strong>Theme</strong><small>Use the system default or choose a light or dark appearance.</small></div><select class="select" id="appearance" aria-label="Appearance"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></div></section>
 <section class="panel" id="section-security"><h2>Safety &amp; account</h2><p class="panel-intro">Keep control of your experience. Blocking and reporting remain available across Venturify.</p><a class="textlink" href="messages.html">Manage conversations ↗</a> <a class="textlink" href="profile.html">Edit founder profile ↗</a></section>
 <div class="savebar"><span>Changes are not live until you save.</span><button class="save" id="saveSettings">Save settings</button></div><p class="status" id="status" role="status" aria-live="polite"></p>
 </div>
@@ -53,9 +86,9 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
  const status=document.getElementById('status'),save=document.getElementById('saveSettings');
  const setStatus=(message)=>{status.textContent=message};
  function markDirty(){dirty=true;setStatus('You have unsaved changes.')}
- function apply(values){Object.entries(defaults).forEach(([key,fallback])=>{const value=values?.[key]??fallback;if(key==='appearance')document.getElementById('appearance').value=value;else{const control=document.querySelector('[data-setting="'+key+'"]');if(control)control.setAttribute('aria-checked',String(!!value));}});dirty=false;setStatus('')}
+ function apply(values){const savedTheme=values?.appearance??defaults.appearance;localStorage.setItem('venturify-theme',savedTheme);window.venturifyApplyTheme?.(savedTheme);Object.entries(defaults).forEach(([key,fallback])=>{const value=values?.[key]??fallback;if(key==='appearance')document.getElementById('appearance').value=value;else{const control=document.querySelector('[data-setting="'+key+'"]');if(control)control.setAttribute('aria-checked',String(!!value));}});dirty=false;setStatus('')}
  document.querySelectorAll('[data-setting]').forEach(button=>button.addEventListener('click',()=>{button.setAttribute('aria-checked',String(button.getAttribute('aria-checked')!=='true'));markDirty()}));
- document.getElementById('appearance').addEventListener('change',markDirty);
+ document.getElementById('appearance').addEventListener('change',()=>{const value=document.getElementById('appearance').value;localStorage.setItem('venturify-theme',value);window.venturifyApplyTheme?.(value);markDirty()});
  document.querySelectorAll('[data-section]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-section]').forEach(x=>x.classList.toggle('active',x===button));document.getElementById('section-'+button.dataset.section).scrollIntoView({behavior:'smooth',block:'start'})}));
  async function load(){const result=await client.auth.getUser();user=result.data.user;if(!user){document.getElementById('loginNotice').hidden=false;document.getElementById('settingsLayout').hidden=true;return}const response=await client.from('account_settings').select('*').eq('user_id',user.id).maybeSingle();if(response.error){setStatus('Could not load settings: '+response.error.message);return}apply(response.data||defaults)}
  save.addEventListener('click',async()=>{if(!user)return;save.disabled=true;setStatus('Saving…');const payload={user_id:user.id,updated_at:new Date().toISOString()};Object.entries(defaults).forEach(([key])=>{if(key==='appearance')payload[key]=document.getElementById('appearance').value;else payload[key]=document.querySelector('[data-setting="'+key+'"]').getAttribute('aria-checked')==='true'});const result=await client.from('account_settings').upsert(payload,{onConflict:'user_id'});save.disabled=false;if(result.error){setStatus('Save failed: '+result.error.message);return}dirty=false;setStatus('Settings saved. Privacy, feature, and notification controls are active.')}
