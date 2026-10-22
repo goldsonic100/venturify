@@ -833,7 +833,7 @@ renderCases();
   const auth=await c.auth.getUser();currentUser=auth.data?.user||null;
   const [pr,fr]=await Promise.all([c.from('profiles').select('id,username,display_name,bio,headline,company,location,skills,interests,looking_for,avatar_url,website_url,linkedin_url,created_at').order('created_at',{ascending:false}).limit(500),currentUser?c.from('follows').select('following_id').eq('follower_id',currentUser.id):Promise.resolve({data:[]})]);
   if(pr.error){$('founderResults').innerHTML='<div class="community-empty">Could not load founders. Please refresh and try again.</div>';return}
-  allProfiles=pr.data||[];rows=allProfiles.slice();following=new Set((fr.data||[]).map(x=>x.following_id));shortlist=new Map();
+  allProfiles=pr.data||[];const visibility=await c.rpc('get_discoverable_founder_ids');if(!visibility.error){const visibleIds=new Set((visibility.data||[]).map(x=>x.founder_id));allProfiles=allProfiles.filter(p=>visibleIds.has(p.id));}rows=allProfiles.slice();following=new Set((fr.data||[]).map(x=>x.following_id));shortlist=new Map();
   if(currentUser){
    const saved=await c.from('founder_shortlists').select('founder_id,status,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false});
    if(!saved.error)(saved.data||[]).forEach(x=>shortlist.set(x.founder_id,{status:x.status,created_at:x.created_at}));
@@ -970,5 +970,14 @@ document.addEventListener('click',function(e){
 
 <script src="scripts/trust-safety.js" defer></script>
 
+<script>
+(function(){
+ const header=document.querySelector('header.topbar');
+ if(!header||header.querySelector('[data-global-settings-link]'))return;
+ const link=document.createElement('a');link.href='settings.html';link.dataset.globalSettingsLink='true';link.setAttribute('aria-label','Settings');link.title='Settings';link.textContent='⚙';
+ Object.assign(link.style,{display:'grid',placeItems:'center',width:'40px',height:'40px',flex:'0 0 40px',border:'1px solid #607165',borderRadius:'9px',color:'#c8f169',fontSize:'22px',lineHeight:'1',marginLeft:'12px',background:'transparent'});
+ header.appendChild(link);
+})();
+</script>
 </body>
 </html>
