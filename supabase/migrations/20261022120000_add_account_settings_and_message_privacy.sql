@@ -47,18 +47,18 @@ language sql
 stable
 security definer
 set search_path = ''
-as $
+as $$
   select p.id
   from public.profiles p
   where ((select auth.uid()) is null or p.id <> (select auth.uid()))
     and coalesce((select s.public_profile from public.account_settings s where s.user_id = p.id), true)
     and coalesce((select s.show_in_discover from public.account_settings s where s.user_id = p.id), true)
-    and not exists (
+    and ((select auth.uid()) is null or not exists (
       select 1 from public.user_blocks b
       where (b.blocker_id = (select auth.uid()) and b.blocked_id = p.id)
          or (b.blocked_id = (select auth.uid()) and b.blocker_id = p.id)
-    );
-$;
+    ));
+$$;
 
 create or replace function public.get_messageable_founder_ids()
 returns table(founder_id uuid)
