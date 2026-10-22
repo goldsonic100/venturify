@@ -54,7 +54,8 @@
  if(media.addEventListener)media.addEventListener('change',()=>{if((localStorage.getItem(key)||'system')==='system')apply('system')});
  window.venturifyApplyTheme=apply;
 })();
-</script></head>
+</script> <link rel="stylesheet" href="venturify-ui.css">
+</head>
 <body><header><nav><a href="index.html"><strong>VENTURIFY</strong></a><div style="display:flex;gap:15px"><a href="discover.html">Discover</a><a href="messages.html">Messages</a><a href="collaborations.html">Requests</a><a href="profile.html">Profile</a></div></nav></header>
 <main class="wrap"><div class="kicker">Build together</div><h1>Collaboration workspace</h1><p class="muted">Plan your shared goal, assign next steps, and track progress with your collaborator.</p><div id="notice" class="notice">Loading your collaboration…</div>
 <section id="setup" class="card hidden"><div class="kicker">Start a project</div><h2 style="margin-top:5px">Give your collaboration a home</h2><p id="partnerText" class="muted"></p><form id="createForm"><label for="title">Project name</label><input id="title" maxlength="120" required placeholder="e.g. Launch our first prototype"><label for="goal">Shared goal</label><textarea id="goal" maxlength="2000" placeholder="What do you want to accomplish together?"></textarea><button class="btn primary" style="margin-top:12px">Create workspace</button></form></section>
