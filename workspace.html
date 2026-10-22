@@ -222,7 +222,7 @@ $('chatForm').addEventListener('submit',async e=>{e.preventDefault();if(!workspa
     const previous = item.is_complete;
     checkbox.disabled = true;
     const result = await db.from('workspace_task_checklist_items')
-      .update({ is_complete: checkbox.checked, updated_at: new Date().toISOString() })
+      .update({ is_complete: checkbox.checked })
       .eq('id', item.id).eq('workspace_id', workspace.id);
     if (result.error) {
       checkbox.checked = previous;
@@ -264,7 +264,7 @@ $('chatForm').addEventListener('submit',async e=>{e.preventDefault();if(!workspa
       if (!title.trim()) { note('Checklist item cannot be empty.', true); return; }
       edit.disabled = true;
       const result = await db.from('workspace_task_checklist_items')
-        .update({ title: title.trim().slice(0, 240), updated_at: new Date().toISOString() })
+        .update({ title: title.trim().slice(0, 240) })
         .eq('id', item.id).eq('workspace_id', workspace.id);
       edit.disabled = false;
       if (result.error) { note('Could not rename checklist item.', true); return; }
