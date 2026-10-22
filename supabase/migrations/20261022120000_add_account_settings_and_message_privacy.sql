@@ -50,7 +50,7 @@ set search_path = ''
 as $
   select p.id
   from public.profiles p
-  where p.id <> (select auth.uid())
+  where ((select auth.uid()) is null or p.id <> (select auth.uid()))
     and coalesce((select s.public_profile from public.account_settings s where s.user_id = p.id), true)
     and coalesce((select s.show_in_discover from public.account_settings s where s.user_id = p.id), true)
     and not exists (
@@ -95,7 +95,7 @@ as $$
 $$;
 
 revoke all on function public.get_discoverable_founder_ids() from public;
-grant execute on function public.get_discoverable_founder_ids() to authenticated;
+grant execute on function public.get_discoverable_founder_ids() to anon, authenticated;
 revoke all on function public.get_messageable_founder_ids() from public;
 grant execute on function public.get_messageable_founder_ids() to authenticated;
 revoke all on function private.is_profile_public(uuid) from public;
