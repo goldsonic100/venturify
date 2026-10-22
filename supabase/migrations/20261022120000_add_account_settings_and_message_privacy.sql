@@ -35,10 +35,11 @@ stable
 security definer
 set search_path = ''
 as $$
-  select coalesce(
-    (select s.public_profile from public.account_settings s where s.user_id = target_user_id),
-    true
-  );
+  select coalesce((
+    select (au.email_confirmed_at is not null)
+      and coalesce((select s.public_profile from public.account_settings s where s.user_id = target_user_id), true)
+    from auth.users au where au.id = target_user_id
+  ), false);
 $$;
 
 create or replace function public.get_discoverable_founder_ids()
@@ -50,7 +51,9 @@ set search_path = ''
 as $$
   select p.id
   from public.profiles p
-  where ((select auth.uid()) is null or p.id <> (select auth.uid()))
+  join auth.users au on au.id = p.id
+  where au.email_confirmed_at is not null
+    and ((select auth.uid()) is null or p.id <> (select auth.uid()))
     and coalesce((select s.public_profile from public.account_settings s where s.user_id = p.id), true)
     and coalesce((select s.show_in_discover from public.account_settings s where s.user_id = p.id), true)
     and ((select auth.uid()) is null or not exists (

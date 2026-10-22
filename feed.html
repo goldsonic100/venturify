@@ -243,7 +243,40 @@ input,select,textarea,button{max-width:100%}
 
 .home-profile-completion{margin:14px 0 4px;padding:14px;border:1px solid #dbe5d1;border-radius:12px;background:#f8faf4}.home-profile-completion-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.home-profile-completion-top strong{display:block;font-size:13px}.home-profile-completion-percent{font-size:18px;font-weight:850;color:#31543a;font-variant-numeric:tabular-nums}.home-profile-completion-track{height:7px;border-radius:99px;background:#e3e9de;overflow:hidden;margin-top:11px}.home-profile-completion-track>div{height:100%;border-radius:99px;background:#6b914e;transition:width .2s}.home-profile-completion-note{font-size:11px;line-height:1.5;color:#59675a;margin:8px 0 0}.home-profile-completion-missing{margin:8px 0 0;padding-left:18px;display:flex;flex-wrap:wrap;gap:5px 18px;font-size:11px;color:#59675a}.home-profile-completion-done{font-size:11px;font-weight:750;color:#31543a;margin:8px 0 0}#homeProfileCompletionMissing[hidden],#homeProfileCompletionDone[hidden]{display:none}
 </style>
-</head>
+<script id="venturify-global-theme">
+(function(){
+ const key='venturify-theme';
+ function apply(theme){
+  const actual=theme==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):theme;
+  document.documentElement.dataset.theme=actual;
+  document.documentElement.style.colorScheme=actual;
+  let style=document.getElementById('venturify-theme-overrides');
+  if(!style){style=document.createElement('style');style.id='venturify-theme-overrides';document.head.appendChild(style)}
+  style.textContent=actual==='dark'?`
+   :root{--paper:#0b1220;--card:#111c2e;--ink:#e7edf7;--muted:#9baac0;--line:#29384d;--deep:#08101c;--accent:#3985ff}
+   body{background:#0b1220!important;color:#e7edf7!important}
+   .topbar,header.topbar,.nav,.site-header{background:#08101c!important;color:#eef4ff!important;border-color:#29384d!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#111c2e!important;color:#e7edf7!important;border-color:#29384d!important}
+   input,textarea,select{background:#111c2e!important;color:#e7edf7!important;border-color:#35465f!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#a8b6ca}
+   a{color:#8ab8ff}
+  `:`
+   :root{--paper:#f5f7fb;--card:#fff;--ink:#182337;--muted:#63718a;--line:#dbe3ee;--deep:#f0f4fa;--accent:#1769e0}
+   body{background:#f5f7fb!important;color:#182337!important}
+   .topbar,header.topbar,.nav,.site-header{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   input,textarea,select{background:#fff!important;color:#182337!important;border-color:#cbd5e1!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#63718a}
+   a{color:#1769e0}
+  `;
+ }
+ let initial=localStorage.getItem(key)||'system';
+ try{const raw=localStorage.getItem('supabase.auth.token');if(raw){const parsed=JSON.parse(raw);const token=parsed?.currentSession?.user?.id;if(token){}}}catch(e){}
+ apply(initial);
+ window.addEventListener('storage',e=>{if(e.key===key)apply(e.newValue||'system')});
+ window.venturifyApplyTheme=apply;
+})();
+</script></head>
 <body data-view="feed">
 <header class="topbar wrap">
   <a class="brand" href="index.html" aria-label="Venturify home"><span class="brand-mark">v.</span> venturify</a>
