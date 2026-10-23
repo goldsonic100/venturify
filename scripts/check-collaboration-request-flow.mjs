@@ -123,3 +123,8 @@ assert.ok(workspace.includes('startWorkspacePresence()') && workspace.includes('
 const presenceMigration = read('../supabase/migrations/20261023110000_private_workspace_presence.sql');
 assert.ok(presenceMigration.includes('on realtime.messages') && presenceMigration.includes('for select') && presenceMigration.includes('for insert'), 'Private presence migration must authorize channel reads and publishes through Realtime RLS');
 assert.ok(presenceMigration.includes("realtime.topic() like 'venturify-workspace-presence:%'") && presenceMigration.includes("r.status = 'accepted'") && presenceMigration.includes('r.requester_id or (select auth.uid()) = r.recipient_id'), 'Presence RLS must restrict channel topics to accepted workspace participants');
+
+
+assert.ok(workspace.includes("e.submitter||$('chatForm').querySelector('button[type=\"submit\"]')"), 'Workspace chat must support submit events without an explicit submitter, including keyboard sends');
+assert.ok(workspace.includes('chatSending=true') && workspace.includes('finally{chatSending=false;button.disabled=false;'), 'Workspace chat must prevent duplicate sends and always restore the send button');
+assert.ok(workspace.includes("$('chatForm').setAttribute('aria-busy','true')") && workspace.includes("$('chatForm').setAttribute('aria-busy','false')"), 'Workspace chat should expose send-in-progress state accessibly');
