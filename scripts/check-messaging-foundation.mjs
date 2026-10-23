@@ -34,3 +34,7 @@ assert.ok(messages.includes("box.setAttribute('aria-busy','true')") && messages.
 
 assert.ok(messages.includes('id="conversationSearchStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"'), 'Conversation search should announce result counts accessibly');
 assert.ok(messages.includes("No conversations match your search.") && messages.includes(" of '+buttons.length+' conversations match your search."), 'Conversation search should announce both matches and empty results');
+
+
+assert.ok(messages.includes("document.addEventListener('visibilitychange'") && messages.includes("document.visibilityState!=='visible'||!user"), 'Inbox must refresh its unread/conversation snapshot when a signed-in user returns to the tab');
+assert.ok(messages.includes("window.addEventListener('focus',()=>{if(user)loadConversationList()})"), 'Inbox must refresh conversations when the browser window regains focus');
