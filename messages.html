@@ -879,6 +879,8 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   }).join('')||'<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';
   box.setAttribute('aria-busy','false');filteredConversationList();
  }
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible'||!user)return;loadConversationList();if(!globalMessageChannel)startGlobalMessageRealtime(user.id)});
+ window.addEventListener('focus',()=>{if(user)loadConversationList()});
  $('conversationSearch').addEventListener('input',filteredConversationList);
  $('conversationList').addEventListener('click',async e=>{const group=e.target.closest('[data-open-group]');if(group){await openGroupConversation(group.dataset.openGroup);return}const button=e.target.closest('[data-open-conversation]');if(!button)return;const otherId=button.dataset.openConversation;$('messagePerson').value=otherId;await openConversation(otherId)});
  $('chatMessages').addEventListener('click',async e=>{
