@@ -139,3 +139,17 @@ body[data-view="messages"] .messages-composer .comment-input:focus { border-colo
   body[data-view="messages"] .messages-app { grid-template-columns: minmax(0, 1fr); }
   body[data-view="messages"] .messages-chat-body { min-height: 120px; }
 }
+
+
+/* Consistent keyboard focus across the product, including custom controls. */
+:where(a,button,input,select,textarea,[role="button"],[role="tab"],[role="switch"],[tabindex]):focus-visible {
+  outline: 3px solid #68a9ff !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #68a9ff 22%, transparent);
+}
+:where(button,[role="button"],[role="tab"],[role="switch"]):focus:not(:focus-visible) {
+  outline: none;
+}
+@media(prefers-reduced-motion:reduce) {
+  :where(a,button,input,select,textarea,[role="button"],[role="tab"],[role="switch"]) { scroll-behavior: auto !important; }
+}
