@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 const files = {
   profile: readFileSync(new URL('../profile.html', import.meta.url), 'utf8'),
   feed: readFileSync(new URL('../feed.html', import.meta.url), 'utf8'),
+  settings: readFileSync(new URL('../settings.html', import.meta.url), 'utf8'),
 };
 
 function parseInlineScripts(name, html) {
@@ -93,3 +94,7 @@ assert.ok(settings.includes("save.dataset.dirty='false';save.textContent='Save s
 
 assert.ok(files.feed.includes('data-retry-feed') && files.feed.includes("feedRetryRoot.addEventListener('click'"), 'Feed and opportunity query failures should expose a retry action');
 assert.ok(files.feed.includes('Retry feed</button>') && files.feed.includes('Retry feed</button></p></div>'), 'Retry controls should be present in feed query error states');
+
+
+assert.ok(files.settings.includes('id="discardSettings" disabled') && files.settings.includes("discard.addEventListener('click',()=>{if(!dirty)return;apply(savedValues)"), 'Settings should allow restoring the last saved values without writing to the database');
+assert.ok(files.settings.includes('savedValues=captureSettings()') && files.settings.includes('discard.disabled=true'), 'Successful saves should become the new reset baseline and disable discard');
