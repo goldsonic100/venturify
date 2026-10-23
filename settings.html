@@ -133,6 +133,7 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
  const status=document.getElementById('status'),save=document.getElementById('saveSettings');
  const setStatus=(message)=>{status.textContent=message};
  function markDirty(){dirty=true;setStatus('You have unsaved changes.')}
+ window.addEventListener('beforeunload',event=>{if(!dirty)return;event.preventDefault();event.returnValue=''});
  function apply(values){const savedTheme=values?.appearance??defaults.appearance;localStorage.setItem('venturify-theme',savedTheme);window.venturifyApplyTheme?.(savedTheme);Object.entries(defaults).forEach(([key,fallback])=>{const value=values?.[key]??fallback;if(key==='appearance')document.getElementById('appearance').value=value;else{const control=document.querySelector('[data-setting="'+key+'"]');if(control)control.setAttribute('aria-checked',String(!!value));}});dirty=false;setStatus('')}
  document.querySelectorAll('[data-setting]').forEach(button=>button.addEventListener('click',()=>{button.setAttribute('aria-checked',String(button.getAttribute('aria-checked')!=='true'));markDirty()}));
  document.getElementById('appearance').addEventListener('change',()=>{const value=document.getElementById('appearance').value;localStorage.setItem('venturify-theme',value);window.venturifyApplyTheme?.(value);markDirty()});
