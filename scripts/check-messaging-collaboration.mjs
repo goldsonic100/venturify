@@ -117,7 +117,7 @@ assert.match(workspace, /workspace_files|sharedFiles|fileInput/,
   'Shared workspace files must remain available');
 assert.match(workspace, /projectActivity|activityList/,
   'Workspace activity must remain visible');
-assert.match(workspaceMigration, /enable row level security/ig,
+assert.match(workspaceMigration, /enable row level security/i,
   'Workspace and task tables must use RLS');
 assert.match(workspaceMigration, /status='accepted'/,
   'Workspace policies must require an accepted collaboration');
