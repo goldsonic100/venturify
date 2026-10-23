@@ -254,3 +254,7 @@ assert.ok(communitiesHtml.includes("$('communityList').setAttribute('aria-busy',
 assert.ok(discoverHtml.includes('id="founderResultsStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"'), 'Discover should announce result counts accessibly');
 assert.ok(discoverHtml.includes("'Showing '+Math.min(list.length,80)+' of '+list.length+' eligible founder'"), 'Discover should report the number of eligible results');
 assert.ok(discoverHtml.includes('Level 5 or higher, and at least one community membership'), 'Discover empty state should explain the eligibility requirements');
+
+
+assert.ok(discoverHtml.includes("if(visibility.error){$('founderResults').setAttribute('aria-busy','false')") && discoverHtml.includes('Recommendations are paused for your safety'), 'Discover must fail closed instead of exposing profiles when visibility authorization cannot be verified');
+assert.ok(discoverHtml.includes("if(memberships.error){$('founderResults').setAttribute('aria-busy','false')") && discoverHtml.includes('Community membership could not be verified'), 'Discover must not silently treat membership query failures as zero memberships');
