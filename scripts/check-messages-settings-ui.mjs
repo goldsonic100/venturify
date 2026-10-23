@@ -7,7 +7,7 @@ const messages = read("messages.html");
 const design = read("assets/venturify-design-system.css");
 
 assert.ok(settings.includes('assets/venturify-design-system.css'), "settings page should use shared design system");
-assert.ok(settings.includes("function activate(button)"), "settings navigation should use a shared activation handler");
+assert.ok(settings.includes("function activate(button,options={})"), "settings navigation should use a shared activation handler");
 assert.ok(settings.includes("section.hidden=!active"), "settings navigation should hide inactive sections");
 assert.ok(settings.includes('[id^="section-"][hidden]{display:none!important}'), "hidden settings panels should not be forced visible by panel styles");
 assert.ok(settings.includes('data-section'), "settings sections must retain navigation controls");
