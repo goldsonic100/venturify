@@ -239,3 +239,6 @@ assert.match(discoverHtml, /Users view their own founder shortlist|founder_short
   'Shortlist markup and data flow should be present');
 
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery and shortlist regression checks passed.');
+
+assert.ok(discoverHtml.includes('id="founderResults" class="founder-results" role="region" aria-label="Founder recommendations" aria-live="polite" aria-busy="true"'), 'Founder recommendations should expose a named live region while loading');
+assert.ok(discoverHtml.includes("$('founderResults').setAttribute('aria-busy','false')"), 'Founder recommendation loading state should clear after rendering');
