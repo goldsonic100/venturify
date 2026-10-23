@@ -81,3 +81,6 @@ assert.match(migration, /requester_id <> recipient_id/,
   'The database must prohibit self-directed requests');
 
 console.log('Collaboration request-to-workspace regression checks passed (static checks only; live two-account testing still required).');
+
+assert.ok(collaborations.includes('aria-live="polite"') && collaborations.includes('aria-busy="true"'), 'Collaboration request results should announce asynchronous loading and updates accessibly');
+assert.ok(collaborations.includes('grid-template-columns:minmax(0,1fr)') && collaborations.includes('.request-tools input,.request-tools select{width:100%;min-width:0}'), 'Collaboration filters should fit narrow mobile screens without horizontal overflow');
