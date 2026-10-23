@@ -646,7 +646,7 @@ body[data-view="messages"] #messages .messages-privacy-note{flex:none!important;
         <div class="messages-sidebar-heading"><div><div class="kicker">MESSAGES</div><h1>Messages</h1><p>People and group chats</p></div><button type="button" class="inbox-icon" id="newMessageShortcut" aria-label="New message" title="New message">＋</button></div>
         <label class="messages-search-wrap"><span>⌕</span><input id="conversationSearch" class="conversation-search" type="search" maxlength="80" placeholder="Search messages" aria-label="Search conversations"></label>
         <div class="messages-list-heading"><strong>Contacts</strong><span id="messageUnreadTotal" class="message-unread-total" hidden>0 unread</span></div>
-        <div id="conversationList" class="conversation-list"><div class="muted-small">Sign in to see your conversations.</div></div>
+        <div id="conversationList" class="conversation-list" role="region" aria-label="Conversation inbox" aria-live="polite" aria-busy="false"><div class="muted-small">Sign in to see your conversations.</div></div>
         <div class="messages-new"><div class="messages-new-actions"><button type="button" id="newDirectChat">＋ New message</button><button type="button" id="newGroupChat">＋ New group</button></div><label for="messagePerson">Start a conversation</label><select id="messagePerson"><option value="">Choose a contact…</option></select></div>
       </aside>
       <section class="messages-chat" aria-label="Conversation">
@@ -835,20 +835,20 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   const box=$('conversationList'),total=$('messageUnreadTotal');
   const requestId=++conversationListLoadRequest,requestUserId=user?.id||null;
   const isCurrent=()=>requestId===conversationListLoadRequest&&(user?.id||null)===requestUserId;
-  if(!user){box.innerHTML='<div class="muted-small">Log in to see your conversations.</div>';total.hidden=true;return}
-  box.innerHTML='<div class="muted-small">Loading conversations…</div>';
+  if(!user){box.setAttribute('aria-busy','false');box.innerHTML='<div class="muted-small">Log in to see your conversations.</div>';total.hidden=true;return}
+  box.setAttribute('aria-busy','true');box.innerHTML='<div class="muted-small">Loading conversations…</div>';
   const memberships=await client.from('conversation_members').select('conversation_id,user_id').eq('user_id',requestUserId);
   if(!isCurrent())return;
-  if(memberships.error){box.innerHTML='<div class="muted-small">Could not load conversations. Refresh and try again.</div>';return}
+  if(memberships.error){box.setAttribute('aria-busy','false');box.innerHTML='<div class="muted-small">Could not load conversations. Refresh and try again.</div>';return}
   const ids=[...new Set((memberships.data||[]).map(x=>x.conversation_id))];
-  if(!ids.length){box.innerHTML='<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';total.hidden=true;const navCount=$('messageNavCount');if(navCount){navCount.hidden=true;navCount.textContent='0'}return}
+  if(!ids.length){box.setAttribute('aria-busy','false');box.innerHTML='<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';total.hidden=true;const navCount=$('messageNavCount');if(navCount){navCount.hidden=true;navCount.textContent='0'}return}
   const [membersResult,messagesResult,conversationResult]=await Promise.all([
    client.from('conversation_members').select('conversation_id,user_id').in('conversation_id',ids),
    client.from('messages').select('id,conversation_id,sender_id,content,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(1000),
    client.from('conversations').select('id,title,is_group').in('id',ids)
   ]);
   if(!isCurrent())return;
-  if(membersResult.error||messagesResult.error){box.innerHTML='<div class="muted-small">Could not load recent conversations. Try refreshing.</div>';return}
+  if(membersResult.error||messagesResult.error){box.setAttribute('aria-busy','false');box.innerHTML='<div class="muted-small">Could not load recent conversations. Try refreshing.</div>';return}
   const messages=messagesResult.data||[];
   // Fetch complete unread totals separately from the inbox's 1,000-message preview.
   const unreadResult=await client.rpc('get_my_unread_message_counts');
@@ -859,7 +859,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   const otherIds=[...new Set((membersResult.data||[]).filter(m=>m.user_id!==requestUserId).map(m=>m.user_id))];
   const profileResult=otherIds.length?await client.from('profiles').select('id,username,display_name,avatar_url').in('id',otherIds):{data:[],error:null};
   if(!isCurrent())return;
-  if(profileResult.error){box.innerHTML='<div class="muted-small">Could not load conversation profiles.</div>';return}
+  if(profileResult.error){box.setAttribute('aria-busy','false');box.innerHTML='<div class="muted-small">Could not load conversation profiles.</div>';return}
   const profileMap=new Map((profileResult.data||[]).map(p=>[p.id,p]));
   const conversationMeta=new Map((conversationResult.data||[]).map(x=>[x.id,x]));
   const conversations=ids.map(id=>{
@@ -876,7 +876,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
    const clickAttr=item.isGroup?'data-open-group="'+esc(item.id)+'"':'data-open-conversation="'+esc(item.otherId)+'"';
    return '<button type="button" class="conversation-item '+(currentConversation===item.id?'active':'')+'" '+clickAttr+'><span class="conversation-avatar">'+(item.isGroup?'👥':(avatar?'<img src="'+esc(avatar)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">':esc(initials(name(item.person)))))+'</span><span class="conversation-copy"><strong>'+esc(title)+'</strong><small>'+esc(subtitle)+'</small></span><span class="conversation-trailing">'+(item.latest?'<span class="conversation-time">'+esc(conversationTime(item.latest.created_at))+'</span>':'')+(item.unread?'<span class="conversation-unread">'+item.unread+'</span>':'')+'</span></button>';
   }).join('')||'<div class="muted-small">No conversations yet. Choose a founder below to start one.</div>';
-  filteredConversationList();
+  box.setAttribute('aria-busy','false');filteredConversationList();
  }
  $('conversationSearch').addEventListener('input',filteredConversationList);
  $('conversationList').addEventListener('click',async e=>{const group=e.target.closest('[data-open-group]');if(group){await openGroupConversation(group.dataset.openGroup);return}const button=e.target.closest('[data-open-conversation]');if(!button)return;const otherId=button.dataset.openConversation;$('messagePerson').value=otherId;await openConversation(otherId)});
