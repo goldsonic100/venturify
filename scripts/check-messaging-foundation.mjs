@@ -46,3 +46,6 @@ assert.ok(messages.includes("window.addEventListener('focus',()=>{if(user)loadCo
 
 
 assert.ok(messages.includes('class="conversation-unread" aria-label="\'+item.unread+\' unread messages"'), 'Unread badges must expose an accessible unread-message count');
+
+
+assert.ok(messages.includes("box.setAttribute('aria-busy','true');if(!box.querySelector('.conversation-item'))box.innerHTML='<div class=\"muted-small\">Loading conversations…</div>';"), 'Inbox refresh should preserve existing conversation rows instead of flashing a loading placeholder');
