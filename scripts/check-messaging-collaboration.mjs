@@ -57,4 +57,73 @@ assert.match(reactionsMigration, /primary key\s*\(message_id,\s*user_id,\s*react
 assert.match(reactionsMigration, /supabase_realtime/i,
   'Message reactions must remain available to realtime subscribers');
 
-console.log('Messaging/collaboration regression checks passed (static checks only; no live services called).');
+
+const collaborations = readFileSync(new URL('../collaborations.html', import.meta.url), 'utf8');
+const workspace = readFileSync(new URL('../workspace.html', import.meta.url), 'utf8');
+const collaborationMigration = readFileSync(
+  new URL('../supabase/migrations/20261016010000_create_collaboration_requests.sql', import.meta.url),
+  'utf8',
+);
+const workspaceMigration = readFileSync(
+  new URL('../supabase/migrations/20261016020000_create_collaboration_workspaces_and_tasks.sql', import.meta.url),
+  'utf8',
+);
+const workspaceChatMigration = readFileSync(
+  new URL('../supabase/migrations/20261016040000_add_private_workspace_chat.sql', import.meta.url),
+  'utf8',
+);
+
+compileInlineScripts(collaborations, 'collaborations.html');
+compileInlineScripts(workspace, 'workspace.html');
+
+// Collaboration request lifecycle: participant-only request data, safe decisions,
+// withdraw controls, search/filter/export, and realtime refresh.
+assert.match(collaborations, /from\(['"]collaboration_requests['"]\)/,
+  'Collaboration page must load persisted requests');
+assert.match(collaborations, /data-decision="accepted"/,
+  'Incoming requests must have an accept action');
+assert.match(collaborations, /data-decision="declined"/,
+  'Incoming requests must have a decline action');
+assert.match(collaborations, /data-withdraw=/,
+  'Outgoing pending requests must have a withdraw action');
+assert.match(collaborations, /requestSearch|statusFilter|requestSort/,
+  'Requests must remain searchable and filterable');
+assert.match(collaborations, /exportRequests/,
+  'Users must retain their collaboration-request export');
+assert.match(collaborations, /table:'collaboration_requests'/,
+  'Collaboration requests must refresh through realtime updates');
+assert.match(collaborationMigration, /enable row level security/i,
+  'Collaboration requests must remain protected by RLS');
+assert.match(collaborationMigration, /auth\.uid\(\)/i,
+  'Request policies must tie actions to the authenticated user');
+assert.match(collaborationMigration, /requester_id <> recipient_id/,
+  'A user must not be able to collaborate with themselves');
+assert.match(collaborationMigration, /status = 'pending'/,
+  'New collaboration requests must start pending');
+assert.match(collaborationMigration, /length\(message\) <= 500/,
+  'Collaboration request messages must keep their length limit');
+
+// Workspaces are only opened from accepted collaborations and keep task/project
+// chat, activity, files, and task-comment features connected to persisted data.
+assert.match(workspace, /from\(['"]collaboration_requests['"]\)[\s\S]{0,240}status['"]\)?\s*\)?\.eq\(['"]status['"],\s*['"]accepted['"]\)/i,
+  'Workspace entry must verify an accepted collaboration');
+assert.match(workspace, /from\(['"]workspace_tasks['"]\)/,
+  'Workspace tasks must persist through Supabase');
+assert.match(workspace, /from\(['"]workspace_messages['"]\)/,
+  'Workspace chat must persist through Supabase');
+assert.match(workspace, /workspace_task_comments/,
+  'Task discussions must remain available');
+assert.match(workspace, /workspace_files|sharedFiles|fileInput/,
+  'Shared workspace files must remain available');
+assert.match(workspace, /projectActivity|activityList/,
+  'Workspace activity must remain visible');
+assert.match(workspaceMigration, /enable row level security/ig,
+  'Workspace and task tables must use RLS');
+assert.match(workspaceMigration, /status='accepted'/,
+  'Workspace policies must require an accepted collaboration');
+assert.match(workspaceChatMigration, /workspace_messages/,
+  'Project chat must have a dedicated persisted table');
+assert.match(workspaceChatMigration, /enable row level security/i,
+  'Project chat must use RLS');
+
+console.log('Messaging/collaboration/workspace regression checks passed (static checks only; no live services called).');
