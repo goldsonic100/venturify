@@ -91,5 +91,5 @@ assert.ok(settings.includes("save.dataset.dirty='true';save.textContent='Save ch
 assert.ok(settings.includes("save.dataset.dirty='false';save.textContent='Save settings'"), 'Settings save action should return to its normal state after loading or saving preferences');
 
 
-assert.ok(feedHtml.includes('data-retry-feed') && feedHtml.includes("feedRetryRoot.addEventListener('click'"), 'Feed and opportunity query failures should expose a retry action');
-assert.ok(feedHtml.includes('Retry feed</button>') && feedHtml.includes('Retry feed</button></p></div>'), 'Retry controls should be present in feed query error states');
+assert.ok(files.feed.includes('data-retry-feed') && files.feed.includes("feedRetryRoot.addEventListener('click'"), 'Feed and opportunity query failures should expose a retry action');
+assert.ok(files.feed.includes('Retry feed</button>') && files.feed.includes('Retry feed</button></p></div>'), 'Retry controls should be present in feed query error states');
