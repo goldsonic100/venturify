@@ -81,3 +81,6 @@ assert.match(migration, /requester_id <> recipient_id/,
   'The database must prohibit self-directed requests');
 
 console.log('Collaboration request-to-workspace regression checks passed (static checks only; live two-account testing still required).');
+
+assert.ok(workspace.includes('id="realtimeLastSynced"') && workspace.includes("Refresh attempted "), 'Workspace refresh recovery should expose the most recent refresh attempt time');
+assert.ok(workspace.includes("b.textContent='Refreshing…'") && workspace.includes("finally{b.disabled=false;b.textContent='Refresh data'}"), 'Workspace refresh should expose a busy state and always restore the refresh control');
