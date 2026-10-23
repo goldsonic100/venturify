@@ -56,6 +56,12 @@ assert.ok(workspace.includes('id="workspace-mobile-polish"') && workspace.includ
   'The collaboration workspace must include tablet and narrow-mobile responsive refinements');
 assert.ok(workspace.includes('button:focus-visible,a:focus-visible,input:focus-visible') && workspace.includes('prefers-reduced-motion:reduce'),
   'Workspace controls must retain visible keyboard focus and respect reduced-motion preferences');
+assert.ok(workspace.includes('id="projectPulse"') && workspace.includes("pulse.querySelector('strong').textContent='Project pulse · '+headline"),
+  'The workspace overview must summarize project health from current task data');
+assert.ok(['#addTaskSection','#milestonesSection','#projectTasks','#projectActivity','#projectChat'].every(id=>workspace.includes('href="'+id+'"')),
+  'The workspace overview must provide shortcuts to core collaboration areas');
+assert.ok(['id="addTaskSection"','id="projectTasks"','id="projectActivity"'].every(id=>workspace.includes(id)),
+  'Workspace shortcuts must point to real sections');
 assert.ok(notifications.includes("'workspace.html?request='+encodeURIComponent(collaborationId)"),
   'Workspace notifications must open the correct collaboration workspace');
 assert.ok(notifications.includes("taskId?'&task='+encodeURIComponent(taskId)"),
