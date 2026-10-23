@@ -52,6 +52,10 @@ assert.ok(workspace.includes('id="taskMilestone"') && workspace.includes("milest
   'New tasks must be attachable to a selected project milestone');
 assert.ok(workspace.includes('function renderTaskMilestoneOptions()') && workspace.includes('renderTaskMilestoneOptions();renderTasks();renderMilestones();'),
   'The task milestone selector must refresh when milestone data loads');
+assert.ok(workspace.includes('id="workspace-mobile-polish"') && workspace.includes('@media(max-width:760px)') && workspace.includes('@media(max-width:420px)'),
+  'The collaboration workspace must include tablet and narrow-mobile responsive refinements');
+assert.ok(workspace.includes('button:focus-visible,a:focus-visible,input:focus-visible') && workspace.includes('prefers-reduced-motion:reduce'),
+  'Workspace controls must retain visible keyboard focus and respect reduced-motion preferences');
 assert.ok(notifications.includes("'workspace.html?request='+encodeURIComponent(collaborationId)"),
   'Workspace notifications must open the correct collaboration workspace');
 assert.ok(notifications.includes("taskId?'&task='+encodeURIComponent(taskId)"),
