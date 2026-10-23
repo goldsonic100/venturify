@@ -56,3 +56,7 @@ for (const [name, check] of checks) {
 }
 console.log(`Workspace notification regression checks: ${checks.length - failed}/${checks.length} passed.`);
 if (failed) process.exitCode = 1;
+
+
+assert.ok(notifications.includes("if(!append){notificationOffset=0;hasMoreNotifications=false;if(!cachedNotifications.length){list.innerHTML='<div class=\"notification-empty\">Loading notifications…</div>';historyList.innerHTML=list.innerHTML;loadOlderButton.hidden=true}}"), 'Refreshing notifications should preserve the last loaded list instead of replacing it with a loading placeholder');
+assert.ok(notifications.includes("else if(!append){console.warn('Notification refresh failed; keeping the last loaded notifications visible'"), 'A failed background refresh should preserve previously loaded notifications');
