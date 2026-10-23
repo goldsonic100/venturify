@@ -664,7 +664,7 @@ body[data-view="messages"] #messages .messages-privacy-note{flex:none!important;
           <input id="messageText" class="comment-input" maxlength="1200" placeholder="Write a message…" aria-label="Private message">
           <button class="btn btn-primary" id="sendMessage" type="button" aria-label="Send message">Send <span>↗</span></button>
         </div>
-        <p class="messages-privacy-note" id="messageStatus">Your private messages are only visible to conversation members.</p>
+        <p class="messages-privacy-note" id="messageStatus" role="status" aria-live="polite" aria-atomic="true">Your private messages are only visible to conversation members.</p>
       </section>
     </div>
     <div class="modal-backdrop" id="groupChatBackdrop" role="dialog" aria-modal="true" aria-labelledby="groupChatTitle"><div class="modal" style="max-width:520px"><button type="button" class="close" id="closeGroupChat" aria-label="Close group chat dialog">×</button><div class="kicker">Start together</div><h2 id="groupChatTitle">Create a group chat</h2><p class="modal-intro">Name your group and choose at least two other founders.</p><div class="field" style="margin-top:18px"><label for="groupChatName">Group name</label><input id="groupChatName" maxlength="80" placeholder="Startup launch team"></div><div class="field" style="margin-top:14px"><label for="groupParticipants">Choose members (Ctrl/Cmd-click to select multiple)</label><select id="groupParticipants" multiple size="7" style="min-height:160px"></select></div><div class="muted-small" id="groupChatStatus" style="margin:10px 0"></div><button type="button" class="btn btn-primary" id="createGroupChat" style="width:100%">Create group chat ↗</button></div></div>
