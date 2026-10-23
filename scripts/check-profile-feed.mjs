@@ -81,3 +81,7 @@ assert.match(settings, /id="status"[^>]*aria-live="polite"/, 'Settings must reta
 
 
 assert.ok(settings.includes("window.addEventListener('beforeunload',event=>{if(!dirty)return;event.preventDefault();event.returnValue=''})"), 'Settings should warn before navigation when changes have not been saved');
+
+
+assert.ok(settings.includes("try{const payload={user_id:user.id,updated_at:new Date().toISOString()}") && settings.includes("finally{save.disabled=false}"), 'Settings save button must recover even if the network request throws');
+assert.ok(settings.includes('Your changes are still on this page; try again.'), 'Settings save failures should preserve the user edits and explain how to recover');
