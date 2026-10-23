@@ -1,0 +1,25 @@
+name: Visual system checks
+
+on:
+  pull_request:
+    paths:
+      - "assets/venturify-design-system.css"
+      - "*.html"
+      - "scripts/check-visual-system.mjs"
+      - ".github/workflows/visual-system.yml"
+  push:
+    branches: [main]
+    paths:
+      - "assets/venturify-design-system.css"
+      - "*.html"
+      - "scripts/check-visual-system.mjs"
+
+jobs:
+  visual-system:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/check-visual-system.mjs
