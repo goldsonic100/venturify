@@ -882,7 +882,8 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   box.setAttribute('aria-busy','false');filteredConversationList();
  }
  function refreshMessagingView(){if(!user)return;loadConversationList();if(!globalMessageChannel)startGlobalMessageRealtime(user.id);if(currentConversation&&activeConversationOtherId){showMessages(activeConversationOtherId);loadTypingStatus()}}
- document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshMessagingView()});
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshMessagingView();else if(user&&currentConversation)setTyping(false)});
+ window.addEventListener('pagehide',()=>{if(user&&currentConversation)setTyping(false)});
  window.addEventListener('focus',refreshMessagingView);
  $('conversationSearch').addEventListener('input',filteredConversationList);
  $('conversationList').addEventListener('click',async e=>{const group=e.target.closest('[data-open-group]');if(group){await openGroupConversation(group.dataset.openGroup);return}const button=e.target.closest('[data-open-conversation]');if(!button)return;const otherId=button.dataset.openConversation;$('messagePerson').value=otherId;await openConversation(otherId)});
@@ -898,6 +899,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   button.disabled=false;
  });
  function stopActiveConversationRealtime(){
+  if(user&&currentConversation)setTyping(false).catch(error=>console.warn('Could not clear typing state while leaving conversation',error));
   if(currentConversationChannel){client.removeChannel(currentConversationChannel);currentConversationChannel=null}
   if(currentTypingChannel){client.removeChannel(currentTypingChannel);currentTypingChannel=null}
   if(currentReadChannel){client.removeChannel(currentReadChannel);currentReadChannel=null}

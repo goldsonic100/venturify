@@ -52,7 +52,7 @@ assert.ok(messages.includes("box.setAttribute('aria-busy','true');if(!box.queryS
 
 
 assert.ok(messages.includes('function refreshMessagingView(){if(!user)return;loadConversationList();if(!globalMessageChannel)startGlobalMessageRealtime(user.id);if(currentConversation&&activeConversationOtherId){showMessages(activeConversationOtherId);loadTypingStatus()}}'), 'Returning to the messages page should refresh the open transcript and typing state as well as inbox counts');
-assert.ok(messages.includes("document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshMessagingView()})") && messages.includes("window.addEventListener('focus',refreshMessagingView)"), 'Inbox and active chat should refresh on both tab visibility and window focus');
+assert.ok(messages.includes("document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshMessagingView();else if(user&&currentConversation)setTyping(false)})") && messages.includes("window.addEventListener('focus',refreshMessagingView)"), 'Inbox and active chat should refresh on tab visibility/focus while clearing typing state when hidden');
 
 
 assert.ok(messages.includes('id="messageUnreadStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"'), 'Inbox unread-count fallback should be announced accessibly');
@@ -75,3 +75,8 @@ assert.ok(!messages.includes("table:'messages',filter:'sender_id=neq.'+uid") && 
 
 assert.ok(messages.includes("'venturify-group-read-'+conversationId") && messages.includes("table:'message_reads'},payload=>{if(currentConversation===conversationId&&activeConversationOtherId===key"), 'Group chats should subscribe to read receipts and refresh only when the receipt belongs to a message in the active group');
 assert.ok(messages.includes("activeConversationMessages.some(message=>message.id===payload.new.message_id)"), 'Group read receipt events should be scoped to the active transcript before reloading it');
+
+
+assert.ok(messages.includes("if(user&&currentConversation)setTyping(false).catch(error=>console.warn('Could not clear typing state while leaving conversation',error))"), 'Switching away from a conversation should clear the previous user typing row');
+assert.ok(messages.includes("else if(user&&currentConversation)setTyping(false)"), 'Hiding the messages tab should clear the active typing state');
+assert.ok(messages.includes("window.addEventListener('pagehide',()=>{if(user&&currentConversation)setTyping(false)})"), 'Leaving the page should attempt to clear the active typing state');
