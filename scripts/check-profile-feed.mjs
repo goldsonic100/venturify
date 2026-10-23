@@ -92,5 +92,5 @@ assert.ok(settings.includes("save.dataset.dirty='true';save.textContent='Save ch
 assert.ok(settings.includes("save.dataset.dirty='false';save.textContent='Save settings'"), 'Settings save action should return to its normal state after loading or saving preferences');
 
 
-assert.ok(files.settings.includes('id="discardSettings" disabled') && settingsHtml.includes("discard.addEventListener('click',()=>{if(!dirty)return;apply(savedValues)"), 'Settings should allow restoring the last saved values without writing to the database');
-assert.ok(settingsHtml.includes('savedValues=captureSettings()') && settingsHtml.includes('discard.disabled=true'), 'Successful saves should become the new reset baseline and disable discard');
+assert.ok(files.settings.includes('id="discardSettings" disabled') && files.settings.includes("discard.addEventListener('click',()=>{if(!dirty)return;apply(savedValues)"), 'Settings should allow restoring the last saved values without writing to the database');
+assert.ok(files.settings.includes('savedValues=captureSettings()') && files.settings.includes('discard.disabled=true'), 'Successful saves should become the new reset baseline and disable discard');
