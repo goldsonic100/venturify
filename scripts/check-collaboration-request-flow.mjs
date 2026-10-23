@@ -109,3 +109,7 @@ assert.ok(workspace.includes("db.channel('workspace-chat-'+workspace.id)") && wo
 assert.ok(workspace.includes('realtimeRetryDelay=1500') && workspace.includes('Math.min(Math.round(realtimeRetryDelay*1.7),30000)'), 'Workspace realtime reconnect must use bounded backoff');
 assert.ok(workspace.includes('scheduleRealtimeReconnect()') && workspace.includes('reconnecting automatically…'), 'Workspace must automatically retry interrupted realtime updates');
 assert.ok(workspace.includes('db.removeChannel(channel)') && workspace.includes('checklistRealtimeChannel=null'), 'Reconnect must dispose of stale channels before resubscribing all workspace feeds');
+
+
+assert.ok(workspace.includes("document.addEventListener('visibilitychange'") && workspace.includes("document.visibilityState!=='visible'||!workspace"), 'Workspace should refresh shared data when returning to a visible tab');
+assert.ok(workspace.includes("window.addEventListener('focus'") && workspace.includes("if(!chatChannel)startChatRealtime()") && workspace.includes("if(!activityChannel||!checklistRealtimeChannel)startActivityRealtime()"), 'Workspace should restore missing realtime subscriptions on return');
