@@ -22,3 +22,7 @@ assert.ok(settings.includes("location.hash.match") && settings.includes("updateH
 
 assert.ok(messages.includes('id="messageStatus" role="status" aria-live="polite" aria-atomic="true"'), "Message composer status should be announced accessibly");
 assert.ok(messages.includes("sendButton.setAttribute('aria-busy','true')"), "Sending a message should expose its busy state to assistive technology");
+
+
+assert.ok(messages.includes("event.key==='Escape'&&document.body.classList.contains('mobile-chat-open')"), 'Escape should close the mobile conversation view');
+assert.ok(messages.includes("(target||$('conversationSearch'))?.focus({preventScroll:true})"), 'Closing the mobile conversation should return keyboard focus to the selected conversation or inbox search');
