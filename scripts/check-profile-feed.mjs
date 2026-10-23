@@ -78,3 +78,6 @@ assert.match(settings, /section\.hidden\s*=\s*!active/, 'Settings navigation mus
 assert.match(settings, /event\.key==='ArrowDown'\|\|event\.key==='ArrowRight'/, 'Settings tabs must support keyboard arrow navigation');
 assert.match(settings, /id="saveSettings"/, 'Settings must retain its save control');
 assert.match(settings, /id="status"[^>]*aria-live="polite"/, 'Settings must retain an accessible save/error status');
+
+
+assert.ok(settings.includes("window.addEventListener('beforeunload',event=>{if(!dirty)return;event.preventDefault();event.returnValue=''})"), 'Settings should warn before navigation when changes have not been saved');
