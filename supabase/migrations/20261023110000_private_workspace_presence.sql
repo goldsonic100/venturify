@@ -7,7 +7,8 @@ on realtime.messages
 for select
 to authenticated
 using (
-  realtime.topic() like 'venturify-workspace-presence:%'
+  realtime.messages.extension = 'presence'
+  and realtime.topic() like 'venturify-workspace-presence:%'
   and exists (
     select 1
     from public.collaboration_workspaces w
@@ -27,7 +28,8 @@ on realtime.messages
 for insert
 to authenticated
 with check (
-  realtime.topic() like 'venturify-workspace-presence:%'
+  realtime.messages.extension = 'presence'
+  and realtime.topic() like 'venturify-workspace-presence:%'
   and exists (
     select 1
     from public.collaboration_workspaces w
