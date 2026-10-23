@@ -104,3 +104,7 @@ assert.ok(workspace.includes("states.some(s=>s==='CHANNEL_ERROR'||s==='TIMED_OUT
 assert.ok(workspace.includes("'Live updates interrupted — refresh to catch up.'") && workspace.includes("'Live updates connected'"), 'Workspace must communicate both interrupted and healthy realtime states');
 assert.ok(workspace.includes("updateRealtimeStatus('chat',status)") && workspace.includes("updateRealtimeStatus('activity',status)") && workspace.includes("updateRealtimeStatus('checklist', status)"), 'Each workspace realtime channel must report status changes');
 assert.ok(workspace.includes("db.channel('workspace-chat-'+workspace.id)") && workspace.includes("db.channel('workspace-activity-'+workspace.id)"), 'Workspace realtime channels must be scoped to the verified workspace');
+
+
+assert.ok(workspace.includes("document.addEventListener('visibilitychange'") && workspace.includes("document.visibilityState!=='visible'||!workspace"), 'Workspace should refresh shared data when returning to a visible tab');
+assert.ok(workspace.includes("window.addEventListener('focus'") && workspace.includes("if(!chatChannel)startChatRealtime()") && workspace.includes("if(!activityChannel||!checklistRealtimeChannel)startActivityRealtime()"), 'Workspace should restore missing realtime subscriptions on return');
