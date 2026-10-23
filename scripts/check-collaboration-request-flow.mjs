@@ -93,3 +93,6 @@ assert.ok(feed.includes("aria-label','Collaboration request sent'") && feed.incl
 
 assert.ok(notifications.includes('id="notificationHistoryList" role="region" aria-label="Notification history" aria-live="polite" aria-busy="false"'), 'Notification history should have a named, stateful live region');
 assert.ok(notifications.includes("historyList.setAttribute('aria-busy','true')") && notifications.includes("historyList.setAttribute('aria-busy','false')"), 'Notification loading should expose and clear its busy state');
+
+assert.ok(workspace.includes('id="milestoneList" class="deadline-items" role="region" aria-label="Project milestones" aria-live="polite" aria-busy="true"'), 'Workspace milestones should expose a named live region while loading');
+assert.ok(workspace.includes("list.setAttribute('aria-busy','false')"), 'Milestone busy state should clear when milestones render');
