@@ -48,6 +48,10 @@ assert.ok(workspace.includes("![req.requester_id,req.recipient_id].includes(user
   'Workspace access must be limited to the two request participants');
 assert.ok(workspace.includes("from('workspace_tasks')") && workspace.includes("from('workspace_messages')"),
   'The workspace must load tasks and project chat');
+assert.ok(workspace.includes('id="taskMilestone"') && workspace.includes("milestone_id:$('taskMilestone').value||null"),
+  'New tasks must be attachable to a selected project milestone');
+assert.ok(workspace.includes('function renderTaskMilestoneOptions()') && workspace.includes('renderTaskMilestoneOptions();renderTasks();renderMilestones();'),
+  'The task milestone selector must refresh when milestone data loads');
 assert.ok(notifications.includes("'workspace.html?request='+encodeURIComponent(collaborationId)"),
   'Workspace notifications must open the correct collaboration workspace');
 assert.ok(notifications.includes("taskId?'&task='+encodeURIComponent(taskId)"),
