@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 const files = {
   profile: readFileSync(new URL('../profile.html', import.meta.url), 'utf8'),
   feed: readFileSync(new URL('../feed.html', import.meta.url), 'utf8'),
+  settings: readFileSync(new URL('../settings.html', import.meta.url), 'utf8'),
 };
 
 function parseInlineScripts(name, html) {
@@ -91,5 +92,5 @@ assert.ok(settings.includes("save.dataset.dirty='true';save.textContent='Save ch
 assert.ok(settings.includes("save.dataset.dirty='false';save.textContent='Save settings'"), 'Settings save action should return to its normal state after loading or saving preferences');
 
 
-assert.ok(settingsHtml.includes('id="discardSettings" disabled') && settingsHtml.includes("discard.addEventListener('click',()=>{if(!dirty)return;apply(savedValues)"), 'Settings should allow restoring the last saved values without writing to the database');
+assert.ok(files.settings.includes('id="discardSettings" disabled') && settingsHtml.includes("discard.addEventListener('click',()=>{if(!dirty)return;apply(savedValues)"), 'Settings should allow restoring the last saved values without writing to the database');
 assert.ok(settingsHtml.includes('savedValues=captureSettings()') && settingsHtml.includes('discard.disabled=true'), 'Successful saves should become the new reset baseline and disable discard');
