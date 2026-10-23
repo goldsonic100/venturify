@@ -111,7 +111,7 @@ assert.ok(workspace.includes('scheduleRealtimeReconnect()') && workspace.include
 assert.ok(workspace.includes('db.removeChannel(channel)') && workspace.includes('checklistRealtimeChannel=null'), 'Reconnect must dispose of stale channels before resubscribing all workspace feeds');
 
 
-assert.ok(workspace.includes("document.addEventListener('visibilitychange'") && workspace.includes("if(document.visibilityState!=='visible'){if(presenceChannel)presenceChannel.untrack()") , 'Workspace should pause presence while hidden and refresh shared data when returning to a visible tab');
+assert.ok(workspace.includes("document.addEventListener('visibilitychange'") && workspace.includes("if(document.visibilityState!=='visible'){presencePaused=true;renderWorkspacePresence();") , 'Workspace should pause presence while hidden and refresh shared data when returning to a visible tab');
 assert.ok(workspace.includes("window.addEventListener('focus'") && workspace.includes("if(!chatChannel)startChatRealtime()") && workspace.includes("if(!activityChannel||!checklistRealtimeChannel)startActivityRealtime()"), 'Workspace should restore missing realtime subscriptions on return');
 
 
@@ -130,7 +130,7 @@ assert.ok(workspace.includes('chatSending=true') && workspace.includes('finally{
 assert.ok(workspace.includes("$('chatForm').setAttribute('aria-busy','true')") && workspace.includes("$('chatForm').setAttribute('aria-busy','false')"), 'Workspace chat should expose send-in-progress state accessibly');
 
 
-assert.ok(workspace.includes("if(document.visibilityState!=='visible'){if(presenceChannel)presenceChannel.untrack()"), 'Workspace presence must stop advertising online status while its tab is hidden');
+assert.ok(workspace.includes("if(document.visibilityState!=='visible'){presencePaused=true;renderWorkspacePresence();"), 'Workspace presence must stop advertising online status while its tab is hidden');
 assert.ok(workspace.includes("window.addEventListener('pagehide',()=>{if(presenceChannel)presenceChannel.untrack()"), 'Workspace presence should be cleared when leaving the page');
 assert.ok(workspace.includes("else presenceChannel.track({user_id:user.id,online_at:new Date().toISOString()})"), 'Workspace presence should be restored when the tab becomes visible again');
 
