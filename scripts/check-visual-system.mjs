@@ -34,3 +34,6 @@ for (const page of pages) {
 }
 
 console.log(`Visual-system smoke check passed for ${pages.length} pages.`);
+
+assert.match(css, /:where\(a,button,input,select,textarea,\[role="button"\],\[role="tab"\],\[role="switch"\],\[tabindex\]\):focus-visible/, "shared design system should provide visible keyboard focus for native and custom controls");
+assert.match(css, /outline-offset:\s*3px/, "keyboard focus outline should be offset from controls");
