@@ -111,7 +111,7 @@ assert.ok(workspace.includes('scheduleRealtimeReconnect()') && workspace.include
 assert.ok(workspace.includes('db.removeChannel(channel)') && workspace.includes('checklistRealtimeChannel=null'), 'Reconnect must dispose of stale channels before resubscribing all workspace feeds');
 
 
-assert.ok(workspace.includes("document.addEventListener('visibilitychange'") && workspace.includes("document.visibilityState!=='visible'||!workspace"), 'Workspace should refresh shared data when returning to a visible tab');
+assert.ok(workspace.includes("document.addEventListener('visibilitychange'") && workspace.includes("if(document.visibilityState!=='visible'){if(presenceChannel)presenceChannel.untrack()"), 'Workspace should pause presence while hidden and refresh shared data when returning to a visible tab');
 assert.ok(workspace.includes("window.addEventListener('focus'") && workspace.includes("if(!chatChannel)startChatRealtime()") && workspace.includes("if(!activityChannel||!checklistRealtimeChannel)startActivityRealtime()"), 'Workspace should restore missing realtime subscriptions on return');
 
 
