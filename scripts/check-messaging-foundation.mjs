@@ -49,3 +49,7 @@ assert.ok(messages.includes('class="conversation-unread" aria-label="\'+item.unr
 
 
 assert.ok(messages.includes("box.setAttribute('aria-busy','true');if(!box.querySelector('.conversation-item'))box.innerHTML='<div class=\"muted-small\">Loading conversations…</div>';"), 'Inbox refresh should preserve existing conversation rows instead of flashing a loading placeholder');
+
+
+assert.ok(messages.includes('function refreshMessagingView(){if(!user)return;loadConversationList();if(!globalMessageChannel)startGlobalMessageRealtime(user.id);if(currentConversation&&activeConversationOtherId){showMessages(activeConversationOtherId);loadTypingStatus()}}'), 'Returning to the messages page should refresh the open transcript and typing state as well as inbox counts');
+assert.ok(messages.includes("document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshMessagingView()})") && messages.includes("window.addEventListener('focus',refreshMessagingView)"), 'Inbox and active chat should refresh on both tab visibility and window focus');
