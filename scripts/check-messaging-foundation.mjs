@@ -57,3 +57,7 @@ assert.ok(messages.includes("document.addEventListener('visibilitychange',()=>{i
 
 assert.ok(messages.includes('id="messageUnreadStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"'), 'Inbox unread-count fallback should be announced accessibly');
 assert.ok(messages.includes("unreadStatus.textContent='Unread counts are temporarily unavailable. Your conversations are still accessible.'") && messages.includes("else if(unreadStatus)unreadStatus.textContent=''"), 'Inbox must distinguish unread-count RPC failures from a genuinely empty unread count and clear the warning after recovery');
+
+
+assert.ok(messages.includes('id="messageReadStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"'), 'Conversation read-receipt feedback should be announced accessibly');
+assert.ok(messages.includes("readStatus.textContent=readReceiptError?'Could not update read status. Reopen this conversation to retry.':''"), 'Conversation should expose read-receipt failures and clear the status after a successful retry');
