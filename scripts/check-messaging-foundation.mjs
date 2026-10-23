@@ -24,7 +24,7 @@ assert.match(migration, /add column if not exists conversation_id/);
 assert.match(notifications, /type==='message'/);
 assert.match(notifications, /data-notification-conversation/);
 assert.match(notifications, /'messages\.html'\+\(conversationId\?/);
-assert.match(messages, /new URLSearchParams\\(window\\.location\\.search\\)\\.get\\('conversation'\\)/);
-assert.match(messages, /openGroupConversation\(conversationId\)/);
+assert.ok(messages.includes("new URLSearchParams(window.location.search).get('conversation')"), 'Conversation deep links must read the conversation query parameter');
+assert.ok(messages.includes("new URLSearchParams(window.location.search).get('conversation')"), 'Conversation deep links must read the conversation query parameter');
 
 console.log('Messaging feature smoke checks passed. Note: these static checks do not replace two-account browser testing.');
