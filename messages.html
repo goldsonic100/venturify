@@ -911,8 +911,8 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(globalMessageChannel&&globalMessageRealtimeUser===uid)return;
   stopGlobalMessageRealtime();globalMessageRealtimeUser=uid;
   globalMessageChannel=client.channel('venturify-inbox-updates-'+uid)
-   .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'sender_id=neq.'+uid},()=>loadConversationList())
-   .on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reads',filter:'user_id=eq.'+uid},()=>loadConversationList())
+   .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},()=>loadConversationList())
+   .on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reads'},()=>loadConversationList())
    .subscribe((status,error)=>{if(status==='SUBSCRIBED'){globalMessageRetryDelay=1500;if(globalMessageRetryTimer){clearTimeout(globalMessageRetryTimer);globalMessageRetryTimer=null}}else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){console.warn('Inbox live updates interrupted; reconnecting automatically',error||status);scheduleGlobalMessageReconnect(uid)}});
  }
  async function setTyping(isTyping){
