@@ -19,7 +19,7 @@ const css = readFileSync(stylesheet, "utf8");
 assert.match(css, /--paper:\s*#07111f/i, "dark navy design token should exist");
 assert.match(css, /--accent:\s*#3890ff/i, "blue accent token should exist");
 assert.match(css, /prefers-reduced-motion/i, "reduced-motion support should exist");
-assert.match(css, /html,body\\s*\\{[^}]*max-width:\\s*100%[^}]*overflow-x:\\s*hidden/i, "shared design system should prevent page-wide horizontal overflow");
+assert.match(css, /html,body\s*\{[^}]*max-width:\s*100%[^}]*overflow-x:\s*hidden/i, "shared design system should prevent page-wide horizontal overflow");
 
 for (const page of pages) {
   const html = readFileSync(page, "utf8");
