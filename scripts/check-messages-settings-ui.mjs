@@ -15,3 +15,7 @@ assert.match(design, /\.chat-message-list\s*\{[^}]*max-height:\s*none\s*!importa
 assert.match(design, /\.messages-chat-body\s*\{[^}]*overflow:\s*hidden/s, "chat body should constrain the scrolling conversation region");
 assert.match(messages, /class="[^"]*\bchat-message-list\b[^"]*"/, "messages page should retain its conversation history container");
 console.log("Messaging and settings UI smoke checks passed.");
+
+assert.ok(settings.includes('role="tablist"') && settings.includes("event.key==='ArrowDown'") && settings.includes("event.key==='Home'"), "settings navigation should support keyboard tab movement");
+assert.ok(settings.includes('aria-controls="section-privacy"') && settings.includes('role="tabpanel"'), "settings tabs and panels should have explicit accessible relationships");
+assert.ok(settings.includes("location.hash.match") && settings.includes("updateHash:true"), "settings panels should support direct links and preserve the selected section in the URL");
