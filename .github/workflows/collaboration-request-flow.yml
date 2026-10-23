@@ -1,0 +1,26 @@
+name: Collaboration request flow checks
+
+on:
+  pull_request:
+    paths:
+      - 'feed.html'
+      - 'scripts/check-collaboration-request-flow.mjs'
+      - 'supabase/migrations/20261016010000_create_collaboration_requests.sql'
+      - '.github/workflows/collaboration-request-flow.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'feed.html'
+      - 'scripts/check-collaboration-request-flow.mjs'
+      - 'supabase/migrations/20261016010000_create_collaboration_requests.sql'
+      - '.github/workflows/collaboration-request-flow.yml'
+
+jobs:
+  collaboration-request-flow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/check-collaboration-request-flow.mjs
