@@ -870,8 +870,8 @@ renderCases();
  async function load(){
   const auth=await c.auth.getUser();currentUser=auth.data?.user||null;
   const [pr,fr]=await Promise.all([c.from('profiles').select('id,username,display_name,bio,headline,company,location,skills,interests,looking_for,avatar_url,website_url,linkedin_url,created_at').order('created_at',{ascending:false}).limit(500),currentUser?c.from('follows').select('following_id').eq('follower_id',currentUser.id):Promise.resolve({data:[]})]);
-  if(pr.error){$('founderResults').innerHTML='<div class="community-empty">Could not load founders. Please refresh and try again.</div>';return}
-  allProfiles=pr.data||[];const visibility=await c.rpc('get_discoverable_founder_ids');if(visibility.error){$('founderResults').setAttribute('aria-busy','false');$('founderResults').innerHTML='<div class="community-empty">Could not verify founder visibility. Recommendations are paused for your safety; refresh and try again.</div>';const status=$('founderResultsStatus');if(status)status.textContent='Founder visibility could not be verified. Recommendations are paused.';console.error('Founder visibility check failed',visibility.error);return}const visibleIds=new Set((visibility.data||[]).map(x=>x.founder_id));allProfiles=allProfiles.filter(p=>visibleIds.has(p.id));rows=allProfiles.slice();following=new Set((fr.data||[]).map(x=>x.following_id));shortlist=new Map();
+  if(pr.error){$('founderResults').setAttribute('aria-busy','false');$('founderResults').innerHTML='<div class="community-empty">Could not load founders. Try again.<p><button type="button" class="btn" data-retry-discover>Retry recommendations</button></p></div>';const status=$('founderResultsStatus');if(status)status.textContent='Founder recommendations could not load.';return}
+  allProfiles=pr.data||[];const visibility=await c.rpc('get_discoverable_founder_ids');if(visibility.error){$('founderResults').setAttribute('aria-busy','false');$('founderResults').innerHTML='<div class="community-empty">Could not verify founder visibility. Recommendations are paused for your safety.</div><p><button type="button" class="btn" data-retry-discover>Retry recommendations</button></p>';const status=$('founderResultsStatus');if(status)status.textContent='Founder visibility could not be verified. Recommendations are paused.';console.error('Founder visibility check failed',visibility.error);return}const visibleIds=new Set((visibility.data||[]).map(x=>x.founder_id));allProfiles=allProfiles.filter(p=>visibleIds.has(p.id));rows=allProfiles.slice();following=new Set((fr.data||[]).map(x=>x.following_id));shortlist=new Map();
   if(currentUser){
    const saved=await c.from('founder_shortlists').select('founder_id,status,created_at').eq('user_id',currentUser.id).order('created_at',{ascending:false});
    if(!saved.error)(saved.data||[]).forEach(x=>shortlist.set(x.founder_id,{status:x.status,created_at:x.created_at}));
@@ -890,7 +890,7 @@ renderCases();
    c.from('posts').select('user_id'),
    c.from('comments').select('user_id')
   ]);
-  if(memberships.error){$('founderResults').setAttribute('aria-busy','false');$('founderResults').innerHTML='<div class="community-empty">Could not verify community membership. Recommendations are paused for your safety; refresh and try again.</div>';const status=$('founderResultsStatus');if(status)status.textContent='Community membership could not be verified. Recommendations are paused.';console.error('Founder community membership check failed',memberships.error);return}const memberRows=memberships.data||[];
+  if(memberships.error){$('founderResults').setAttribute('aria-busy','false');$('founderResults').innerHTML='<div class="community-empty">Could not verify community membership. Recommendations are paused for your safety; refresh and try again.</div>';const status=$('founderResultsStatus');if(status)status.textContent='Community membership could not be verified. Recommendations are paused.';$('founderResults').insertAdjacentHTML('beforeend','<p><button type="button" class="btn" data-retry-discover>Retry recommendations</button></p>');console.error('Founder community membership check failed',memberships.error);return}const memberRows=memberships.data||[];
   communityCounts=new Map();communityIdsByUser=new Map();communityNames=new Map();ownCommunityIds=new Set();founderFollowerCounts=new Map();const postCounts=new Map(),commentCounts=new Map();
   memberRows.forEach(x=>{communityCounts.set(x.user_id,(communityCounts.get(x.user_id)||0)+1);if(!communityIdsByUser.has(x.user_id))communityIdsByUser.set(x.user_id,new Set());communityIdsByUser.get(x.user_id).add(x.community_id)});
   const communityNameResult=await c.from('communities').select('id,name');if(!communityNameResult.error)(communityNameResult.data||[]).forEach(x=>communityNames.set(x.id,x.name));
@@ -979,8 +979,11 @@ renderCases();
   if(result.error){alert('Could not remove founder: '+result.error.message);return;}
   shortlist.delete(id);render();renderShortlist();
  });
- c.auth.onAuthStateChange(()=>setTimeout(load,0));
- load();
+ function showDiscoverLoadError(error){console.error('Discover load failed',error);const results=$('founderResults');if(results){results.setAttribute('aria-busy','false');results.innerHTML='<div class="community-empty">Could not load eligible recommendations. Your visibility and membership checks were not completed, so no profiles are shown.<p><button type="button" class="btn" data-retry-discover>Retry recommendations</button></p></div>'}const status=$('founderResultsStatus');if(status)status.textContent='Recommendations could not be verified. No profiles are shown.';}
+ async function retryDiscoverLoad(){const results=$('founderResults');if(results){results.setAttribute('aria-busy','true');results.innerHTML='<div class="community-empty">Retrying eligible founder recommendations…</div>'}const status=$('founderResultsStatus');if(status)status.textContent='Retrying recommendations…';try{await load()}catch(error){showDiscoverLoadError(error)}}
+ $('founderResults').addEventListener('click',event=>{const button=event.target.closest('[data-retry-discover]');if(!button)return;button.disabled=true;retryDiscoverLoad()});
+ c.auth.onAuthStateChange(()=>setTimeout(retryDiscoverLoad,0));
+ retryDiscoverLoad();
 })();
 </script>
 
