@@ -56,6 +56,66 @@
 })();
 </script> <link rel="stylesheet" href="venturify-ui.css">
   <link rel="stylesheet" href="assets/venturify-design-system.css">
+
+<style id="workspace-mobile-polish">
+/* Workspace visual and mobile refinement */
+body{background:radial-gradient(ellipse at 8% 0%,rgba(109,124,255,.09),transparent 38%),radial-gradient(ellipse at 100% 10%,rgba(56,144,255,.07),transparent 32%),var(--paper)}
+.wrap{max-width:980px}
+.card{box-shadow:0 8px 24px rgba(12,24,40,.035);transition:border-color .18s ease,box-shadow .18s ease}
+.card h2{letter-spacing:-.02em}
+.btn{min-height:38px;transition:transform .16s ease,border-color .16s ease,background .16s ease}
+.btn:active{transform:translateY(1px)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid rgba(56,144,255,.65);outline-offset:2px}
+input,textarea,select{min-width:0}
+.task,.overview-panel,.overview-stat,.deadline-item,.deadline-alert,.activity-item{min-width:0}
+.task h3,.task p,.overview-line,.deadline-item>div{overflow-wrap:anywhere}
+.chat-history{overscroll-behavior:contain;scrollbar-gutter:stable}
+.chat-compose textarea{min-width:0}
+#taskMilestone{border-color:var(--accent,#6d7cff)}
+#taskForm{position:relative}
+#taskForm .primary{box-shadow:0 5px 12px rgba(49,88,58,.14)}
+@media(hover:hover) and (pointer:fine){
+ .card:hover{border-color:rgba(109,124,255,.28);box-shadow:0 12px 30px rgba(12,24,40,.06)}
+ .btn:hover{border-color:rgba(109,124,255,.45)}
+}
+@media(max-width:760px){
+ header{padding:12px 14px}
+ nav{flex-wrap:wrap;align-items:center;gap:9px}
+ nav a{padding:5px 0}
+ .wrap{width:min(100% - 20px,680px);margin:16px auto 36px}
+ h1{font-size:clamp(27px,7vw,36px)}
+ .card{border-radius:13px;margin:11px 0;padding:15px}
+ .overview-grid{gap:8px}
+ .overview-stat{padding:11px}
+ .overview-stat .stat-value{font-size:21px}
+ .overview-columns{gap:9px}
+ .task{gap:10px}
+ .chat-history{height:min(48vh,380px);min-height:220px}
+ .chat-compose{align-items:stretch}
+ .chat-compose button{align-self:flex-end;min-height:44px}
+ .file-form,.chat-compose{flex-wrap:wrap}
+ .file-form input{min-width:0;max-width:100%}
+ .row{flex-wrap:wrap}
+}
+@media(max-width:420px){
+ .wrap{width:calc(100% - 14px);margin-top:10px}
+ .card{padding:12px}
+ .overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .overview-stat .stat-value{font-size:19px}
+ .task-filters,.activity-filters{gap:5px}
+ .task-filter,.activity-filter{padding:7px 9px}
+ .deadline-item{align-items:flex-start;padding:9px;gap:8px}
+ .deadline-item button,.deadline-alert button{white-space:nowrap}
+ .chat-compose{display:flex;flex-direction:column;align-items:stretch}
+ .chat-compose button{align-self:stretch}
+ .chat-history{min-height:200px;padding:9px}
+ .chat-message{max-width:94%}
+}
+@media(prefers-reduced-motion:reduce){
+ .card,.btn,.task-progress-fill{transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+
 </head>
 <body><header><nav><a href="index.html"><strong>VENTURIFY</strong></a><div style="display:flex;gap:15px"><a href="discover.html">Discover</a><a href="messages.html">Messages</a><a href="collaborations.html">Requests</a><a href="profile.html">Profile</a></div></nav></header>
 <main class="wrap"><div class="kicker">Build together</div><h1>Collaboration workspace</h1><p class="muted">Plan your shared goal, assign next steps, and track progress with your collaborator.</p><div id="notice" class="notice">Loading your collaboration…</div>
