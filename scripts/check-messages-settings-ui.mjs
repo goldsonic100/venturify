@@ -13,5 +13,5 @@ assert.ok(settings.includes('[id^="section-"][hidden]{display:none!important}'),
 assert.ok(settings.includes('data-section'), "settings sections must retain navigation controls");
 assert.match(design, /\.chat-message-list\s*\{[^}]*max-height:\s*none\s*!important/s, "conversation history should be allowed to grow and scroll");
 assert.match(design, /\.messages-chat-body\s*\{[^}]*overflow:\s*hidden/s, "chat body should constrain the scrolling conversation region");
-assert.match(messages, /class="chat-message-list"/, "messages page should retain its conversation history container");
+assert.match(messages, /class="[^"]*\\bchat-message-list\\b[^"]*"/, "messages page should retain its conversation history container");
 console.log("Messaging and settings UI smoke checks passed.");
