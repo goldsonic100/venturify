@@ -140,3 +140,7 @@ assert.match(presenceMigration, /for insert\s+to authenticated/i, 'Private works
 assert.ok(presenceMigration.includes("realtime.topic() like 'venturify-workspace-presence:%'"), 'Presence authorization must be scoped to the workspace presence topic namespace');
 assert.ok(presenceMigration.includes("r.status = 'accepted'") && presenceMigration.includes('(select auth.uid()) = r.requester_id or (select auth.uid()) = r.recipient_id'), 'Presence policies must require current accepted collaboration membership');
 assert.ok(presenceMigration.includes("split_part(realtime.topic(), ':', 2) ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'"), 'Presence policy must validate workspace UUID text before casting');
+
+
+assert.ok(workspace.includes("el.dataset.state='away'") && workspace.includes("label.textContent='You are away — presence paused.'"), 'Workspace should visibly mark the current user away after untracking presence in a hidden tab');
+assert.ok(workspace.includes("else presenceChannel.track({user_id:user.id,online_at:new Date().toISOString()})"), 'Workspace should restore the current user presence when the tab becomes visible again');
