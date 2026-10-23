@@ -66,3 +66,8 @@ assert.ok(messages.includes("readStatus.textContent=readReceiptError?'Could not 
 assert.ok(messages.includes('id="messageCharacterCount" class="muted-small" role="status" aria-live="polite" aria-atomic="true"'), 'Message composer should expose an accessible character counter');
 assert.ok(messages.includes("messageCharacterCount.textContent=$('messageText').value.length+' / 1200'"), 'Message character count should track the current draft length');
 assert.ok(messages.includes("$('messageText').value='';updateMessageCharacterCount()"), 'Character counter should reset when a message is successfully sent');
+
+
+assert.ok(messages.includes("table:'messages'},()=>loadConversationList())"), 'Inbox should refresh when the signed-in user sends a message from another device or tab');
+assert.ok(messages.includes("table:'message_reads'},()=>loadConversationList())"), 'Inbox should refresh when another participant reads a message and creates a receipt');
+assert.ok(!messages.includes("table:'messages',filter:'sender_id=neq.'+uid") && !messages.includes("table:'message_reads',filter:'user_id=eq.'+uid"), 'Inbox realtime subscriptions must not filter out the current user’s cross-device messages or other users’ read receipts');
