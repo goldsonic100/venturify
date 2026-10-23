@@ -80,3 +80,8 @@ assert.ok(messages.includes("activeConversationMessages.some(message=>message.id
 assert.ok(messages.includes("if(user&&currentConversation)setTyping(false).catch(error=>console.warn('Could not clear typing state while leaving conversation',error))"), 'Switching away from a conversation should clear the previous user typing row');
 assert.ok(messages.includes("else if(user&&currentConversation)setTyping(false)"), 'Hiding the messages tab should clear the active typing state');
 assert.ok(messages.includes("window.addEventListener('pagehide',()=>{if(user&&currentConversation)setTyping(false)})"), 'Leaving the page should attempt to clear the active typing state');
+
+
+assert.ok((messages.match(/data-retry-inbox/g)||[]).length>=4, 'Inbox membership, message, conversation, and profile load failures should offer a retry action');
+assert.ok(messages.includes("const retry=e.target.closest('[data-retry-inbox]');if(retry){retry.disabled=true;retry.textContent='Retrying…';await loadConversationList();return}"), 'Inbox retry action should rerun the list load and prevent duplicate clicks');
+assert.ok(messages.includes('membersResult.error||messagesResult.error||conversationResult.error'), 'Conversation metadata failures should be handled rather than silently rendering incomplete inbox rows');
