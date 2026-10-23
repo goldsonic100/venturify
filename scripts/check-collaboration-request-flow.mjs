@@ -104,3 +104,8 @@ assert.ok(workspace.includes("states.some(s=>s==='CHANNEL_ERROR'||s==='TIMED_OUT
 assert.ok(workspace.includes("'Live updates interrupted — refresh to catch up.'") && workspace.includes("'Live updates connected'"), 'Workspace must communicate both interrupted and healthy realtime states');
 assert.ok(workspace.includes("updateRealtimeStatus('chat',status)") && workspace.includes("updateRealtimeStatus('activity',status)") && workspace.includes("updateRealtimeStatus('checklist', status)"), 'Each workspace realtime channel must report status changes');
 assert.ok(workspace.includes("db.channel('workspace-chat-'+workspace.id)") && workspace.includes("db.channel('workspace-activity-'+workspace.id)"), 'Workspace realtime channels must be scoped to the verified workspace');
+
+
+assert.ok(workspace.includes('realtimeRetryDelay=1500') && workspace.includes('Math.min(Math.round(realtimeRetryDelay*1.7),30000)'), 'Workspace realtime reconnect must use bounded backoff');
+assert.ok(workspace.includes('scheduleRealtimeReconnect()') && workspace.includes('reconnecting automatically…'), 'Workspace must automatically retry interrupted realtime updates');
+assert.ok(workspace.includes('db.removeChannel(channel)') && workspace.includes('checklistRealtimeChannel=null'), 'Reconnect must dispose of stale channels before resubscribing all workspace feeds');
