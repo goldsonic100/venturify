@@ -898,7 +898,9 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(currentReadChannel){client.removeChannel(currentReadChannel);currentReadChannel=null}
   currentConversation=null;activeConversationOtherId=null;
  }
- function stopGlobalMessageRealtime(){if(globalMessageChannel){client.removeChannel(globalMessageChannel);globalMessageChannel=null}globalMessageRealtimeUser=null}
+ let globalMessageRetryTimer=null,globalMessageRetryDelay=1500;
+ function stopGlobalMessageRealtime(){if(globalMessageRetryTimer){clearTimeout(globalMessageRetryTimer);globalMessageRetryTimer=null}if(globalMessageChannel){client.removeChannel(globalMessageChannel);globalMessageChannel=null}globalMessageRealtimeUser=null}
+ function scheduleGlobalMessageReconnect(uid){if(globalMessageRetryTimer||!user||user.id!==uid)return;globalMessageRetryTimer=setTimeout(()=>{globalMessageRetryTimer=null;if(!user||user.id!==uid)return;if(globalMessageChannel){client.removeChannel(globalMessageChannel);globalMessageChannel=null}globalMessageRealtimeUser=null;startGlobalMessageRealtime(uid);globalMessageRetryDelay=Math.min(Math.round(globalMessageRetryDelay*1.7),30000)},globalMessageRetryDelay)}
  function startGlobalMessageRealtime(uid){
   if(!uid){stopGlobalMessageRealtime();const navCount=$('messageNavCount');if(navCount){navCount.hidden=true;navCount.textContent='0'}return}
   if(globalMessageChannel&&globalMessageRealtimeUser===uid)return;
@@ -906,7 +908,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   globalMessageChannel=client.channel('venturify-inbox-updates-'+uid)
    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'sender_id=neq.'+uid},()=>loadConversationList())
    .on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reads',filter:'user_id=eq.'+uid},()=>loadConversationList())
-   .subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Inbox live updates disconnected',error||status)});
+   .subscribe((status,error)=>{if(status==='SUBSCRIBED'){globalMessageRetryDelay=1500;if(globalMessageRetryTimer){clearTimeout(globalMessageRetryTimer);globalMessageRetryTimer=null}}else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){console.warn('Inbox live updates interrupted; reconnecting automatically',error||status);scheduleGlobalMessageReconnect(uid)}});
  }
  async function setTyping(isTyping){
   if(!user||!currentConversation)return;
