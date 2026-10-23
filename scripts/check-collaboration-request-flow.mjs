@@ -133,3 +133,10 @@ assert.ok(workspace.includes("$('chatForm').setAttribute('aria-busy','true')") &
 assert.ok(workspace.includes("if(document.visibilityState!=='visible'){if(presenceChannel)presenceChannel.untrack()"), 'Workspace presence must stop advertising online status while its tab is hidden');
 assert.ok(workspace.includes("window.addEventListener('pagehide',()=>{if(presenceChannel)presenceChannel.untrack()"), 'Workspace presence should be cleared when leaving the page');
 assert.ok(workspace.includes("else presenceChannel.track({user_id:user.id,online_at:new Date().toISOString()})"), 'Workspace presence should be restored when the tab becomes visible again');
+
+
+assert.match(presenceMigration, /for select\s+to authenticated/i, 'Private workspace presence must only be readable by authenticated users');
+assert.match(presenceMigration, /for insert\s+to authenticated/i, 'Private workspace presence must only be publishable by authenticated users');
+assert.ok(presenceMigration.includes("realtime.topic() like 'venturify-workspace-presence:%'"), 'Presence authorization must be scoped to the workspace presence topic namespace');
+assert.ok(presenceMigration.includes("r.status = 'accepted'") && presenceMigration.includes('(select auth.uid()) = r.requester_id or (select auth.uid()) = r.recipient_id'), 'Presence policies must require current accepted collaboration membership');
+assert.ok(presenceMigration.includes("split_part(realtime.topic(), ':', 2) ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'"), 'Presence policy must validate workspace UUID text before casting');
