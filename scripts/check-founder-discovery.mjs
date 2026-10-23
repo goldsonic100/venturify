@@ -242,3 +242,7 @@ console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discov
 
 assert.ok(discoverHtml.includes('id="founderResults" class="founder-results" role="region" aria-label="Founder recommendations" aria-live="polite" aria-busy="true"'), 'Founder recommendations should expose a named live region while loading');
 assert.ok(discoverHtml.includes("$('founderResults').setAttribute('aria-busy','false')"), 'Founder recommendation loading state should clear after rendering');
+
+const communitiesHtml = readFileSync(new URL('../communities.html', import.meta.url), 'utf8');
+assert.ok(communitiesHtml.includes('id="communityList" role="region" aria-label="All communities" aria-live="polite" aria-busy="true"'), 'Community directory should expose a named live region while loading');
+assert.ok(communitiesHtml.includes("$('communityList').setAttribute('aria-busy','false')"), 'Community directory should clear its busy state when rendering');
