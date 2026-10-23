@@ -22,6 +22,8 @@ assert.match(css, /prefers-reduced-motion/i, "reduced-motion support should exis
 
 for (const page of pages) {
   const html = readFileSync(page, "utf8");
+  assert.match(html, /<meta name="viewport" content="width=device-width, initial-scale=1">/i, `${page} must use the device viewport on mobile`);
+  assert.match(html, /html,body\\{max-width:100%;overflow-x:hidden\\}/, `${page} must guard against page-wide horizontal overflow`);
   assert.ok(
     html.includes(stylesheet),
     `${page} must load the shared design system`,
