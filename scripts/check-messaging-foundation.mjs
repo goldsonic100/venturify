@@ -43,3 +43,6 @@ assert.ok(messages.includes("status==='CLOSED'") && messages.includes("status===
 
 assert.ok(messages.includes("document.addEventListener('visibilitychange'") && messages.includes("document.visibilityState!=='visible'||!user"), 'Inbox must refresh its unread/conversation snapshot when a signed-in user returns to the tab');
 assert.ok(messages.includes("window.addEventListener('focus',()=>{if(user)loadConversationList()})"), 'Inbox must refresh conversations when the browser window regains focus');
+
+
+assert.ok(messages.includes('class="conversation-unread" aria-label="\'+item.unread+\' unread messages"'), 'Unread badges must expose an accessible unread-message count');
