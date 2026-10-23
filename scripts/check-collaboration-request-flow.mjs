@@ -96,3 +96,11 @@ assert.ok(notifications.includes("historyList.setAttribute('aria-busy','true')")
 
 assert.ok(workspace.includes('id="milestoneList" class="deadline-items" role="region" aria-label="Project milestones" aria-live="polite" aria-busy="true"'), 'Workspace milestones should expose a named live region while loading');
 assert.ok(workspace.includes("list.setAttribute('aria-busy','false')"), 'Milestone busy state should clear when milestones render');
+
+
+// Workspace realtime state should accurately surface connection health and recovery.
+assert.ok(workspace.includes("const realtimeStates={chat:'connecting',activity:'connecting',checklist:'connecting'}"), 'Workspace must track each live-update channel independently');
+assert.ok(workspace.includes("states.some(s=>s==='CHANNEL_ERROR'||s==='TIMED_OUT'||s==='CLOSED')"), 'Workspace must recognize failed or closed realtime channels');
+assert.ok(workspace.includes("'Live updates interrupted — refresh to catch up.'") && workspace.includes("'Live updates connected'"), 'Workspace must communicate both interrupted and healthy realtime states');
+assert.ok(workspace.includes("updateRealtimeStatus('chat',status)") && workspace.includes("updateRealtimeStatus('activity',status)") && workspace.includes("updateRealtimeStatus('checklist', status)"), 'Each workspace realtime channel must report status changes');
+assert.ok(workspace.includes("db.channel('workspace-chat-'+workspace.id)") && workspace.includes("db.channel('workspace-activity-'+workspace.id)"), 'Workspace realtime channels must be scoped to the verified workspace');
