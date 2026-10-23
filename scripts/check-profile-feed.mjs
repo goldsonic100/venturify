@@ -61,3 +61,20 @@ assert.ok(profile.includes('id="accountStatus" role="status" aria-live="polite" 
 
 assert.ok(feed.includes('id="postCharacterCount" role="status" aria-live="polite" aria-atomic="true"'), 'Post composer should announce remaining character count accessibly');
 assert.ok(feed.includes("1200-$('postText').value.length") && feed.includes("character-limit-near"), 'Post composer character count should update live and flag the final 120 characters');
+
+
+// Settings tabs must remain complete, keyboard accessible, and connected to their panels.
+const settings = readFileSync(new URL('../settings.html', import.meta.url), 'utf8');
+parseInlineScripts('settings', settings);
+const settingTabs = [...settings.matchAll(/<button[^>]*data-section="([^"]+)"[^>]*>/g)].map(match => match[1]);
+assert.deepEqual(settingTabs, ['privacy', 'features', 'notifications', 'appearance', 'security'], 'Settings navigation tabs/order must remain complete');
+for (const section of settingTabs) {
+  assert.ok(settings.includes('id="section-' + section + '"'), 'Settings tab "' + section + '" needs a matching section');
+  assert.ok(settings.includes('aria-controls="section-' + section + '"'), 'Settings tab "' + section + '" needs an accessible panel association');
+}
+assert.match(settings, /querySelectorAll\(['"]\\[data-section\\]['"]\)/, 'Settings tabs must be discovered by the navigation handler');
+assert.match(settings, /button\.addEventListener\('click',\(\)=>activate\(button/, 'Settings tabs must activate their panel when clicked');
+assert.match(settings, /section\.hidden\s*=\s*!active/, 'Settings navigation must hide inactive sections');
+assert.match(settings, /event\.key==='ArrowDown'\|\|event\.key==='ArrowRight'/, 'Settings tabs must support keyboard arrow navigation');
+assert.match(settings, /id="saveSettings"/, 'Settings must retain its save control');
+assert.match(settings, /id="status"[^>]*aria-live="polite"/, 'Settings must retain an accessible save/error status');
