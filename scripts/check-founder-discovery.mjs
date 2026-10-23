@@ -239,3 +239,6 @@ assert.match(discoverHtml, /Users view their own founder shortlist|founder_short
   'Shortlist markup and data flow should be present');
 
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery and shortlist regression checks passed.');
+
+assert.ok(html.includes('id="communitySearchSummary" role="status" aria-live="polite" aria-atomic="true"'), 'Community search and sort results should be announced accessibly');
+assert.ok(html.includes('id="communityList" role="region" aria-label="All communities" aria-busy="true"') && html.includes("$('communityList').setAttribute('aria-busy','false')"), 'Community results should expose their loading state and accessible name');
