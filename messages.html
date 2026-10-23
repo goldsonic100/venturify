@@ -646,7 +646,7 @@ body[data-view="messages"] #messages .messages-privacy-note{flex:none!important;
         <div class="messages-sidebar-heading"><div><div class="kicker">MESSAGES</div><h1>Messages</h1><p>People and group chats</p></div><button type="button" class="inbox-icon" id="newMessageShortcut" aria-label="New message" title="New message">＋</button></div>
         <label class="messages-search-wrap"><span>⌕</span><input id="conversationSearch" class="conversation-search" type="search" maxlength="80" placeholder="Search messages" aria-label="Search conversations"></label>
         <p id="conversationSearchStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"></p>
-        <div class="messages-list-heading"><strong>Contacts</strong><span id="messageUnreadTotal" class="message-unread-total" hidden>0 unread</span></div>
+        <div class="messages-list-heading"><strong>Contacts</strong><span id="messageUnreadTotal" class="message-unread-total" hidden>0 unread</span></div><p id="messageUnreadStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"></p>
         <div id="conversationList" class="conversation-list" role="region" aria-label="Conversation inbox" aria-live="polite" aria-busy="false"><div class="muted-small">Sign in to see your conversations.</div></div>
         <div class="messages-new"><div class="messages-new-actions"><button type="button" id="newDirectChat">＋ New message</button><button type="button" id="newGroupChat">＋ New group</button></div><label for="messagePerson">Start a conversation</label><select id="messagePerson"><option value="">Choose a contact…</option></select></div>
       </aside>
@@ -833,7 +833,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
  function conversationTime(value){if(!value)return '';const date=new Date(value),now=new Date(),sameDay=date.toDateString()===now.toDateString(),yesterday=new Date(now);yesterday.setDate(now.getDate()-1);if(sameDay)return date.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});if(date.toDateString()===yesterday.toDateString())return 'Yesterday';const days=(now-date)/86400000;if(days<7)return date.toLocaleDateString(undefined,{weekday:'short'});return date.toLocaleDateString(undefined,{month:'short',day:'numeric'})}
  function filteredConversationList(){const search=$('conversationSearch')?.value?.trim().toLowerCase()||'',buttons=[...document.querySelectorAll('#conversationList [data-open-conversation],#conversationList [data-open-group]')];let visible=0;buttons.forEach(button=>{button.hidden=!!search&&!button.textContent.toLowerCase().includes(search);if(!button.hidden)visible++});const status=$('conversationSearchStatus');if(status)status.textContent=search?(visible?visible+' of '+buttons.length+' conversations match your search.':'No conversations match your search.'):(buttons.length+' conversation'+(buttons.length===1?'':'s')+'.')}
  async function loadConversationList(){
-  const box=$('conversationList'),total=$('messageUnreadTotal');
+  const box=$('conversationList'),total=$('messageUnreadTotal'),unreadStatus=$('messageUnreadStatus');
   const requestId=++conversationListLoadRequest,requestUserId=user?.id||null;
   const isCurrent=()=>requestId===conversationListLoadRequest&&(user?.id||null)===requestUserId;
   if(!user){box.setAttribute('aria-busy','false');box.innerHTML='<div class="muted-small">Log in to see your conversations.</div>';total.hidden=true;return}
@@ -855,7 +855,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   const unreadResult=await client.rpc('get_my_unread_message_counts');
   if(!isCurrent())return;
   // An unread-count RPC problem must never hide conversations or prevent opening chats.
-  if(unreadResult.error)console.warn('Unread counts unavailable; showing conversations without badges',unreadResult.error.message);
+  if(unreadResult.error){console.warn('Unread counts unavailable; showing conversations without badges',unreadResult.error.message);if(unreadStatus)unreadStatus.textContent='Unread counts are temporarily unavailable. Your conversations are still accessible.'}else if(unreadStatus)unreadStatus.textContent='';
   const unreadCounts=new Map((unreadResult.data||[]).map(row=>[row.conversation_id,Number(row.unread_count)||0]));
   const otherIds=[...new Set((membersResult.data||[]).filter(m=>m.user_id!==requestUserId).map(m=>m.user_id))];
   const profileResult=otherIds.length?await client.from('profiles').select('id,username,display_name,avatar_url').in('id',otherIds):{data:[],error:null};
