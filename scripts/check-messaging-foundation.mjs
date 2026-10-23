@@ -34,3 +34,8 @@ assert.ok(messages.includes("box.setAttribute('aria-busy','true')") && messages.
 
 assert.ok(messages.includes('id="conversationSearchStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"'), 'Conversation search should announce result counts accessibly');
 assert.ok(messages.includes("No conversations match your search.") && messages.includes(" of '+buttons.length+' conversations match your search."), 'Conversation search should announce both matches and empty results');
+
+
+assert.ok(messages.includes('globalMessageRetryDelay=1500') && messages.includes('Math.min(Math.round(globalMessageRetryDelay*1.7),30000)'), 'Inbox realtime recovery must use bounded retry backoff');
+assert.ok(messages.includes('scheduleGlobalMessageReconnect(uid)') && messages.includes('Inbox live updates interrupted; reconnecting automatically'), 'Inbox realtime errors must trigger automatic recovery feedback');
+assert.ok(messages.includes("status==='CLOSED'") && messages.includes("status==='SUBSCRIBED'"), 'Inbox realtime recovery must handle closed and successfully restored channels');
