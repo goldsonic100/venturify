@@ -87,3 +87,6 @@ assert.ok(collaborations.includes('grid-template-columns:minmax(0,1fr)') && coll
 
 assert.ok(workspace.includes('id="realtimeLastSynced"') && workspace.includes("Refresh attempted "), 'Workspace refresh recovery should expose the most recent refresh attempt time');
 assert.ok(workspace.includes("b.textContent='Refreshing…'") && workspace.includes("finally{b.disabled=false;b.textContent='Refresh data'}"), 'Workspace refresh should expose a busy state and always restore the refresh control');
+
+assert.ok(feed.includes('id="toast" role="status" aria-live="polite" aria-atomic="true"'), 'Feed status messages should be announced as complete live-region updates');
+assert.ok(feed.includes("aria-label','Collaboration request sent'") && feed.includes("aria-label','Collaboration invitation received'"), 'Collaboration CTA states should expose clear accessible labels after a request decision');
