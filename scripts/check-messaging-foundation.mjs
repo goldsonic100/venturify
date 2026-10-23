@@ -61,3 +61,8 @@ assert.ok(messages.includes("unreadStatus.textContent='Unread counts are tempora
 
 assert.ok(messages.includes('id="messageReadStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"'), 'Conversation read-receipt feedback should be announced accessibly');
 assert.ok(messages.includes("readStatus.textContent=readReceiptError?'Could not update read status. Reopen this conversation to retry.':''"), 'Conversation should expose read-receipt failures and clear the status after a successful retry');
+
+
+assert.ok(messages.includes('id="messageCharacterCount" class="muted-small" role="status" aria-live="polite" aria-atomic="true"'), 'Message composer should expose an accessible character counter');
+assert.ok(messages.includes("messageCharacterCount.textContent=$('messageText').value.length+' / 1200'"), 'Message character count should track the current draft length');
+assert.ok(messages.includes("$('messageText').value='';updateMessageCharacterCount()"), 'Character counter should reset when a message is successfully sent');

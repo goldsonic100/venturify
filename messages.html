@@ -663,7 +663,8 @@ body[data-view="messages"] #messages .messages-privacy-note{flex:none!important;
           <div id="typingStatus" class="typing-status" aria-live="polite" hidden>Someone is typing…</div>
         </div>
         <div class="messages-composer">
-          <input id="messageText" class="comment-input" maxlength="1200" placeholder="Write a message…" aria-label="Private message">
+          <input id="messageText" class="comment-input" maxlength="1200" placeholder="Write a message…" aria-label="Private message" aria-describedby="messageCharacterCount">
+          <span id="messageCharacterCount" class="muted-small" role="status" aria-live="polite" aria-atomic="true">0 / 1200</span>
           <button class="btn btn-primary" id="sendMessage" type="button" aria-label="Send message">Send <span>↗</span></button>
         </div>
         <p class="messages-privacy-note" id="messageStatus" role="status" aria-live="polite" aria-atomic="true">Your private messages are only visible to conversation members.</p>
@@ -1046,7 +1047,10 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
  $('messageText').addEventListener('input',()=>{if(currentConversation&&user)setTyping(!!$('messageText').value.trim())});
  $('messageText').addEventListener('blur',()=>{if(user&&currentConversation)setTyping(false)});
  // Enter sends like a chat app; Shift+Enter remains available if the composer is later multiline.
- $('messageText').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('sendMessage').click()}});
+ const messageCharacterCount=$('messageCharacterCount');
+function updateMessageCharacterCount(){if(messageCharacterCount)messageCharacterCount.textContent=$('messageText').value.length+' / 1200'}
+$('messageText').addEventListener('input',updateMessageCharacterCount);
+$('messageText').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('sendMessage').click()}});
  $('sendMessage').addEventListener('click',async()=>{
   if(!user)return loginRequired();
   const content=$('messageText').value.trim();
@@ -1068,7 +1072,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   try{
    const r=await client.from('messages').insert({conversation_id:sendingConversation,sender_id:sendingUserId,content});
    if(r.error){notice('Message failed: '+r.error.message);return}
-   $('messageText').value='';
+   $('messageText').value='';updateMessageCharacterCount();
    await setTyping(false);
    // Refresh the transcript from the database after the insert succeeds.
    if(currentConversation===sendingConversation&&activeConversationOtherId===sendingRecipient)await showMessages(sendingRecipient);
