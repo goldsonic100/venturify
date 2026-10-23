@@ -71,3 +71,7 @@ assert.ok(messages.includes("$('messageText').value='';updateMessageCharacterCou
 assert.ok(messages.includes("table:'messages'},()=>loadConversationList())"), 'Inbox should refresh when the signed-in user sends a message from another device or tab');
 assert.ok(messages.includes("table:'message_reads'},()=>loadConversationList())"), 'Inbox should refresh when another participant reads a message and creates a receipt');
 assert.ok(!messages.includes("table:'messages',filter:'sender_id=neq.'+uid") && !messages.includes("table:'message_reads',filter:'user_id=eq.'+uid"), 'Inbox realtime subscriptions must not filter out the current user’s cross-device messages or other users’ read receipts');
+
+
+assert.ok(messages.includes("'venturify-group-read-'+conversationId") && messages.includes("table:'message_reads'},payload=>{if(currentConversation===conversationId&&activeConversationOtherId===key"), 'Group chats should subscribe to read receipts and refresh only when the receipt belongs to a message in the active group');
+assert.ok(messages.includes("activeConversationMessages.some(message=>message.id===payload.new.message_id)"), 'Group read receipt events should be scoped to the active transcript before reloading it');
