@@ -46,6 +46,7 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
  window.venturifyApplyTheme=apply;
 })();
 </script> <link rel="stylesheet" href="venturify-ui.css">
+<link rel="stylesheet" href="assets/venturify-design-system.css">
 </head>
 <body>
 <header class="topbar">
@@ -83,16 +84,30 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
 <script id="settings-section-navigation">
 (function(){
  const buttons=Array.from(document.querySelectorAll('[data-section]'));
- buttons.forEach(button=>button.addEventListener('click',function(){
-  const target=document.getElementById('section-'+button.dataset.section);
-  if(!target)return;
-  buttons.forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-current',active?'location':'false')});
-  target.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
- }));
+ const sections=buttons.map(button=>document.getElementById('section-'+button.dataset.section)).filter(Boolean);
+ function activate(button){
+  const selected=document.getElementById('section-'+button.dataset.section);
+  if(!selected)return;
+  buttons.forEach(item=>{
+   const active=item===button;
+   item.classList.toggle('active',active);
+   item.setAttribute('aria-current',active?'location':'false');
+   item.setAttribute('aria-pressed',String(active));
+  });
+  sections.forEach(section=>{
+   const active=section===selected;
+   section.hidden=!active;
+   section.setAttribute('aria-hidden',String(!active));
+  });
+  selected.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+ }
+ buttons.forEach(button=>button.addEventListener('click',()=>activate(button)));
+ const initial=buttons.find(button=>button.classList.contains('active'))||buttons[0];
+ if(initial)activate(initial);
 })();
 </script>
 <style>
-#settingsLayout [id^="section-"]{scroll-margin-top:24px}
+#settingsLayout [id^="section-"]{scroll-margin-top:24px}#settingsLayout [id^="section-"][hidden]{display:none!important}
 #settingsLayout .sidebar button:focus-visible{outline:3px solid #8ab8ff;outline-offset:2px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

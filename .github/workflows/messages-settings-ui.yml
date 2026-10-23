@@ -1,0 +1,27 @@
+name: Messaging and settings UI checks
+
+on:
+  pull_request:
+    paths:
+      - "settings.html"
+      - "messages.html"
+      - "assets/venturify-design-system.css"
+      - "scripts/check-messages-settings-ui.mjs"
+      - ".github/workflows/messages-settings-ui.yml"
+  push:
+    branches: [main]
+    paths:
+      - "settings.html"
+      - "messages.html"
+      - "assets/venturify-design-system.css"
+      - "scripts/check-messages-settings-ui.mjs"
+
+jobs:
+  messaging-settings-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/check-messages-settings-ui.mjs

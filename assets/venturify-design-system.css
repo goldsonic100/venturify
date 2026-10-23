@@ -80,3 +80,62 @@ h1 em { color:#5aa3ff; }
   .nav { gap:12px; }
 }
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { transition:none!important; animation:none!important; } }
+
+/* Messaging workspace polish and reliable conversation scrolling. */
+body[data-view="messages"] #messages { max-width: 1500px !important; padding-inline: 12px; }
+body[data-view="messages"] .messages-app {
+  grid-template-columns: minmax(260px, 330px) minmax(0, 1fr);
+  background: #0b1728; border-color: #263955;
+  box-shadow: 0 24px 64px #0004;
+}
+body[data-view="messages"] .messages-sidebar {
+  background: #0d192b; border-right-color: #263955;
+}
+body[data-view="messages"] .messages-chat { background: #0a1524; }
+body[data-view="messages"] .messages-chat-header,
+body[data-view="messages"] .messages-composer { background: #0d192b; border-color: #263955; }
+body[data-view="messages"] .messages-sidebar-heading h1 { color: #edf4ff; font-family: var(--sans); font-size: 26px; letter-spacing: -.5px; }
+body[data-view="messages"] .conversation-search,
+body[data-view="messages"] .messages-new select,
+body[data-view="messages"] .messages-composer .comment-input {
+  background: #101f34; border-color: #2b4161; color: #e8eefb;
+}
+body[data-view="messages"] .conversation-item {
+  background: transparent; border-color: transparent; color: #e8eefb;
+}
+body[data-view="messages"] .conversation-item:hover,
+body[data-view="messages"] .conversation-item.active {
+  background: #162c49; border-color: #294a72;
+}
+body[data-view="messages"] .conversation-copy,
+body[data-view="messages"] .conversation-copy small,
+body[data-view="messages"] .conversation-time { color: #a9bad5; }
+body[data-view="messages"] .chat-panel { background: #0d192b; border-color: #263955; }
+body[data-view="messages"] .chat-bubble { background: #192a40; border-color: #2a405f; color: #e8eefb; }
+body[data-view="messages"] .chat-bubble.mine { background: #0969e8; border-color: #197bff; color: #fff; }
+body[data-view="messages"] .chat-sender-name { color: #83baff; }
+body[data-view="messages"] .chat-date-divider { color: #91a4c2; }
+body[data-view="messages"] .chat-date-divider:before,
+body[data-view="messages"] .chat-date-divider:after { background: #263955; }
+body[data-view="messages"] .chat-reaction,
+body[data-view="messages"] .chat-reaction-picker button { background: #132744; border-color: #2b466a; color: #dceaff; }
+body[data-view="messages"] .messages-empty-state h2 { color: #edf4ff; font-family: var(--sans); }
+body[data-view="messages"] .messages-empty-state p,
+body[data-view="messages"] .messages-privacy-note { color: #9aacc8; }
+body[data-view="messages"] .messages-chat-body {
+  display: flex; flex: 1 1 auto; flex-direction: column;
+  min-height: 0; overflow: hidden;
+}
+body[data-view="messages"] .chat-message-list {
+  flex: 1 1 auto; min-height: 0; max-height: none !important;
+  height: auto; overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch; scrollbar-width: thin;
+  scrollbar-color: #344d70 transparent;
+}
+body[data-view="messages"] .messages-composer { flex: 0 0 auto; }
+body[data-view="messages"] .messages-composer .comment-input:focus { border-color: #398dff; box-shadow: 0 0 0 3px #398dff20; }
+@media(max-width:760px) {
+  body[data-view="messages"] #messages { padding-inline: 0; }
+  body[data-view="messages"] .messages-app { grid-template-columns: minmax(0, 1fr); }
+  body[data-view="messages"] .messages-chat-body { min-height: 120px; }
+}
