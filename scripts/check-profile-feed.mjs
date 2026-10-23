@@ -58,3 +58,6 @@ assert.match(feed, /@media\s*\(max-width:\s*760px\)/, 'Feed must retain a mobile
 console.log('Profile/feed regression checks passed (scripts parsed; no live services called).');
 
 assert.ok(profile.includes('id="accountStatus" role="status" aria-live="polite" aria-atomic="true"'), 'Profile save feedback should be announced accessibly');
+
+assert.ok(feed.includes('id="postCharacterCount" role="status" aria-live="polite" aria-atomic="true"'), 'Post composer should announce remaining character count accessibly');
+assert.ok(feed.includes("1200-$('postText').value.length") && feed.includes("character-limit-near"), 'Post composer character count should update live and flag the final 120 characters');
