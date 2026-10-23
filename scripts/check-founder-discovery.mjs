@@ -242,3 +242,6 @@ console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discov
 
 assert.ok(discoverHtml.includes('id="founderResults" class="founder-results" role="region" aria-label="Founder recommendations" aria-live="polite" aria-busy="true"'), 'Founder recommendations should expose a named live region while loading');
 assert.ok(discoverHtml.includes("$('founderResults').setAttribute('aria-busy','false')"), 'Founder recommendation loading state should clear after rendering');
+
+assert.ok(html.includes('id="communitySearchSummary" role="status" aria-live="polite" aria-atomic="true"'), 'Community search and sort results should be announced accessibly');
+assert.ok(html.includes('id="communityList" role="region" aria-label="All communities" aria-busy="true"') && html.includes("$('communityList').setAttribute('aria-busy','false')"), 'Community results should expose their loading state and accessible name');
