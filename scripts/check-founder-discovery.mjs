@@ -258,3 +258,7 @@ assert.ok(discoverHtml.includes('Level 5 or higher, and at least one community m
 
 assert.ok(discoverHtml.includes("if(visibility.error){$('founderResults').setAttribute('aria-busy','false')") && discoverHtml.includes('Recommendations are paused for your safety'), 'Discover must fail closed instead of exposing profiles when visibility authorization cannot be verified');
 assert.ok(discoverHtml.includes("if(memberships.error){$('founderResults').setAttribute('aria-busy','false')") && discoverHtml.includes('Community membership could not be verified'), 'Discover must not silently treat membership query failures as zero memberships');
+
+
+assert.ok(discoverHtml.includes('data-retry-discover') && discoverHtml.includes('function showDiscoverLoadError(error)'), 'Discover failures should show a safe retry control instead of leaving the list stuck');
+assert.ok(discoverHtml.includes("c.auth.onAuthStateChange(()=>setTimeout(retryDiscoverLoad,0))") && discoverHtml.includes('try{await load()}catch(error){showDiscoverLoadError(error)}'), 'Discover should catch unexpected load failures and support retry after auth changes');
