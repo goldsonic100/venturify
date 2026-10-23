@@ -84,3 +84,6 @@ console.log('Collaboration request-to-workspace regression checks passed (static
 
 assert.ok(collaborations.includes('aria-live="polite"') && collaborations.includes('aria-busy="true"'), 'Collaboration request results should announce asynchronous loading and updates accessibly');
 assert.ok(collaborations.includes('grid-template-columns:minmax(0,1fr)') && collaborations.includes('.request-tools input,.request-tools select{width:100%;min-width:0}'), 'Collaboration filters should fit narrow mobile screens without horizontal overflow');
+
+assert.ok(workspace.includes('id="realtimeLastSynced"') && workspace.includes("Refresh attempted "), 'Workspace refresh recovery should expose the most recent refresh attempt time');
+assert.ok(workspace.includes("b.textContent='Refreshing…'") && workspace.includes("finally{b.disabled=false;b.textContent='Refresh data'}"), 'Workspace refresh should expose a busy state and always restore the refresh control');
