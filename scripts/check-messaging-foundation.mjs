@@ -75,3 +75,8 @@ assert.ok(!messages.includes("table:'messages',filter:'sender_id=neq.'+uid") && 
 
 assert.ok(messages.includes("'venturify-group-read-'+conversationId") && messages.includes("table:'message_reads'},payload=>{if(currentConversation===conversationId&&activeConversationOtherId===key"), 'Group chats should subscribe to read receipts and refresh only when the receipt belongs to a message in the active group');
 assert.ok(messages.includes("activeConversationMessages.some(message=>message.id===payload.new.message_id)"), 'Group read receipt events should be scoped to the active transcript before reloading it');
+
+
+assert.ok((messages.match(/data-retry-inbox/g)||[]).length>=4, 'Inbox membership, message, conversation, and profile load failures should offer a retry action');
+assert.ok(messages.includes("const retry=e.target.closest('[data-retry-inbox]');if(retry){retry.disabled=true;retry.textContent='Retrying…';await loadConversationList();return}"), 'Inbox retry action should rerun the list load and prevent duplicate clicks');
+assert.ok(messages.includes('membersResult.error||messagesResult.error||conversationResult.error'), 'Conversation metadata failures should be handled rather than silently rendering incomplete inbox rows');
