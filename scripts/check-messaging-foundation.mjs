@@ -31,3 +31,6 @@ console.log('Messaging feature smoke checks passed. Note: these static checks do
 
 assert.ok(messages.includes('id="conversationList" class="conversation-list" role="region" aria-label="Conversation inbox" aria-live="polite" aria-busy="false"'), 'Inbox should expose a named accessible live region');
 assert.ok(messages.includes("box.setAttribute('aria-busy','true')") && messages.includes("box.setAttribute('aria-busy','false');filteredConversationList()"), 'Inbox loading state should be set and cleared during conversation loading');
+
+assert.ok(messages.includes('id="conversationSearchStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"'), 'Conversation search should announce result counts accessibly');
+assert.ok(messages.includes("No conversations match your search.") && messages.includes(" of '+buttons.length+' conversations match your search."), 'Conversation search should announce both matches and empty results');
