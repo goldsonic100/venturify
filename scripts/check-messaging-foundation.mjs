@@ -75,3 +75,8 @@ assert.ok(!messages.includes("table:'messages',filter:'sender_id=neq.'+uid") && 
 
 assert.ok(messages.includes("'venturify-group-read-'+conversationId") && messages.includes("table:'message_reads'},payload=>{if(currentConversation===conversationId&&activeConversationOtherId===key"), 'Group chats should subscribe to read receipts and refresh only when the receipt belongs to a message in the active group');
 assert.ok(messages.includes("activeConversationMessages.some(message=>message.id===payload.new.message_id)"), 'Group read receipt events should be scoped to the active transcript before reloading it');
+
+
+assert.ok(messages.includes("if(user&&currentConversation)setTyping(false).catch(error=>console.warn('Could not clear typing state while leaving conversation',error))"), 'Switching away from a conversation should clear the previous user typing row');
+assert.ok(messages.includes("else if(user&&currentConversation)setTyping(false)"), 'Hiding the messages tab should clear the active typing state');
+assert.ok(messages.includes("window.addEventListener('pagehide',()=>{if(user&&currentConversation)setTyping(false)})"), 'Leaving the page should attempt to clear the active typing state');
