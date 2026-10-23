@@ -105,7 +105,7 @@ assert.match(collaborationMigration, /length\(message\) <= 500/,
 
 // Workspaces are only opened from accepted collaborations and keep task/project
 // chat, activity, files, and task-comment features connected to persisted data.
-assert.match(workspace, /from\(['"]collaboration_requests['"]\)[\s\S]{0,240}status['"]\)?\s*\)?\.eq\(['"]status['"],\s*['"]accepted['"]\)/i,
+assert.match(workspace, /select\('id,requester_id,recipient_id,status'\)\.eq\('id',requestId\)\.eq\('status','accepted'\)/i,
   'Workspace entry must verify an accepted collaboration');
 assert.match(workspace, /from\(['"]workspace_tasks['"]\)/,
   'Workspace tasks must persist through Supabase');
