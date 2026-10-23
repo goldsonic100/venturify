@@ -56,3 +56,5 @@ assert.match(feed, /function\s+loginRequired|const\s+loginRequired\s*=/, 'Feed m
 assert.match(feed, /@media\s*\(max-width:\s*760px\)/, 'Feed must retain a mobile breakpoint');
 
 console.log('Profile/feed regression checks passed (scripts parsed; no live services called).');
+
+assert.ok(profile.includes('id="accountStatus" role="status" aria-live="polite" aria-atomic="true"'), 'Profile save feedback should be announced accessibly');
