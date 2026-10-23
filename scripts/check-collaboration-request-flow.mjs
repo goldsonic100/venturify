@@ -113,3 +113,13 @@ assert.ok(workspace.includes('db.removeChannel(channel)') && workspace.includes(
 
 assert.ok(workspace.includes("document.addEventListener('visibilitychange'") && workspace.includes("document.visibilityState!=='visible'||!workspace"), 'Workspace should refresh shared data when returning to a visible tab');
 assert.ok(workspace.includes("window.addEventListener('focus'") && workspace.includes("if(!chatChannel)startChatRealtime()") && workspace.includes("if(!activityChannel||!checklistRealtimeChannel)startActivityRealtime()"), 'Workspace should restore missing realtime subscriptions on return');
+
+
+assert.ok(workspace.includes("db.channel(topic,{config:{private:true,presence:{key:user.id}}})"), 'Workspace presence must use a private channel keyed to the authenticated collaborator');
+assert.ok(workspace.includes("channel.track({user_id:user.id,online_at:new Date().toISOString()})") && workspace.includes("channel.presenceState()"), 'Workspace presence should publish minimal identity and render current presence state');
+assert.ok(workspace.includes("'You and '+partnerName+' are online'") && workspace.includes('Visible only to accepted collaborators'), 'Presence UI should identify online collaboration status and explain visibility');
+assert.ok(workspace.includes('startWorkspacePresence()') && workspace.includes('schedulePresenceReconnect()'), 'Presence should start for loaded workspaces and recover from channel errors');
+
+const presenceMigration = read('../supabase/migrations/20261023110000_private_workspace_presence.sql');
+assert.ok(presenceMigration.includes('on realtime.messages') && presenceMigration.includes('for select') && presenceMigration.includes('for insert'), 'Private presence migration must authorize channel reads and publishes through Realtime RLS');
+assert.ok(presenceMigration.includes("realtime.topic() like 'venturify-workspace-presence:%'") && presenceMigration.includes("r.status = 'accepted'") && presenceMigration.includes('r.requester_id or (select auth.uid()) = r.recipient_id'), 'Presence RLS must restrict channel topics to accepted workspace participants');
