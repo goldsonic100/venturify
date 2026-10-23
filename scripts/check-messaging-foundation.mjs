@@ -39,3 +39,7 @@ assert.ok(messages.includes("No conversations match your search.") && messages.i
 assert.ok(messages.includes('globalMessageRetryDelay=1500') && messages.includes('Math.min(Math.round(globalMessageRetryDelay*1.7),30000)'), 'Inbox realtime recovery must use bounded retry backoff');
 assert.ok(messages.includes('scheduleGlobalMessageReconnect(uid)') && messages.includes('Inbox live updates interrupted; reconnecting automatically'), 'Inbox realtime errors must trigger automatic recovery feedback');
 assert.ok(messages.includes("status==='CLOSED'") && messages.includes("status==='SUBSCRIBED'"), 'Inbox realtime recovery must handle closed and successfully restored channels');
+
+
+assert.ok(messages.includes("document.addEventListener('visibilitychange'") && messages.includes("document.visibilityState!=='visible'||!user"), 'Inbox must refresh its unread/conversation snapshot when a signed-in user returns to the tab');
+assert.ok(messages.includes("window.addEventListener('focus',()=>{if(user)loadConversationList()})"), 'Inbox must refresh conversations when the browser window regains focus');
