@@ -144,3 +144,6 @@ assert.ok(presenceMigration.includes("split_part(realtime.topic(), ':', 2) ~* '^
 
 assert.ok(workspace.includes("el.dataset.state='away'") && workspace.includes("label.textContent='You are away — presence paused.'"), 'Workspace should visibly mark the current user away after untracking presence in a hidden tab');
 assert.ok(workspace.includes("else presenceChannel.track({user_id:user.id,online_at:new Date().toISOString()})"), 'Workspace should restore the current user presence when the tab becomes visible again');
+
+
+assert.equal((presenceMigration.match(/realtime\.messages\.extension = 'presence'/g) || []).length, 2, 'Workspace presence RLS must only authorize Presence events, not Broadcast or other Realtime extensions');
