@@ -120,6 +120,9 @@ assert.ok(workspace.includes("channel.track({user_id:user.id,online_at:new Date(
 assert.ok(workspace.includes("'You and '+partnerName+' are online'") && workspace.includes('Visible only to accepted collaborators'), 'Presence UI should identify online collaboration status and explain visibility');
 assert.ok(workspace.includes('startWorkspacePresence()') && workspace.includes('schedulePresenceReconnect()'), 'Presence should start for loaded workspaces and recover from channel errors');
 
-const presenceMigration = read('../supabase/migrations/20261023110000_private_workspace_presence.sql');
+const presenceMigration = read('../supabase/migrations/20261023110000_private_workspace_presence_authorization.sql');
 assert.ok(presenceMigration.includes('on realtime.messages') && presenceMigration.includes('for select') && presenceMigration.includes('for insert'), 'Private presence migration must authorize channel reads and publishes through Realtime RLS');
-assert.ok(presenceMigration.includes("realtime.topic() like 'venturify-workspace-presence:%'") && presenceMigration.includes("r.status = 'accepted'") && presenceMigration.includes('r.requester_id or (select auth.uid()) = r.recipient_id'), 'Presence RLS must restrict channel topics to accepted workspace participants');
+assert.ok(presenceMigration.includes("realtime.topic() ~ '^venturify-workspace-presence:[0-9a-fA-F-]{36} && presenceMigration.includes("r.status = 'accepted'") && presenceMigration.includes('r.requester_id or (select auth.uid()) = r.recipient_id'), 'Presence RLS must restrict channel topics to accepted workspace participants');
+") && presenceMigration.includes("r.status = 'accepted'") && presenceMigration.includes('r.requester_id or (select auth.uid()) = r.recipient_id'), 'Presence RLS must restrict channel topics to accepted workspace participants');
+
+assert.ok(workspace.includes("window.addEventListener('pagehide',stopWorkspacePresence)"), 'Workspace presence channel must be cleaned up when leaving the page');
