@@ -8,7 +8,7 @@ const files = {
 };
 
 function parseInlineScripts(name, html) {
-  const scripts = [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)]
+  const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
     .filter(([, source]) => source.trim());
   assert.ok(scripts.length > 0, name + '.html should contain application scripts');
   for (const [index, [, source]] of scripts.entries()) {
@@ -30,10 +30,10 @@ for (const id of [
 ]) {
   assert.ok(profile.includes('id="' + id + '"'), 'Profile editor must retain #' + id);
 }
-assert.match(profile, /safeProfileUrl\\s*=\\s*value\\s*=>/, 'Profile URLs must use the safe URL helper');
-assert.match(profile, /profileClient\\.from\\(['"]follows['"]\\)/, 'Profiles must retain follower/following data');
-assert.match(profile, /profileClient\\.from\\(['"]posts['"]\\)/, 'Profiles must retain recent posts');
-assert.match(profile, /@media\\s*\\(max-width:\\s*760px\\)/, 'Profiles must retain a mobile breakpoint');
+assert.match(profile, /safeProfileUrl\s*=\s*value\s*=>/, 'Profile URLs must use the safe URL helper');
+assert.match(profile, /profileClient\.from\(['"]follows['"]\)/, 'Profiles must retain follower/following data');
+assert.match(profile, /profileClient\.from\(['"]posts['"]\)/, 'Profiles must retain recent posts');
+assert.match(profile, /@media\s*\(max-width:\s*760px\)/, 'Profiles must retain a mobile breakpoint');
 
 // Guard the reputation breakdown against the malformed concatenation fixed in PR #25.
 for (const fragment of [
@@ -53,8 +53,8 @@ for (const control of ['data-like=', 'data-focus=', 'data-bookmark=', 'data-subm
   assert.ok(feed.includes(control), 'Feed must retain ' + control + ' interaction');
 }
 assert.match(feed, /maxlength=["']500["']/i, 'Comment inputs must remain length-limited');
-assert.match(feed, /function\\s+loginRequired|const\\s+loginRequired\\s*=/, 'Feed must retain login gating for interactions');
-assert.match(feed, /@media\\s*\\(max-width:\\s*760px\\)/, 'Feed must retain a mobile breakpoint');
+assert.match(feed, /function\s+loginRequired|const\s+loginRequired\s*=/, 'Feed must retain login gating for interactions');
+assert.match(feed, /@media\s*\(max-width:\s*760px\)/, 'Feed must retain a mobile breakpoint');
 
 // Settings regression guards: every visible navigation tab must target a real section,
 // and all account controls must remain wired to a save/status path.
@@ -65,9 +65,9 @@ assert.deepEqual(settingTabs, ['privacy', 'features', 'notifications', 'appearan
 for (const section of settingTabs) {
   assert.ok(settings.includes('id="section-' + section + '"'), 'Settings tab "' + section + '" needs a matching section');
 }
-assert.match(settings, /querySelectorAll\\(['"]\\[data-section\\]['"]\\)/,
+assert.match(settings, /querySelectorAll\(['"]\[data-section\]['"]\)/,
   'Settings tabs must have click handlers');
-assert.match(settings, /section\\.hidden\\s*=\\s*!active/,
+assert.match(settings, /section\.hidden\s*=\s*!active/,
   'Settings navigation must hide inactive sections');
 assert.match(settings, /id="saveSettings"/, 'Settings must retain its save control');
 assert.match(settings, /id="status"[^>]*aria-live="polite"/,
@@ -79,7 +79,7 @@ for (const key of [
 ]) {
   assert.ok(settings.includes('data-setting="' + key + '"'), 'Settings control is missing: ' + key);
 }
-assert.match(settings, /if\\(!client\\).*?save\\.disabled=true/s,
+assert.match(settings, /if\(!client\).*?save\.disabled=true/s,
   'Settings save must fail safely when the Supabase browser client is unavailable');
 assert.match(settings, /beforeunload/,
   'Settings must warn users about unsaved changes');
