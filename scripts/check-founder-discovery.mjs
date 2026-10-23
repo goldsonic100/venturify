@@ -249,3 +249,8 @@ assert.ok(html.includes('id="communityList" role="region" aria-label="All commun
 const communitiesHtml = readFileSync(new URL('../communities.html', import.meta.url), 'utf8');
 assert.ok(communitiesHtml.includes('id="communityList" role="region" aria-label="All communities" aria-live="polite" aria-busy="true"'), 'Community directory should expose a named live region while loading');
 assert.ok(communitiesHtml.includes("$('communityList').setAttribute('aria-busy','false')"), 'Community directory should clear its busy state when rendering');
+
+
+assert.ok(discoverHtml.includes('id="founderResultsStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"'), 'Discover should announce result counts accessibly');
+assert.ok(discoverHtml.includes("'Showing '+Math.min(list.length,80)+' of '+list.length+' eligible founder'"), 'Discover should report the number of eligible results');
+assert.ok(discoverHtml.includes('Level 5 or higher, and at least one community membership'), 'Discover empty state should explain the eligibility requirements');
