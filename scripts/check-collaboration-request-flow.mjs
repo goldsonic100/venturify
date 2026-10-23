@@ -90,3 +90,6 @@ assert.ok(workspace.includes("b.textContent='Refreshing…'") && workspace.inclu
 
 assert.ok(feed.includes('id="toast" role="status" aria-live="polite" aria-atomic="true"'), 'Feed status messages should be announced as complete live-region updates');
 assert.ok(feed.includes("aria-label','Collaboration request sent'") && feed.includes("aria-label','Collaboration invitation received'"), 'Collaboration CTA states should expose clear accessible labels after a request decision');
+
+assert.ok(notifications.includes('id="notificationHistoryList" role="region" aria-label="Notification history" aria-live="polite" aria-busy="false"'), 'Notification history should have a named, stateful live region');
+assert.ok(notifications.includes("historyList.setAttribute('aria-busy','true')") && notifications.includes("historyList.setAttribute('aria-busy','false')"), 'Notification loading should expose and clear its busy state');
