@@ -2,12 +2,13 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
-const [feed, collaborations, workspace, notifications, migration] = [
+const [feed, collaborations, workspace, notifications, migration, presenceMigration] = [
   '../feed.html',
   '../collaborations.html',
   '../workspace.html',
   '../notifications.html',
   '../supabase/migrations/20261016010000_create_collaboration_requests.sql',
+  '../supabase/migrations/20261023110000_private_workspace_presence.sql',
 ].map(read);
 
 for (const [page, html] of Object.entries({ feed, collaborations, workspace, notifications })) {
@@ -128,3 +129,10 @@ assert.ok(presenceMigration.includes("realtime.topic() like 'venturify-workspace
 assert.ok(workspace.includes("e.submitter||$('chatForm').querySelector('button[type=\"submit\"]')"), 'Workspace chat must support submit events without an explicit submitter, including keyboard sends');
 assert.ok(workspace.includes('chatSending=true') && workspace.includes('finally{chatSending=false;button.disabled=false;'), 'Workspace chat must prevent duplicate sends and always restore the send button');
 assert.ok(workspace.includes("$('chatForm').setAttribute('aria-busy','true')") && workspace.includes("$('chatForm').setAttribute('aria-busy','false')"), 'Workspace chat should expose send-in-progress state accessibly');
+
+
+assert.match(presenceMigration, /for select\s+to authenticated/i, 'Private workspace presence must only be readable by authenticated users');
+assert.match(presenceMigration, /for insert\s+to authenticated/i, 'Private workspace presence must only be publishable by authenticated users');
+assert.ok(presenceMigration.includes("realtime.topic() like 'venturify-workspace-presence:%'"), 'Presence authorization must be scoped to the workspace presence topic namespace');
+assert.ok(presenceMigration.includes("r.status = 'accepted'") && presenceMigration.includes('(select auth.uid()) = r.requester_id or (select auth.uid()) = r.recipient_id'), 'Presence policies must require current accepted collaboration membership');
+assert.ok(presenceMigration.includes("split_part(realtime.topic(), ':', 2) ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'"), 'Presence policy must validate workspace UUID text before casting');
