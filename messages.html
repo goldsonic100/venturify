@@ -659,6 +659,7 @@ body[data-view="messages"] #messages .messages-privacy-note{flex:none!important;
         </header>
         <div class="messages-chat-body" id="chatBody">
           <div id="chatMessages" class="comment-list chat-message-list" aria-live="polite"><div class="messages-empty-state"><div class="empty-chat-icon">✉</div><h2>Messages</h2><p>Select a contact from the sidebar to see your conversation.</p></div></div>
+          <p id="messageReadStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"></p>
           <div id="typingStatus" class="typing-status" aria-live="polite" hidden>Someone is typing…</div>
         </div>
         <div class="messages-composer">
@@ -984,6 +985,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   if(!currentConversation||!user||activeConversationOtherId!==otherId)return;
   // Latest-request wins: realtime inserts, reaction changes, and read receipts can overlap.
   const requestId=++conversationTranscriptLoadRequest;
+  const readStatus=$('messageReadStatus');if(readStatus)readStatus.textContent='';
   // Snapshot the target before any network request; a user may switch chats while a query is in flight.
   const conversationId=currentConversation,sessionUserId=user.id;
   const stillViewing=()=>requestId===conversationTranscriptLoadRequest&&!!user&&user.id===sessionUserId&&currentConversation===conversationId&&activeConversationOtherId===otherId;
@@ -998,12 +1000,13 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   }
   if(!stillViewing())return;
   if(historyError){$('chatMessages').innerHTML='<div class="muted-small">'+esc(historyError.message)+'</div>';return}
-  const incoming=messages.filter(m=>m.sender_id!==sessionUserId);
+  const incoming=messages.filter(m=>m.sender_id!==sessionUserId);let readReceiptError=null;
   if(incoming.length){
    const readResult=await client.from('message_reads').upsert(incoming.map(m=>({message_id:m.id,user_id:sessionUserId})),{onConflict:'message_id,user_id',ignoreDuplicates:true});
    if(!stillViewing())return;
-   if(readResult.error)console.warn('Read receipts could not be saved',readResult.error.message);
+   if(readResult.error){readReceiptError=readResult.error;console.warn('Read receipts could not be saved',readResult.error.message)}
   }
+  if(readStatus)readStatus.textContent=readReceiptError?'Could not update read status. Reopen this conversation to retry.':'';
   const outgoing=messages.filter(m=>m.sender_id===sessionUserId),outIds=outgoing.map(m=>m.id);
   const reads=outIds.length?await client.from('message_reads').select('message_id,read_at').in('message_id',outIds).neq('user_id',sessionUserId):{data:[]};
   if(!stillViewing())return;
