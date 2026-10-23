@@ -147,3 +147,8 @@ assert.ok(workspace.includes("else presenceChannel.track({user_id:user.id,online
 
 
 assert.equal((presenceMigration.match(/realtime\.messages\.extension = 'presence'/g) || []).length, 2, 'Workspace presence RLS must only authorize Presence events, not Broadcast or other Realtime extensions');
+
+
+assert.ok(workspace.includes("presencePaused=document.visibilityState!=='visible'"), 'Workspace presence should initialize as paused for hidden tabs');
+assert.ok(workspace.includes("if(presencePaused){el.dataset.state='away';label.textContent='You are away — presence paused.';return}"), 'Presence sync events must not overwrite the away state while the tab is hidden');
+assert.ok(workspace.includes('presencePaused=true;renderWorkspacePresence()') && workspace.includes('presencePaused=false;renderWorkspacePresence(presenceChannel?.presenceState?.()||{})'), 'Visibility changes must pause and resume presence rendering explicitly');
