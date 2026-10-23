@@ -11,7 +11,7 @@ const scripts = [...feed.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
   .map(([, source]) => source.trim())
   .filter(Boolean);
 for (const [index, source] of scripts.entries()) {
-  assert.doesNotThrow(() => new Function(source), \`feed.html inline script \${index + 1} must parse\`);
+  assert.doesNotThrow(() => new Function(source), 'feed.html inline script ' + (index + 1) + ' must parse');
 }
 
 assert.match(feed, /data-collaboration-request=/, 'Opportunity cards must offer collaboration requests');
