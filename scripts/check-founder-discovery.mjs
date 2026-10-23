@@ -245,3 +245,7 @@ assert.ok(discoverHtml.includes("$('founderResults').setAttribute('aria-busy','f
 
 assert.ok(html.includes('id="communitySearchSummary" role="status" aria-live="polite" aria-atomic="true"'), 'Community search and sort results should be announced accessibly');
 assert.ok(html.includes('id="communityList" role="region" aria-label="All communities" aria-busy="true"') && html.includes("$('communityList').setAttribute('aria-busy','false')"), 'Community results should expose their loading state and accessible name');
+
+const communitiesHtml = readFileSync(new URL('../communities.html', import.meta.url), 'utf8');
+assert.ok(communitiesHtml.includes('id="communityList" role="region" aria-label="All communities" aria-live="polite" aria-busy="true"'), 'Community directory should expose a named live region while loading');
+assert.ok(communitiesHtml.includes("$('communityList').setAttribute('aria-busy','false')"), 'Community directory should clear its busy state when rendering');
