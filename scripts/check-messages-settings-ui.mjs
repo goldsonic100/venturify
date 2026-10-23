@@ -19,3 +19,6 @@ console.log("Messaging and settings UI smoke checks passed.");
 assert.ok(settings.includes('role="tablist"') && settings.includes("event.key==='ArrowDown'") && settings.includes("event.key==='Home'"), "settings navigation should support keyboard tab movement");
 assert.ok(settings.includes('aria-controls="section-privacy"') && settings.includes('role="tabpanel"'), "settings tabs and panels should have explicit accessible relationships");
 assert.ok(settings.includes("location.hash.match") && settings.includes("updateHash:true"), "settings panels should support direct links and preserve the selected section in the URL");
+
+assert.ok(messages.includes('id="messageStatus" role="status" aria-live="polite" aria-atomic="true"'), "Message composer status should be announced accessibly");
+assert.ok(messages.includes("sendButton.setAttribute('aria-busy','true')"), "Sending a message should expose its busy state to assistive technology");
