@@ -837,7 +837,7 @@ let currentConversation=null,currentConversationChannel=null,currentTypingChanne
   const requestId=++conversationListLoadRequest,requestUserId=user?.id||null;
   const isCurrent=()=>requestId===conversationListLoadRequest&&(user?.id||null)===requestUserId;
   if(!user){box.setAttribute('aria-busy','false');box.innerHTML='<div class="muted-small">Log in to see your conversations.</div>';total.hidden=true;return}
-  box.setAttribute('aria-busy','true');box.innerHTML='<div class="muted-small">Loading conversations…</div>';
+  box.setAttribute('aria-busy','true');if(!box.querySelector('.conversation-item'))box.innerHTML='<div class="muted-small">Loading conversations…</div>';
   const memberships=await client.from('conversation_members').select('conversation_id,user_id').eq('user_id',requestUserId);
   if(!isCurrent())return;
   if(memberships.error){box.setAttribute('aria-busy','false');box.innerHTML='<div class="muted-small">Could not load conversations. Refresh and try again.</div>';return}
