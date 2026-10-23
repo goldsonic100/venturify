@@ -62,6 +62,12 @@ assert.ok(['#addTaskSection','#milestonesSection','#projectTasks','#projectActiv
   'The workspace overview must provide shortcuts to core collaboration areas');
 assert.ok(['id="addTaskSection"','id="projectTasks"','id="projectActivity"'].every(id=>workspace.includes(id)),
   'Workspace shortcuts must point to real sections');
+assert.ok(workspace.includes('id="realtimeStatus"') && workspace.includes("label.textContent=failed?'Live updates interrupted"),
+  'The workspace must communicate realtime connection health');
+assert.ok(workspace.includes("table:'workspace_milestones',filter:'workspace_id=eq.'+workspace.id") && workspace.includes("table:'workspace_task_comments',filter:'workspace_id=eq.'+workspace.id"),
+  'Realtime milestone and task-comment subscriptions must be scoped to the active workspace');
+assert.ok(workspace.includes("$('refreshRealtimeData').addEventListener('click'") && workspace.includes('loadTasks(),loadMilestones(),loadTaskComments(),loadChat(),loadActivity(),loadFiles()'),
+  'Collaborators must be able to refresh all shared workspace data when realtime is interrupted');
 assert.ok(notifications.includes("'workspace.html?request='+encodeURIComponent(collaborationId)"),
   'Workspace notifications must open the correct collaboration workspace');
 assert.ok(notifications.includes("taskId?'&task='+encodeURIComponent(taskId)"),
