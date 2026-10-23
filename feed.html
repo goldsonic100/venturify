@@ -541,15 +541,34 @@ $('feed').addEventListener('click',async e=>{
   const recipientId=requestButton.dataset.collaborationAuthor,postId=requestButton.dataset.collaborationRequest,kind=requestButton.dataset.collaborationKind;
   if(!recipientId||recipientId===user.id)return notice('You cannot request collaboration with yourself.');
   requestButton.disabled=true;
-  const myBlock=await client.from('user_blocks').select('blocked_id').eq('blocker_id',user.id).eq('blocked_id',recipientId).limit(1);
-  if(myBlock.error){requestButton.disabled=false;return notice('Could not verify collaboration permissions. Please try again.')}
-  if((myBlock.data||[]).length){requestButton.disabled=false;return notice('Collaboration requests are unavailable between these accounts.')}
-  const pending=await client.from('collaboration_requests').select('id').eq('requester_id',user.id).eq('recipient_id',recipientId).eq('status','pending').limit(1);
-  if(pending.error){requestButton.disabled=false;return notice('Could not check existing requests. Please try again.')}
-  if((pending.data||[]).length){requestButton.disabled=false;requestButton.textContent='Request already pending';return notice('You already have a pending request with this founder.')}
+  // Check both block directions before revealing request state or attempting an insert.
+  const [myBlock,theirBlock]=await Promise.all([
+   client.from('user_blocks').select('blocked_id').eq('blocker_id',user.id).eq('blocked_id',recipientId).limit(1),
+   client.from('user_blocks').select('blocked_id').eq('blocker_id',recipientId).eq('blocked_id',user.id).limit(1)
+  ]);
+  if(myBlock.error||theirBlock.error){requestButton.disabled=false;return notice('Could not verify collaboration permissions. Please try again.')}
+  if((myBlock.data||[]).length||(theirBlock.data||[]).length){requestButton.disabled=false;return notice('Collaboration requests are unavailable between these accounts.')}
+  const [pending,incoming]=await Promise.all([
+   client.from('collaboration_requests').select('id').eq('requester_id',user.id).eq('recipient_id',recipientId).eq('status','pending').limit(1),
+   client.from('collaboration_requests').select('id').eq('requester_id',recipientId).eq('recipient_id',user.id).eq('status','pending').limit(1)
+  ]);
+  if(pending.error||incoming.error){requestButton.disabled=false;return notice('Could not check existing requests. Please try again.')}
+  if((pending.data||[]).length){requestButton.textContent='Request already pending';return notice('You already have a pending request with this founder.')}
+  if((incoming.data||[]).length){
+   requestButton.textContent='Invitation received';
+   requestButton.title='This founder has already invited you to collaborate.';
+   return notice('This founder has already invited you. Open your collaboration inbox to respond.');
+  }
   const message='I would like to collaborate on your '+(kind==='idea'?'idea':kind==='resource'?'resource offer':'lesson learned')+'. Post: '+window.location.origin+window.location.pathname+'?view=feed#post-'+encodeURIComponent(postId);
   const created=await client.from('collaboration_requests').insert({requester_id:user.id,recipient_id:recipientId,message,status:'pending'}).select('id').single();
-  if(created.error){requestButton.disabled=false;return notice(created.error.code==='42501'?'Collaboration requests are unavailable between these accounts.':'Could not send request: '+created.error.message)}
+  if(created.error){
+   requestButton.disabled=false;
+   if(created.error.code==='23505'){
+    requestButton.textContent='Request already pending';
+    return notice('A request is already pending with this founder. Open your collaboration inbox to view it.');
+   }
+   return notice(created.error.code==='42501'?'Collaboration requests are unavailable between these accounts.':'Could not send request: '+created.error.message);
+  }
   // The database trigger creates this notification securely; clients cannot insert notifications directly.
   notice('Collaboration request sent.');
   requestButton.textContent='✓ Request sent';
