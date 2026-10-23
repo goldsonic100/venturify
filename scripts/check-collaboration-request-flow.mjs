@@ -2,13 +2,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
-const [feed, collaborations, workspace, notifications, migration, presenceMigration] = [
+const [feed, collaborations, workspace, notifications, migration] = [
   '../feed.html',
   '../collaborations.html',
   '../workspace.html',
   '../notifications.html',
   '../supabase/migrations/20261016010000_create_collaboration_requests.sql',
-  '../supabase/migrations/20261023110000_private_workspace_presence.sql',
 ].map(read);
 
 for (const [page, html] of Object.entries({ feed, collaborations, workspace, notifications })) {
@@ -112,7 +111,7 @@ assert.ok(workspace.includes('scheduleRealtimeReconnect()') && workspace.include
 assert.ok(workspace.includes('db.removeChannel(channel)') && workspace.includes('checklistRealtimeChannel=null'), 'Reconnect must dispose of stale channels before resubscribing all workspace feeds');
 
 
-assert.ok(workspace.includes("document.addEventListener('visibilitychange'") && workspace.includes("document.visibilityState!=='visible'||!workspace"), 'Workspace should refresh shared data when returning to a visible tab');
+assert.ok(workspace.includes("document.addEventListener('visibilitychange'") && workspace.includes("if(document.visibilityState!=='visible'){if(presenceChannel)presenceChannel.untrack()") , 'Workspace should pause presence while hidden and refresh shared data when returning to a visible tab');
 assert.ok(workspace.includes("window.addEventListener('focus'") && workspace.includes("if(!chatChannel)startChatRealtime()") && workspace.includes("if(!activityChannel||!checklistRealtimeChannel)startActivityRealtime()"), 'Workspace should restore missing realtime subscriptions on return');
 
 
@@ -121,6 +120,7 @@ assert.ok(workspace.includes("channel.track({user_id:user.id,online_at:new Date(
 assert.ok(workspace.includes("'You and '+partnerName+' are online'") && workspace.includes('Visible only to accepted collaborators'), 'Presence UI should identify online collaboration status and explain visibility');
 assert.ok(workspace.includes('startWorkspacePresence()') && workspace.includes('schedulePresenceReconnect()'), 'Presence should start for loaded workspaces and recover from channel errors');
 
+const presenceMigration = read('../supabase/migrations/20261023110000_private_workspace_presence.sql');
 assert.ok(presenceMigration.includes('on realtime.messages') && presenceMigration.includes('for select') && presenceMigration.includes('for insert'), 'Private presence migration must authorize channel reads and publishes through Realtime RLS');
 assert.ok(presenceMigration.includes("realtime.topic() like 'venturify-workspace-presence:%'") && presenceMigration.includes("r.status = 'accepted'") && presenceMigration.includes('r.requester_id or (select auth.uid()) = r.recipient_id'), 'Presence RLS must restrict channel topics to accepted workspace participants');
 
@@ -128,6 +128,11 @@ assert.ok(presenceMigration.includes("realtime.topic() like 'venturify-workspace
 assert.ok(workspace.includes("e.submitter||$('chatForm').querySelector('button[type=\"submit\"]')"), 'Workspace chat must support submit events without an explicit submitter, including keyboard sends');
 assert.ok(workspace.includes('chatSending=true') && workspace.includes('finally{chatSending=false;button.disabled=false;'), 'Workspace chat must prevent duplicate sends and always restore the send button');
 assert.ok(workspace.includes("$('chatForm').setAttribute('aria-busy','true')") && workspace.includes("$('chatForm').setAttribute('aria-busy','false')"), 'Workspace chat should expose send-in-progress state accessibly');
+
+
+assert.ok(workspace.includes("if(document.visibilityState!=='visible'){if(presenceChannel)presenceChannel.untrack()"), 'Workspace presence must stop advertising online status while its tab is hidden');
+assert.ok(workspace.includes("window.addEventListener('pagehide',()=>{if(presenceChannel)presenceChannel.untrack()"), 'Workspace presence should be cleared when leaving the page');
+assert.ok(workspace.includes("else presenceChannel.track({user_id:user.id,online_at:new Date().toISOString()})"), 'Workspace presence should be restored when the tab becomes visible again');
 
 
 assert.match(presenceMigration, /for select\s+to authenticated/i, 'Private workspace presence must only be readable by authenticated users');
