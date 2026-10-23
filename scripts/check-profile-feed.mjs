@@ -89,3 +89,7 @@ assert.ok(settings.includes('Your changes are still on this page; try again.'), 
 
 assert.ok(settings.includes("save.dataset.dirty='true';save.textContent='Save changes'"), 'Settings save action should clearly indicate when there are unsaved changes');
 assert.ok(settings.includes("save.dataset.dirty='false';save.textContent='Save settings'"), 'Settings save action should return to its normal state after loading or saving preferences');
+
+
+assert.ok(files.feed.includes('data-retry-feed') && files.feed.includes("feedRetryRoot.addEventListener('click'"), 'Feed and opportunity query failures should expose a retry action');
+assert.ok(files.feed.includes('Retry feed</button>') && files.feed.includes('Retry feed</button></p></div>'), 'Retry controls should be present in feed query error states');

@@ -453,7 +453,7 @@ async function feed(){
  const opportunityFilters=$('opportunityFilters');if(opportunityFilters)opportunityFilters.hidden=mode!=='opportunities';
  if(mode==='opportunities'){
   const r=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').in('post_type',['idea','resource','lesson']).order('created_at',{ascending:false}).limit(100);
-  if(r.error){box.innerHTML='<div class="community-empty">Could not load opportunities: '+esc(r.error.message)+'</div>';return}posts=r.data||[];
+  if(r.error){box.innerHTML='<div class="community-empty">Could not load opportunities: '+esc(r.error.message)+'<p><button type="button" class="btn" data-retry-feed>Retry feed</button></p></div>';return}posts=r.data||[];
  }else if(mode==='saved'){
   if(!user){box.innerHTML='<div class="community-empty">Log in to see your saved posts.</div>';return}
   const savedRows=await client.from('post_bookmarks').select('post_id').eq('user_id',user.id);
@@ -468,12 +468,12 @@ async function feed(){
   const [fr,mr]=await Promise.all([client.from('follows').select('following_id').eq('follower_id',user.id),client.from('community_members').select('community_id').eq('user_id',user.id)]);
   const followed=new Set((fr.data||[]).map(x=>x.following_id)),joined=new Set((mr.data||[]).map(x=>x.community_id));
   const all=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').order('created_at',{ascending:false}).limit(100);
-  if(all.error){box.innerHTML='<div class="community-empty">Could not load posts: '+esc(all.error.message)+'</div>';return}
+  if(all.error){box.innerHTML='<div class="community-empty">Could not load posts: '+esc(all.error.message)+'<p><button type="button" class="btn" data-retry-feed>Retry feed</button></p></div>';return}
   posts=(all.data||[]).filter(p=>{if(mode==='following')return followed.has(p.user_id);if(mode==='communities')return !!p.community_id&&joined.has(p.community_id);return !p.community_id||followed.has(p.user_id)||joined.has(p.community_id)});
   window.venturifyRepostActivity=new Map();
   if(mode==='following'&&followed.size){
    const repostRows=await client.from('post_reposts').select('id,post_id,user_id,commentary,created_at').in('user_id',[...followed]).order('created_at',{ascending:false}).limit(100);
-   if(repostRows.error){box.innerHTML='<div class="community-empty">Could not load repost activity: '+esc(repostRows.error.message)+'</div>';return}
+   if(repostRows.error){box.innerHTML='<div class="community-empty">Could not load repost activity: '+esc(repostRows.error.message)+'<p><button type="button" class="btn" data-retry-feed>Retry feed</button></p></div>';return}
    const existing=new Set(posts.map(p=>p.id)),missing=[...new Set((repostRows.data||[]).map(x=>x.post_id).filter(id=>!existing.has(id)))];
    if(missing.length){const originals=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').in('id',missing);if(originals.error){box.innerHTML='<div class="community-empty">Could not load reposted posts: '+esc(originals.error.message)+'</div>';return}
     const originalMap=new Map((originals.data||[]).map(p=>[p.id,p]));for(const r of repostRows.data||[]){const original=originalMap.get(r.post_id);if(original&&!existing.has(original.id)){posts.push({...original,created_at:r.created_at,_repostedBy:r.user_id,_repostCommentary:r.commentary});existing.add(original.id)}}
@@ -502,6 +502,8 @@ async function feed(){
  if(window.location.hash.startsWith('#post-')&&targetId){const target=document.getElementById('post-'+targetId);if(target)requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}))}
 }
 
+const feedRetryRoot=$('feed');
+feedRetryRoot.addEventListener('click',event=>{const button=event.target.closest('[data-retry-feed]');if(!button)return;button.disabled=true;feed()});
 window.venturifyReloadFeed=feed;
 function updateCommunityContext(){const current=communities.find(c=>c.id===currentCommunityId);$('communityCurrent').hidden=!current;if(current){$('communityCurrentName').textContent='c/'+current.slug;$('communityCurrentMeta').textContent=current.name+' · '+(current.member_count||0)+' members · '+current.topic;$('postCommunity').value=current.id}else $('postCommunity').value='';}
 function renderCommunityOptions(){const select=$('postCommunity'),previous=select.value;select.innerHTML='<option value="">My page · share to the main feed</option>'+communities.map(c=>'<option value="'+esc(c.id)+'">c/'+esc(c.slug)+' · '+esc(c.name)+'</option>').join('');if(currentCommunityId&&communities.some(c=>c.id===currentCommunityId))select.value=currentCommunityId;else if(communities.some(c=>c.id===previous))select.value=previous;}
