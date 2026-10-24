@@ -37,5 +37,8 @@ assert.match(updatePolicy, /grant update \(read_at\) on table public\.notificati
 
 assert.match(page, /async function loadNotifications\(options=\{\}\)[\\s\\S]*?try\{[\\s\\S]*?finally\{[\\s\\S]*?loading=false;[\\s\\S]*?historyList\.setAttribute\('aria-busy','false'\)/, 'Notification loading must always release its busy state after thrown network failures');
 assert.match(page, /Notification refresh threw; keeping the last loaded notifications visible/, 'A thrown background refresh must preserve the previously loaded notification list');
+assert.match(page, /function showNotificationError\(targetId,message\)/, 'Notification action errors must be announced without replacing existing items');
+assert.match(page, /markAllHistory\.addEventListener\('click',async\(\)=>\{[\\s\\S]*?finally\{markAllHistory\.disabled=false\}/, 'Mark-all-read controls must recover after thrown network errors');
+assert.match(page, /try\{const r=await notificationClient\.from\('notifications'\)\.update\(\{read_at:new Date\(\)\.toISOString\(\)\}\)\.eq\('id',id\)/, 'Opening a notification must still navigate when marking it read throws');
 
 console.log('Notification-center regression checks passed (static checks only; no live account is accessed).');
