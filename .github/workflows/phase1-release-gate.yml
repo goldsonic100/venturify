@@ -1,0 +1,63 @@
+name: Phase 1 release gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase1-release-gate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-gate:
+    name: Core features, UI, security and regression audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate local routes and JavaScript syntax
+        run: node scripts/validate-static-site.mjs
+      - name: Check Phase 1 pages and accessibility baseline
+        run: node scripts/check-phase1-readiness.mjs
+      - name: Check founder discovery eligibility and scoring
+        run: node scripts/check-founder-discovery.mjs
+      - name: Check opportunity-to-collaboration flow
+        run: node scripts/check-venture-opportunities.mjs
+      - name: Check collaboration requests and workspace access
+        run: node scripts/check-collaboration-request-flow.mjs
+      - name: Check messaging foundation and block policies
+        run: |
+          node scripts/check-messaging-foundation.mjs
+          node scripts/check-messaging-block-policies.mjs
+          node scripts/check-messaging-collaboration.mjs
+          node scripts/check-messages-settings-ui.mjs
+      - name: Check account preferences and settings navigation
+        run: node scripts/check-account-settings.mjs
+      - name: Check profiles, follows, feed and reputation display
+        run: node scripts/check-profile-feed.mjs
+      - name: Check notifications and deep links
+        run: node scripts/check-notifications.mjs
+      - name: Check trust, blocks and moderator workflow
+        run: |
+          node scripts/check-trust-safety.mjs
+          node scripts/check-block-enforcement.mjs
+      - name: Check workspace presence, tasks and security integrity
+        run: |
+          node scripts/check-workspace-presence.mjs
+          node scripts/check-workspace-tasks.mjs
+          node scripts/check-workspace-notifications.mjs
+          node scripts/check-workspace-security-regression.mjs
+      - name: Check shared visual system and responsive layout
+        run: node scripts/check-visual-system.mjs
