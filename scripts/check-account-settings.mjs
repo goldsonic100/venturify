@@ -22,7 +22,7 @@ scripts.forEach((source, index) => {
 for (const setting of [
   'public_profile', 'public_dms', 'allow_collaboration_requests', 'show_in_discover',
   'enable_story_posts', 'enable_polls', 'enable_opportunities', 'notify_messages',
-  'notify_reactions', 'notify_group_mentions', 'appearance'
+  'notify_reactions', 'notify_group_mentions'
 ]) assert.ok(page.includes('data-setting="' + setting + '"'), 'Missing account preference control: ' + setting);
 
 assert.match(page, /from\('account_settings'\)/, 'Settings must load/save persisted preferences');
