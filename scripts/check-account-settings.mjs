@@ -11,7 +11,7 @@ const enforcement = readFileSync(
   'utf8',
 );
 
-const scripts = [...page.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)]
+const scripts = [...page.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
   .map(([, source]) => source.trim()).filter(Boolean);
 assert.ok(scripts.length, 'Settings page must contain application scripts');
 scripts.forEach((source, index) => {
@@ -25,25 +25,25 @@ for (const setting of [
   'notify_reactions', 'notify_group_mentions', 'appearance'
 ]) assert.ok(page.includes('data-setting="' + setting + '"'), 'Missing account preference control: ' + setting);
 
-assert.match(page, /from\\('account_settings'\\)/, 'Settings must load/save persisted preferences');
+assert.match(page, /from\('account_settings'\)/, 'Settings must load/save persisted preferences');
 assert.match(page, /id="saveSettings"/, 'Settings must retain an explicit save action');
 assert.match(page, /beforeunload/, 'Settings must warn about unsaved changes');
 assert.match(page, /aria-live="polite"/, 'Settings status must be accessible');
-assert.match(schema, /create table if not exists public\\.account_settings/i, 'Account preferences need a dedicated table');
-assert.match(schema, /alter table public\\.account_settings enable row level security/i, 'Account preferences must use RLS');
+assert.match(schema, /create table if not exists public\.account_settings/i, 'Account preferences need a dedicated table');
+assert.match(schema, /alter table public\.account_settings enable row level security/i, 'Account preferences must use RLS');
 for (const op of ['select', 'insert', 'update']) {
-  assert.match(schema, new RegExp('for ' + op + ' to authenticated[\\s\\S]{0,150}auth\\.uid\\(\\)', 'i'),
+  assert.match(schema, new RegExp('for ' + op + ' to authenticated[\s\S]{0,150}auth\.uid\(\)', 'i'),
     'Account preference ' + op + ' policy must bind access to the current user');
 }
-assert.match(schema, /appearance text not null default 'system' check \\(appearance in \\('system','light','dark'\\)\\)/i,
+assert.match(schema, /appearance text not null default 'system' check \(appearance in \('system','light','dark'\)\)/i,
   'Appearance preference must be constrained to supported modes');
-assert.match(enforcement, /create or replace function public\\.get_discoverable_founder_ids/i,
+assert.match(enforcement, /create or replace function public\.get_discoverable_founder_ids/i,
   'Discover privacy must be enforced in the database');
-assert.match(enforcement, /create or replace function public\\.get_messageable_founder_ids/i,
+assert.match(enforcement, /create or replace function public\.get_messageable_founder_ids/i,
   'Direct-message privacy must be enforced in the database');
-assert.match(enforcement, /grant execute on function public\\.get_messageable_founder_ids\\(\\) to authenticated/i,
+assert.match(enforcement, /grant execute on function public\.get_messageable_founder_ids\(\) to authenticated/i,
   'Messageable-founder lookup must not be granted to anonymous users');
-assert.match(enforcement, /private\\.can_receive_collaboration_requests/i,
+assert.match(enforcement, /private\.can_receive_collaboration_requests/i,
   'Collaboration request preferences must be enforced server-side');
 
 console.log('Account-settings security regression checks passed (static checks only).');
