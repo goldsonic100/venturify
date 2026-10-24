@@ -51,7 +51,7 @@ for (const page of pages) {
     if (/^(?:[a-z]+:|\/\/)/i.test(rawTarget) || rawTarget.includes("/")) continue;
     checkedLocalLinks += 1;
     if (!knownPages.has(rawTarget)) {
-      failures.push(\`\${page}: local HTML link points to missing page "\${rawTarget}"\`);
+      failures.push(page + ': local HTML link points to missing page "' + rawTarget + '"');
     }
   }
 }
