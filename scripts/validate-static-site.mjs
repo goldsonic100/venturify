@@ -45,13 +45,13 @@ let checkedLocalLinks = 0;
 
 for (const page of pages) {
   const html = await readFile(path.join(root, page), "utf8");
-  for (const match of html.matchAll(/\\b(?:href|action)\\s*=\\s*["']([^"'#?]+\\.html)(?:[?#][^"']*)?["']/gi)) {
-    const rawTarget = match[1].replace(/^\\.\\//, "");
+  for (const match of html.matchAll(/\b(?:href|action)\s*=\s*["']([^"'#?]+\.html)(?:[?#][^"']*)?["']/gi)) {
+    const rawTarget = match[1].replace(/^\.\//, "");
     // This smoke check intentionally covers local root-level HTML routes only.
-    if (/^(?:[a-z]+:|\\/\\/)/i.test(rawTarget) || rawTarget.includes("/")) continue;
+    if (/^(?:[a-z]+:|\/\/)/i.test(rawTarget) || rawTarget.includes("/")) continue;
     checkedLocalLinks += 1;
     if (!knownPages.has(rawTarget)) {
-      failures.push(`${page}: local HTML link points to missing page "${rawTarget}"`);
+      failures.push(\`\${page}: local HTML link points to missing page "\${rawTarget}"\`);
     }
   }
 }
