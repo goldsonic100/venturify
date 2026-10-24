@@ -39,7 +39,24 @@ for (const page of pages) {
   }
 }
 
-console.log(`Checked ${pages.length} HTML pages and ${checkedScripts} inline JavaScript blocks.`);
+
+const knownPages = new Set(pages);
+let checkedLocalLinks = 0;
+
+for (const page of pages) {
+  const html = await readFile(path.join(root, page), "utf8");
+  for (const match of html.matchAll(/\\b(?:href|action)\\s*=\\s*["']([^"'#?]+\\.html)(?:[?#][^"']*)?["']/gi)) {
+    const rawTarget = match[1].replace(/^\\.\\//, "");
+    // This smoke check intentionally covers local root-level HTML routes only.
+    if (/^(?:[a-z]+:|\\/\\/)/i.test(rawTarget) || rawTarget.includes("/")) continue;
+    checkedLocalLinks += 1;
+    if (!knownPages.has(rawTarget)) {
+      failures.push(`${page}: local HTML link points to missing page "${rawTarget}"`);
+    }
+  }
+}
+
+console.log(`Checked ${pages.length} HTML pages, ${checkedScripts} inline JavaScript blocks, and ${checkedLocalLinks} local HTML links.`);
 
 if (failures.length) {
   console.error(failures.join("\n"));
