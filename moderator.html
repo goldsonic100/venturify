@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="venturify-a11y.css">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#13241c">
@@ -18,8 +19,9 @@ h1{font:500 clamp(32px,5vw,48px) Georgia,serif;letter-spacing:-1.5px;margin:8px 
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <header><div class="brand">Venturify <span>· Moderator</span></div><a href="index.html">← Back to Venturify</a></header>
-<main>
+<main id="main-content">
 <div class="topline"><div><div class="eyebrow">Trust, safety & operations</div><h1>Moderator dashboard</h1><p class="muted">Review reports, inspect public profile details and posts, and check database-level activity counts.</p></div><button class="btn" id="refreshButton" type="button">Refresh data ↻</button></div>
 <div id="status" class="status" role="status" aria-live="polite">Checking your moderator access…</div>
 <div id="dashboard" hidden>
