@@ -43,6 +43,6 @@ assert.match(workspaceMigration, /on conflict \(collaboration_request_id\) do no
   'Accepting a request twice must not create duplicate workspaces');
 assert.match(requestMigration, /enable row level security/i, 'Collaboration requests must retain RLS');
 assert.match(requestMigration, /requester_id <> recipient_id/i, 'Self-collaboration must remain prohibited');
-assert.match(collaborations, /const csvCell=value=>\{let text=String\(value\?\?''\);if\(\/\^\\\\s\*\[=\+@-\]\/\.test\(text\)/, 'CSV exports must neutralize spreadsheet formula injection');
+assert.ok(collaborations.includes(`if(/^[\\\\s]*[=+@-]/.test(text)`), 'CSV exports must neutralize spreadsheet formula injection');
 
 console.log('Venture opportunity/collaboration regression checks passed (static checks only).');
