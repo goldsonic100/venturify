@@ -88,5 +88,5 @@ assert.ok(messages.includes("const retry=e.target.closest('[data-retry-inbox]');
 assert.ok(messages.includes('membersResult.error||messagesResult.error||conversationResult.error'), 'Conversation metadata failures should be handled rather than silently rendering incomplete inbox rows');
 
 for (const table of ['conversations','conversation_members','messages','message_reads']) assert.match(securitySql, new RegExp('on public\\.' + table + ' as restrictive', 'i'), 'Missing restrictive block policy for ' + table);
-assert.match(securitySql, /not private\\.is_conversation_blocked/);
-assert.match(securitySql, /not private\\.is_message_in_blocked_conversation/);
+assert.match(securitySql, /not private\.is_conversation_blocked/);
+assert.match(securitySql, /not private\.is_message_in_blocked_conversation/);
