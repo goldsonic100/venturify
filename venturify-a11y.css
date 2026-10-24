@@ -14,3 +14,28 @@
 @media(prefers-reduced-motion:reduce){
   .skip-link{transition:none!important;scroll-behavior:auto!important}
 }
+
+/* Keyboard and assistive-technology refinements shared across all routes. */
+:where(a,button,input,select,textarea,[role="button"],[role="switch"],[role="tab"]){
+  scroll-margin-block:12px;
+}
+:where(button,input,select,textarea):disabled,
+:where([aria-disabled="true"]){
+  cursor:not-allowed;
+}
+@media(prefers-contrast:more){
+  :where(a,button,input,select,textarea,[role="button"],[role="switch"],[role="tab"]):focus-visible{
+    outline:3px solid currentColor;
+    outline-offset:4px;
+  }
+}
+@media(forced-colors:active){
+  .skip-link{
+    border:2px solid LinkText;
+    box-shadow:none;
+  }
+  :where(a,button,input,select,textarea,[role="button"],[role="switch"],[role="tab"]):focus-visible{
+    outline:3px solid Highlight;
+    outline-offset:3px;
+  }
+}
