@@ -60,14 +60,14 @@ const accessibilityStyles = readFileSync(new URL('../venturify-a11y.css', import
 assert.ok(accessibilityStyles.includes('.skip-link:focus'), 'Shared accessibility stylesheet must reveal the skip link on focus');
 
 for (const [path, html] of sources) {
-  const viewportCount = (html.match(/<meta\\s+name=["']viewport["']/gi) || []).length;
+  const viewportCount = (html.match(/<meta\s+name=["']viewport["']/gi) || []).length;
   assert.equal(viewportCount, 1, path + ' must contain exactly one responsive viewport declaration');
-  assert.ok(/<meta\\s+name=["']description["']/i.test(html), path + ' must include a page description');
-  assert.ok(/<link\\s+rel=["']stylesheet["']\\s+href=["']venturify-a11y\\.css["']/i.test(html),
+  assert.ok(/<meta\s+name=["']description["']/i.test(html), path + ' must include a page description');
+  assert.ok(/<link\s+rel=["']stylesheet["']\s+href=["']venturify-a11y\.css["']/i.test(html),
     path + ' must load the shared accessibility stylesheet');
-  assert.ok(/<a\\s+class=["']skip-link["']\\s+href=["']#main-content["'][^>]*>Skip to main content<\\/a>/i.test(html),
+  assert.ok(/<a\s+class=["']skip-link["']\s+href=["']#main-content["'][^>]*>Skip to main content<\/a>/i.test(html),
     path + ' must expose a keyboard skip link');
-  assert.ok(/<main\\s+id=["']main-content["']/i.test(html),
+  assert.ok(/<main\s+id=["']main-content["']/i.test(html),
     path + ' must provide the skip-link destination');
 }
 
