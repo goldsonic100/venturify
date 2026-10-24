@@ -46,3 +46,20 @@ assert.match(enforcement, /private\.can_receive_collaboration_requests/i,
   'Collaboration request preferences must be enforced server-side');
 
 console.log('Account-settings security regression checks passed (static checks only).');
+
+
+// Private-DM preference semantics: the recipient must follow the sender when
+// public DMs are disabled. Test both the inbox RPC and group-chat RPC so they
+// cannot drift in opposite directions.
+const privateDmFix = readFileSync(
+  new URL('../supabase/migrations/20261024230000_fix_private_dm_follow_direction.sql', import.meta.url),
+  'utf8',
+);
+assert.match(page, /only founders who follow you can start a new DM with you/i,
+  'The private-DM setting must explain that recipients follow senders');
+assert.match(privateDmFix, /f\.follower_id = p\.id\s+and f\.following_id = \(select auth\.uid\(\)\)/i,
+  'Messageable-founder lookup must require the recipient to follow the current sender');
+assert.match(privateDmFix, /f\.follower_id = candidate\.user_id\s+and f\.following_id = current_user_id/i,
+  'Group-chat creation must enforce the same recipient-follows-sender direction');
+assert.match(privateDmFix, /existing[\s\S]{0,80}direct conversations remain eligible/i,
+  'The migration must preserve access to existing direct conversations');
