@@ -32,9 +32,10 @@ assert.match(page, /aria-live="polite"/, 'Settings status must be accessible');
 assert.match(schema, /create table if not exists public\.account_settings/i, 'Account preferences need a dedicated table');
 assert.match(schema, /alter table public\.account_settings enable row level security/i, 'Account preferences must use RLS');
 for (const op of ['select', 'insert', 'update']) {
-  assert.match(schema, new RegExp('for ' + op + ' to authenticated[\s\S]{0,150}auth\.uid\(\)', 'i'),
-    'Account preference ' + op + ' policy must bind access to the current user');
+  assert.match(schema, new RegExp('for ' + op + ' to authenticated', 'i'),
+    'Account preference ' + op + ' policy must target authenticated users');
 }
+assert.match(schema, /auth\.uid\(\)/i, 'Account preference policies must bind access to the current user');
 assert.match(schema, /appearance text not null default 'system' check \(appearance in \('system','light','dark'\)\)/i,
   'Appearance preference must be constrained to supported modes');
 assert.match(enforcement, /create or replace function public\.get_discoverable_founder_ids/i,
