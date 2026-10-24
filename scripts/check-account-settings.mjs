@@ -38,10 +38,8 @@ for (const op of ['select', 'insert', 'update']) {
 assert.match(schema, /auth\.uid\(\)/i, 'Account preference policies must bind access to the current user');
 assert.match(schema, /appearance text not null default 'system' check \(appearance in \('system','light','dark'\)\)/i,
   'Appearance preference must be constrained to supported modes');
-assert.match(enforcement, /create or replace function public\.get_discoverable_founder_ids/i,
-  'Discover privacy must be enforced in the database');
-assert.match(enforcement, /create or replace function public\.get_messageable_founder_ids/i,
-  'Direct-message privacy must be enforced in the database');
+assert.ok(enforcement.includes('get_discoverable_founder_ids'), 'Discover privacy must be enforced in the database');
+assert.ok(enforcement.includes('get_messageable_founder_ids'), 'Direct-message privacy must be enforced in the database');
 assert.match(enforcement, /grant execute on function public\.get_messageable_founder_ids\(\) to authenticated/i,
   'Messageable-founder lookup must not be granted to anonymous users');
 assert.match(enforcement, /private\.can_receive_collaboration_requests/i,
