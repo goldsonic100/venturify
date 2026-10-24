@@ -262,3 +262,27 @@ assert.ok(discoverHtml.includes("if(memberships.error){$('founderResults').setAt
 
 assert.ok(discoverHtml.includes('data-retry-discover') && discoverHtml.includes('function showDiscoverLoadError(error)'), 'Discover failures should show a safe retry control instead of leaving the list stuck');
 assert.ok(discoverHtml.includes("c.auth.onAuthStateChange(()=>setTimeout(retryDiscoverLoad,0))") && discoverHtml.includes('try{await load()}catch(error){showDiscoverLoadError(error)}'), 'Discover should catch unexpected load failures and support retry after auth changes');
+
+
+// Guest discovery must honor verification without invoking the signed-in-only
+// SECURITY DEFINER RPC. The verification flag is maintained from auth.users.
+const verificationMigration = readFileSync(
+  new URL('../supabase/migrations/20261024230000_public_profile_email_verification.sql', import.meta.url),
+  'utf8',
+);
+assert.match(discoverHtml, /email_verified,created_at/,
+  'Guest discovery must load the trusted profile verification flag');
+assert.match(discoverHtml, /if\(currentUser\)\{const visibility=await c\.rpc\('get_discoverable_founder_ids'\)/,
+  'Only signed-in discovery should call the private founder-eligibility RPC');
+assert.match(discoverHtml, /else\{allProfiles=allProfiles\.filter\(p=>p\.email_verified===true\)\}/,
+  'Guest discovery should filter unverified profiles before applying Level 5/community rules');
+assert.match(verificationMigration, /email_verified boolean not null default false/i,
+  'The public profile verification flag must default to unverified');
+assert.match(verificationMigration, /before insert or update of id, email_verified on public\.profiles/i,
+  'Profile edits must not let a user forge the verification flag');
+assert.match(verificationMigration, /after insert or update of email_confirmed_at on auth\.users/i,
+  'Auth verification changes must synchronize to the profile flag');
+assert.match(verificationMigration, /revoke all on function private\.enforce_profile_email_verification\(\) from public, anon, authenticated/i,
+  'The trigger function must not be directly callable by client roles');
+assert.match(verificationMigration, /revoke all on function private\.sync_profile_email_verification\(\) from public, anon, authenticated/i,
+  'The sync trigger function must not be directly callable by client roles');
