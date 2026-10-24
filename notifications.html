@@ -727,7 +727,7 @@ renderCases();
 (()=> {
  const notificationClient=window.venturifySupabaseClient||window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
  const button=document.getElementById('notificationButton'),panel=document.getElementById('notificationPanel'),list=document.getElementById('notificationList'),badge=document.getElementById('notificationCount'),markAll=document.getElementById('markAllNotifications'),historyPage=document.getElementById('notificationPage'),historyList=document.getElementById('notificationHistoryList'),markAllHistory=document.getElementById('markAllHistoryRead'),loadOlderButton=document.getElementById('loadOlderNotifications');
- let notificationUser=null,loading=false,realtimeChannel=null,realtimeUserId=null,notificationFilter='all',cachedNotifications=[],notificationOffset=0,hasMoreNotifications=false;
+ let notificationUser=null,loading=false,refreshQueued=false,realtimeChannel=null,realtimeUserId=null,notificationFilter='all',cachedNotifications=[],notificationOffset=0,hasMoreNotifications=false;
  const notificationPageSize=50;
  const safe=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  function showNotificationError(targetId,message){const root=document.getElementById(targetId);if(!root)return;let notice=root.querySelector('[data-notification-error]');if(!notice){notice=document.createElement('div');notice.className='notification-empty';notice.dataset.notificationError='true';notice.setAttribute('role','alert');root.prepend(notice)}notice.textContent=message;}
@@ -739,14 +739,14 @@ renderCases();
  function renderNotificationLists(){const allEmpty='<div class="notification-empty">You’re all caught up. Follows, messages, collaboration requests, task assignments, and project updates will appear here.</div>';list.innerHTML=cachedNotifications.slice(0,30).map(notificationRow).join('')||allEmpty;const taskTypes=['task_assigned','task_updated','task_completed','task_comment','checklist_completed','task_due_soon','task_overdue'];const collaborationTypes=['collaboration_request','collaboration_accepted','collaboration_declined','workspace_created','workspace_updated','project_message'];const filtered=cachedNotifications.filter(n=>notificationFilter==='all'||(notificationFilter==='unread'?!n.read_at:notificationFilter==='deadlines'?(n.type==='task_due_soon'||n.type==='task_overdue'):notificationFilter==='tasks'?taskTypes.includes(n.type):notificationFilter==='collaboration'?collaborationTypes.includes(n.type):n.type===notificationFilter));historyList.innerHTML=filtered.map(notificationRow).join('')||(notificationFilter==='unread'?'<div class="notification-empty">No unread notifications. You’re all caught up!</div>':allEmpty);document.querySelectorAll('[data-notification-filter]').forEach(b=>{const active=b.dataset.notificationFilter===notificationFilter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))})}
  async function loadNotifications(options={}){
   const append=options.append===true;
-  if(loading)return;
+  if(loading){if(!append)refreshQueued=true;return;}
   if(!notificationUser){
    cachedNotifications=[];notificationOffset=0;hasMoreNotifications=false;
    list.innerHTML='<div class="notification-empty">Log in to see notifications.</div>';
    historyList.innerHTML=list.innerHTML;loadOlderButton.hidden=true;loading=false;
    historyList.setAttribute('aria-busy','false');return;
   }
-  loading=true;historyList.setAttribute('aria-busy','true');
+  loading=true;const requestUserId=notificationUser.id;historyList.setAttribute('aria-busy','true');
   if(!append){
    notificationOffset=0;hasMoreNotifications=false;
    if(!cachedNotifications.length){
@@ -764,8 +764,9 @@ renderCases();
     else if(!append){console.warn('Notification refresh failed; keeping the last loaded notifications visible',r.error.message)}
     return;
    }
+   if(requestUserId!==notificationUser?.id)return;
    const page=r.data||[];
-   cachedNotifications=append?cachedNotifications.concat(page):page;
+   if(append){const known=new Set(cachedNotifications.map(n=>n.id));cachedNotifications=cachedNotifications.concat(page.filter(n=>!known.has(n.id)))}else{cachedNotifications=page;}
    notificationOffset+=page.length;
    hasMoreNotifications=page.length===notificationPageSize;
    loadOlderButton.hidden=!hasMoreNotifications;
@@ -779,11 +780,12 @@ renderCases();
    loading=false;
    historyList.setAttribute('aria-busy','false');
    loadOlderButton.disabled=false;
+   if(refreshQueued&&notificationUser){refreshQueued=false;setTimeout(()=>loadNotifications(),0)}
   }
  }
  function stopNotificationRealtime(){if(realtimeChannel){notificationClient.removeChannel(realtimeChannel);realtimeChannel=null}realtimeUserId=null}
  function startNotificationRealtime(uid){if(!uid){stopNotificationRealtime();return}if(realtimeChannel&&realtimeUserId===uid)return;stopNotificationRealtime();realtimeUserId=uid;realtimeChannel=notificationClient.channel('venturify-notifications-'+uid).on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:'recipient_id=eq.'+uid},()=>{loadNotificationCount();if(!panel.hidden||document.body.dataset.view==='notifications')loadNotifications()}).on('postgres_changes',{event:'UPDATE',schema:'public',table:'notifications',filter:'recipient_id=eq.'+uid},()=>{loadNotificationCount();if(!panel.hidden||document.body.dataset.view==='notifications')loadNotifications()}).subscribe((status,error)=>{if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Notification realtime connection issue',error||status)})}
- async function syncUser(){const r=await notificationClient.auth.getUser();notificationUser=r.data?.user||null;startNotificationRealtime(notificationUser?.id||null);button.hidden=!notificationUser;if(!notificationUser){panel.hidden=true;button.setAttribute('aria-expanded','false');badge.hidden=true;list.innerHTML='<div class="notification-empty">Log in to see notifications.</div>';return}await loadNotificationCount();if(!panel.hidden)await loadNotifications()}
+ async function syncUser(){const r=await notificationClient.auth.getUser();const nextUser=r.data?.user||null;const previousId=notificationUser?.id||null;notificationUser=nextUser;if(previousId!==(nextUser?.id||null)){cachedNotifications=[];notificationOffset=0;hasMoreNotifications=false;refreshQueued=loading&&!!nextUser;list.innerHTML='';historyList.innerHTML='';loadOlderButton.hidden=true}startNotificationRealtime(notificationUser?.id||null);button.hidden=!notificationUser;if(!notificationUser){panel.hidden=true;button.setAttribute('aria-expanded','false');badge.hidden=true;list.innerHTML='<div class="notification-empty">Log in to see notifications.</div>';return}await loadNotificationCount();if(!panel.hidden)await loadNotifications()}
  button.addEventListener('click',async()=>{if(!notificationUser){document.getElementById('navAccount').click();return}panel.hidden=!panel.hidden;button.setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden)await loadNotifications()});
  markAll.addEventListener('click',async()=>{if(!notificationUser||markAll.disabled)return;markAll.disabled=true;try{const r=await notificationClient.from('notifications').update({read_at:new Date().toISOString()}).eq('recipient_id',notificationUser.id).is('read_at',null);if(r.error){showNotificationError('notificationList','Could not mark notifications as read. Please try again.');return}await loadNotifications()}catch(error){console.warn('Mark-all notification update failed',error);showNotificationError('notificationList','Could not mark notifications as read. Check your connection and try again.')}finally{markAll.disabled=false}});
  async function handleNotificationClick(e){const item=e.target.closest('[data-notification-id]');if(!item||!notificationUser)return;const id=item.dataset.notificationId,postId=item.dataset.notificationPost,actorId=item.dataset.notificationActor,type=item.dataset.notificationType,workspaceId=item.dataset.notificationWorkspace,collaborationId=item.dataset.notificationCollaboration,taskId=item.dataset.notificationTask,conversationId=item.dataset.notificationConversation;try{const r=await notificationClient.from('notifications').update({read_at:new Date().toISOString()}).eq('id',id).eq('recipient_id',notificationUser.id);if(r.error)console.warn('Could not mark notification read',r.error.message)}catch(error){console.warn('Could not mark notification read',error)}panel.hidden=true;button.setAttribute('aria-expanded','false');await loadNotifications();if(type==='message'||type==='message_reaction'||type==='group_mention'){window.location.href='messages.html'+(conversationId?'?conversation='+encodeURIComponent(conversationId):'');return}if(workspaceId&&collaborationId){window.location.href='workspace.html?request='+encodeURIComponent(collaborationId)+(taskId?'&task='+encodeURIComponent(taskId):'');return}if(type==='collaboration_request'||type==='collaboration_accepted'||type==='collaboration_declined'){window.location.href='profile.html';return}if(postId){document.getElementById('community').scrollIntoView({behavior:'smooth'});return}if(type==='follow'&&actorId){const trigger=document.querySelector('[data-profile="'+CSS.escape(actorId)+'"]');if(trigger){trigger.click();return}const profileButton=document.createElement('button');profileButton.type='button';profileButton.dataset.profile=actorId;profileButton.hidden=true;document.body.appendChild(profileButton);profileButton.click();profileButton.remove()}}
