@@ -40,6 +40,8 @@ assert.ok(collaborations.includes("href=\"workspace.html?request='+encodeURIComp
   'Accepted collaboration requests must link into their workspace');
 assert.ok(collaborations.includes("status==='accepted'"),
   'Workspace links must only be rendered for accepted requests');
+assert.match(collaborations, /function scheduleReload\(\)[\s\S]{0,180}if\(busy\)\{scheduleReload\(\);return\}/, 'Realtime request changes must be retried if a previous load is still busy');
+assert.match(collaborations, /filter:'recipient_id=eq.'\+user\.id\},scheduleReload\)[\s\S]{0,180}filter:'requester_id=eq.'\+user\.id\},scheduleReload\)/, 'Both incoming and outgoing request changes must refresh the inbox');
 assert.ok(workspace.includes("params.get('request')") && workspace.includes("params.get('task')"),
   'Workspace deep links must parse collaboration and task identifiers');
 assert.ok(workspace.includes(".eq('id',requestId).eq('status','accepted').maybeSingle()"),
