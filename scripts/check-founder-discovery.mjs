@@ -274,7 +274,7 @@ assert.match(discoverHtml, /email_verified,created_at/,
   'Guest discovery must load the trusted profile verification flag');
 assert.match(discoverHtml, /if\(currentUser\)\{const visibility=await c\.rpc\('get_discoverable_founder_ids'\)/,
   'Only signed-in discovery should call the private founder-eligibility RPC');
-assert.match(discoverHtml, /else\{allProfiles=allProfiles\.filter\(p=>p\.email_verified===true\)\}/,
+assert.match(discoverHtml, /else\{allProfiles=allProfiles\.filter\(p=>p\.email_verified===true\);?\}/,
   'Guest discovery should filter unverified profiles before applying Level 5/community rules');
 assert.match(verificationMigration, /email_verified boolean not null default false/i,
   'The public profile verification flag must default to unverified');
