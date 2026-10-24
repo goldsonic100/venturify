@@ -45,9 +45,6 @@ assert.match(schema, /grant execute on function public\.get_messageable_founder_
 assert.match(enforcement, /private\.can_receive_collaboration_requests/i,
   'Collaboration request preferences must be enforced server-side');
 
-console.log('Account-settings security regression checks passed (static checks only).');
-
-
 // Private-DM preference semantics: the recipient must follow the sender when
 // public DMs are disabled. Test both the inbox RPC and group-chat RPC so they
 // cannot drift in opposite directions.
