@@ -58,5 +58,7 @@ assert.match(privateDmFix, /f\.follower_id = p\.id\s+and f\.following_id = \(sel
   'Messageable-founder lookup must require the recipient to follow the current sender');
 assert.match(privateDmFix, /f\.follower_id = candidate\.user_id\s+and f\.following_id = current_user_id/i,
   'Group-chat creation must enforce the same recipient-follows-sender direction');
-assert.match(privateDmFix, /existing[\s\S]{0,80}direct conversations remain eligible/i,
-  'The migration must preserve access to existing direct conversations');
+assert.match(privateDmFix, /c\\.is_group = false/i,
+  'The messageable-founder lookup must preserve access to existing direct conversations');
+
+console.log('Account-settings security regression checks passed (static checks only).');
