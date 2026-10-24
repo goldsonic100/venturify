@@ -180,7 +180,7 @@ async function loadFiles(){if(!workspace)return;const box=$('fileList');const r=
 function activityDate(value){const d=new Date(value||Date.now());return Number.isNaN(d.getTime())?'':d.toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
 function activityActor(id){return !id?'A collaborator':id===user.id?'You':partnerName}
 function activityItem(icon,title,detail,at,action){return {icon,title,detail:detail||'',at:at||workspace.created_at||new Date().toISOString(),action:action||''}}
-function csvEscapeWorkspace(value){return '"'+String(value??'').replace(/"/g,'""')+'"'}
+function csvEscapeWorkspace(value){let text=String(value??'');if(/^[\t\r\n ]*[=+\-@]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"'}
 function downloadWorkspaceCsv(filename,rows){const csv='\ufeff'+rows.map(row=>row.map(csvEscapeWorkspace).join(',')).join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function exportActivityCsv(){const rows=[['Date','Activity','Details','Category'],...activityItemsCache.map(it=>{const date=new Date(it.at);return [Number.isNaN(date.getTime())?'':date.toISOString(),it.title,it.detail,it.action]})];downloadWorkspaceCsv('venturify-project-activity.csv',rows);note('Activity timeline exported.')}
 let activityFilter='all',activityItemsCache=[];
