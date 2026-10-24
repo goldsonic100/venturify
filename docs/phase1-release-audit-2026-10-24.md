@@ -9,6 +9,7 @@ This audit covers the Phase 1 founder ecosystem (verified Level 5+ discovery, co
 - The live Supabase migration ledger includes `20261024215204 / fix_private_dm_follow_direction`.
 - The live `get_messageable_founder_ids()` definition now checks that a private-DM recipient follows the sender when public DMs are disabled.
 - The live `20261024220112 / public_profile_email_verification` migration adds a trusted `profiles.email_verified` flag, synchronizes it from `auth.users.email_confirmed_at`, and prevents profile updates from forging it. A live consistency query found 0 mismatches across 3 profiles.
+- A live privilege check confirmed `anon` cannot execute `get_discoverable_founder_ids()`, while `authenticated` can. A query executed as the `anon` database role could still read the two verified public profiles, so guest discovery can use the profile query without restoring anonymous RPC access.
 - The live `create_group_conversation(text, uuid[])` definition applies the same follow direction and no longer contains the old sender-follows-recipient condition.
 - Existing direct conversations remain eligible after a privacy preference changes; both functions continue to check block restrictions.
 - PR #195 fixed over-escaped assertions in the messaging regression script. Its relevant CI checks passed.
@@ -39,7 +40,7 @@ These require an authenticated browser session and separate accounts; they are n
 - [ ] Verify community join/leave, follow/unfollow, profile edits, and displayed reputation as an ordinary account.
 - [ ] Verify moderator review actions with a moderator account, then confirm a normal account cannot access moderator data or actions.
 - [ ] On mobile Safari, test settings tabs, notifications, feed, messages, collaboration workspace, and light/dark appearance for overflow, keyboard/focus behavior, and recoverable loading/error states.
-- [ ] After the final merge, confirm the GitHub Pages deployment workflow succeeds and the deployed site reflects the release commit.
+- [x] GitHub Pages build/deployment workflow succeeded for main commit `d1242c8` ([deployment run](https://github.com/goldsonic100/venturify/actions/runs/40136925583)); the aggregate Phase 1 release gate also passed on that commit.
 
 ## Release status
 
