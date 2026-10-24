@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="venturify-a11y.css">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101a16">
 <title>Collaborations — Venturify</title>
 <style>
@@ -47,8 +48,9 @@
   <link rel="stylesheet" href="assets/venturify-design-system.css">
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <header><nav><a href="index.html"><strong>VENTURIFY</strong></a><div><a href="discover.html">Discover</a><a href="feed.html">Feed</a><a href="messages.html">Messages</a><a href="workspace.html">Workspaces</a><a href="profile.html">Profile</a></div></nav></header>
-<main class="wrap"><div class="kicker">Build together</div><h1>Collaboration requests</h1><p class="muted">Keep track of founders who want to build with you, requests you have sent, and accepted collaborations.</p>
+<main id="main-content" class="wrap"><div class="kicker">Build together</div><h1>Collaboration requests</h1><p class="muted">Keep track of founders who want to build with you, requests you have sent, and accepted collaborations.</p>
 <div id="notice" class="notice">Checking your account…</div>
 <div id="app" class="hidden"><div class="tabs" role="group" aria-label="Filter collaboration requests"><button class="tab active" data-filter="all">All requests</button><button class="tab" data-filter="incoming">Received</button><button class="tab" data-filter="outgoing">Sent</button></div><div class="request-tools"><input id="requestSearch" type="search" placeholder="Search founders or messages…" aria-label="Search collaboration requests"><select id="statusFilter" aria-label="Filter by request status"><option value="all">Every status</option><option value="pending">Pending</option><option value="accepted">Accepted</option><option value="declined">Declined</option></select><select id="requestSort" aria-label="Sort collaboration requests"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="founder">Founder name A–Z</option></select><button id="exportRequests" class="btn" type="button">Export CSV</button></div><section class="card"><div id="summary" class="muted" aria-live="polite" aria-atomic="true" style="margin-bottom:12px"></div><div id="requests" role="region" aria-label="Collaboration request results" aria-live="polite" aria-relevant="additions text" aria-busy="true"><div class="empty">Loading requests…</div></div></section></div>
 </main>
