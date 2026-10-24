@@ -49,7 +49,7 @@ assert.match(enforcement, /private\.can_receive_collaboration_requests/i,
 // public DMs are disabled. Test both the inbox RPC and group-chat RPC so they
 // cannot drift in opposite directions.
 const privateDmFix = readFileSync(
-  new URL('../supabase/migrations/20261024230000_fix_private_dm_follow_direction.sql', import.meta.url),
+  new URL('../supabase/migrations/20261024215204_fix_private_dm_follow_direction.sql', import.meta.url),
   'utf8',
 );
 assert.match(page, /only founders who follow you can start a new DM with you/i,
