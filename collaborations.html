@@ -91,7 +91,7 @@
  $('requestSearch').addEventListener('input',e=>{searchTerm=e.target.value.trim().toLowerCase();render()});
  $('statusFilter').addEventListener('change',e=>{statusFilter=e.target.value;render()});$('requestSort').addEventListener('change',e=>{requestSort=e.target.value;render()});
  $('exportRequests').addEventListener('click',()=>{
-  const csvCell=value=>{let text=String(value??'');if(/^[\\s]*[=+@-]/.test(text)||/^[\\t\\r]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';};
+  const csvCell=value=>{let text=String(value??'');const first=text.trimStart()[0];if(['=','+','-','@'].includes(first)||text[0]==='\t'||text[0]==='\r')text="'"+text;return '"'+text.replace(/"/g,'""')+'"';};
   const rows=[['Request ID','Direction','Founder','Username','Message','Status','Created','Updated']];
   requests.forEach(r=>{const incoming=r.recipient_id===user.id,otherId=incoming?r.requester_id:r.recipient_id,p=profiles.get(otherId)||{};rows.push([r.id,incoming?'Received':'Sent',p.display_name||p.username||'Founder',p.username||'',r.message||'',r.status,date(r.created_at),date(r.updated_at)]);});
   const csv='\\uFEFF'+rows.map(row=>row.map(csvCell).join(',')).join('\\r\\n');
