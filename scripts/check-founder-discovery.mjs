@@ -267,7 +267,7 @@ assert.ok(discoverHtml.includes("c.auth.onAuthStateChange(()=>setTimeout(retryDi
 // Guest discovery must honor verification without invoking the signed-in-only
 // SECURITY DEFINER RPC. The verification flag is maintained from auth.users.
 const verificationMigration = readFileSync(
-  new URL('../supabase/migrations/20261024230000_public_profile_email_verification.sql', import.meta.url),
+  new URL('../supabase/migrations/20261024220112_public_profile_email_verification.sql', import.meta.url),
   'utf8',
 );
 assert.match(discoverHtml, /email_verified,created_at/,
