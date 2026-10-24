@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 const messages = readFileSync(new URL('../messages.html', import.meta.url), 'utf8');
 const migration = readFileSync(new URL('../supabase/migrations/20261022190000_message_delivery_notifications.sql', import.meta.url), 'utf8');
 const notifications = readFileSync(new URL('../notifications.html', import.meta.url), 'utf8');
+const securitySql = readFileSync(new URL('../supabase/migrations/20261023200000_messaging_restrictive_block_policies.sql', import.meta.url), 'utf8');
 
 for (const [name, pattern] of [
   ['conversation membership lookup', /from\('conversation_members'\)/],
@@ -85,3 +86,7 @@ assert.ok(messages.includes("window.addEventListener('pagehide',()=>{if(user&&cu
 assert.ok((messages.match(/data-retry-inbox/g)||[]).length>=4, 'Inbox membership, message, conversation, and profile load failures should offer a retry action');
 assert.ok(messages.includes("const retry=e.target.closest('[data-retry-inbox]');if(retry){retry.disabled=true;retry.textContent='Retrying…';await loadConversationList();return}"), 'Inbox retry action should rerun the list load and prevent duplicate clicks');
 assert.ok(messages.includes('membersResult.error||messagesResult.error||conversationResult.error'), 'Conversation metadata failures should be handled rather than silently rendering incomplete inbox rows');
+
+for (const table of ['conversations','conversation_members','messages','message_reads']) assert.match(securitySql, new RegExp('on public\\.' + table + ' as restrictive', 'i'), 'Missing restrictive block policy for ' + table);
+assert.match(securitySql, /not private\\.is_conversation_blocked/);
+assert.match(securitySql, /not private\\.is_message_in_blocked_conversation/);
