@@ -109,8 +109,9 @@
   await load();
   if(status==='accepted')window.location.href='workspace.html?request='+encodeURIComponent(id);
  });
- let requestChannel=null;
- function startRealtime(){if(!user||requestChannel)return;requestChannel=client.channel('collaboration-requests-'+user.id).on('postgres_changes',{event:'*',schema:'public',table:'collaboration_requests',filter:'recipient_id=eq.'+user.id},()=>{load().catch(()=>{})}).on('postgres_changes',{event:'*',schema:'public',table:'collaboration_requests',filter:'requester_id=eq.'+user.id},()=>{load().catch(()=>{})}).subscribe()}
+ let requestChannel=null,reloadTimer=null;
+ function scheduleReload(){if(reloadTimer)clearTimeout(reloadTimer);reloadTimer=setTimeout(()=>{reloadTimer=null;if(busy){scheduleReload();return}load().catch(()=>{})},180)}
+ function startRealtime(){if(!user||requestChannel)return;requestChannel=client.channel('collaboration-requests-'+user.id).on('postgres_changes',{event:'*',schema:'public',table:'collaboration_requests',filter:'recipient_id=eq.'+user.id},scheduleReload).on('postgres_changes',{event:'*',schema:'public',table:'collaboration_requests',filter:'requester_id=eq.'+user.id},scheduleReload).subscribe()}
  client.auth.onAuthStateChange(()=>setTimeout(()=>{requestChannel=null;load().then(startRealtime).catch(()=>{})},0));
  load().then(startRealtime).catch(()=>{busy=false;notice('Something went wrong loading collaboration requests.',true)});
 })();
