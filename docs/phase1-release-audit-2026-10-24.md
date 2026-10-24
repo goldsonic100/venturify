@@ -8,6 +8,7 @@ This audit covers the Phase 1 founder ecosystem (verified Level 5+ discovery, co
 
 - The live Supabase migration ledger includes `20261024215204 / fix_private_dm_follow_direction`.
 - The live `get_messageable_founder_ids()` definition now checks that a private-DM recipient follows the sender when public DMs are disabled.
+- The live `20261024220112 / public_profile_email_verification` migration adds a trusted `profiles.email_verified` flag, synchronizes it from `auth.users.email_confirmed_at`, and prevents profile updates from forging it. A live consistency query found 0 mismatches across 3 profiles.
 - The live `create_group_conversation(text, uuid[])` definition applies the same follow direction and no longer contains the old sender-follows-recipient condition.
 - Existing direct conversations remain eligible after a privacy preference changes; both functions continue to check block restrictions.
 - PR #195 fixed over-escaped assertions in the messaging regression script. Its relevant CI checks passed.
