@@ -58,6 +58,9 @@ for (const view of ['feed', 'discover', 'communities', 'messages', 'notification
 // Every page should provide predictable mobile metadata and keyboard navigation.
 const accessibilityStyles = readFileSync(new URL('../venturify-a11y.css', import.meta.url), 'utf8');
 assert.ok(accessibilityStyles.includes('.skip-link:focus'), 'Shared accessibility stylesheet must reveal the skip link on focus');
+assert.match(accessibilityStyles, /prefers-contrast:more/, 'Shared accessibility stylesheet must support increased-contrast preferences');
+assert.match(accessibilityStyles, /forced-colors:active/, 'Shared accessibility stylesheet must retain focus visibility in forced-colors mode');
+assert.match(accessibilityStyles, /cursor:not-allowed/, 'Disabled controls should expose a clear non-interactive cursor');
 
 for (const [path, html] of sources) {
   const viewportCount = (html.match(/<meta\s+name=["']viewport["']/gi) || []).length;
