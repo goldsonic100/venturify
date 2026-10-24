@@ -10,7 +10,12 @@ const pages = [
   'notifications.html',
   'profile.html',
   'settings.html',
-  'moderator.html'
+  'moderator.html',
+  'case-studies.html',
+  'collaborations.html',
+  'principles.html',
+  'share-story.html',
+  'workspace.html'
 ];
 
 const sources = new Map(pages.map(path => {
@@ -47,6 +52,23 @@ const home = sources.get('index.html');
 assert.ok(home.includes('data-app-view'), 'Home should use the shared app navigation');
 for (const view of ['feed', 'discover', 'communities', 'messages', 'notifications', 'profile']) {
   assert.ok(home.includes('"' + view + '"'), 'Home navigation should know the ' + view + ' view');
+}
+
+
+// Every page should provide predictable mobile metadata and keyboard navigation.
+const accessibilityStyles = readFileSync(new URL('../venturify-a11y.css', import.meta.url), 'utf8');
+assert.ok(accessibilityStyles.includes('.skip-link:focus'), 'Shared accessibility stylesheet must reveal the skip link on focus');
+
+for (const [path, html] of sources) {
+  const viewportCount = (html.match(/<meta\\s+name=["']viewport["']/gi) || []).length;
+  assert.equal(viewportCount, 1, path + ' must contain exactly one responsive viewport declaration');
+  assert.ok(/<meta\\s+name=["']description["']/i.test(html), path + ' must include a page description');
+  assert.ok(/<link\\s+rel=["']stylesheet["']\\s+href=["']venturify-a11y\\.css["']/i.test(html),
+    path + ' must load the shared accessibility stylesheet');
+  assert.ok(/<a\\s+class=["']skip-link["']\\s+href=["']#main-content["'][^>]*>Skip to main content<\\/a>/i.test(html),
+    path + ' must expose a keyboard skip link');
+  assert.ok(/<main\\s+id=["']main-content["']/i.test(html),
+    path + ' must provide the skip-link destination');
 }
 
 // Keep high-risk surfaces discoverable and protected by their existing controls.
