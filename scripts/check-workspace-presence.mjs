@@ -7,7 +7,7 @@ const migration = readFileSync(
   'utf8',
 );
 
-const scripts = [...workspace.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)]
+const scripts = [...workspace.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
   .map(([, source]) => source.trim())
   .filter(Boolean);
 assert.ok(scripts.length, 'Workspace should contain application scripts');
@@ -24,26 +24,26 @@ for (const [pattern, message] of [
   [/id="workspacePresenceText"/, 'Presence must expose a readable status message'],
   [/presenceChannel=null/, 'Presence channel lifecycle state must remain explicit'],
   [/venturify-workspace-presence:/, 'Presence topics must be scoped to the workspace'],
-  [/presence:\\{key:user\\.id\\}/, 'Presence identity must use the authenticated user ID'],
-  [/channel\\.on\\('presence'/, 'Workspace must listen for presence sync/join/leave events'],
-  [/channel\\.track\\(/, 'Workspace must publish its own presence'],
+  [/presence:\{key:user\.id\}/, 'Presence identity must use the authenticated user ID'],
+  [/channel\.on\('presence'/, 'Workspace must listen for presence sync/join/leave events'],
+  [/channel\.track\(/, 'Workspace must publish its own presence'],
   [/presenceRetryDelay/, 'Presence reconnects must use bounded retry state'],
-  [/document\\.visibilityState/, 'Presence must account for background tabs'],
+  [/document\.visibilityState/, 'Presence must account for background tabs'],
 ]) assert.match(workspace, pattern, message);
 
-assert.match(migration, /on realtime\\.messages\\s+for select\\s+to authenticated/i,
+assert.match(migration, /on realtime\.messages\s+for select\s+to authenticated/i,
   'Only authenticated users should read workspace presence');
-assert.match(migration, /on realtime\\.messages\\s+for insert\\s+to authenticated/i,
+assert.match(migration, /on realtime\.messages\s+for insert\s+to authenticated/i,
   'Only authenticated users should publish workspace presence');
-assert.match(migration, /realtime\\.messages\\.extension = 'presence'/i,
+assert.match(migration, /realtime\.messages\.extension = 'presence'/i,
   'Policies must be limited to presence messages');
-assert.match(migration, /realtime\\.topic\\(\\) like 'venturify-workspace-presence:%'/i,
+assert.match(migration, /realtime\.topic\(\) like 'venturify-workspace-presence:%'/i,
   'Policies must only cover Venturify workspace-presence topics');
-assert.match(migration, /r\\.status = 'accepted'/i,
+assert.match(migration, /r\.status = 'accepted'/i,
   'Presence access must require an accepted collaboration');
-assert.match(migration, /auth\\.uid\\(\\)/i,
+assert.match(migration, /auth\.uid\(\)/i,
   'Presence access must be restricted to one of the accepted collaborators');
-assert.match(migration, /split_part\\(realtime\\.topic\\(\\), ':', 2\\).*?::uuid/s,
+assert.match(migration, /split_part\(realtime\.topic\(\), ':', 2\).*?::uuid/s,
   'Workspace ID parsing must validate UUID syntax before casting');
 assert.doesNotMatch(migration, /for update|for delete/i,
   'Presence policy must not add update/delete permissions');
