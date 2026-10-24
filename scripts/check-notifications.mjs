@@ -35,4 +35,7 @@ assert.match(updatePolicy, /revoke update on table public\.notifications from an
 assert.match(updatePolicy, /grant update \(read_at\) on table public\.notifications to authenticated/i,
   'Authenticated clients should only update the read marker directly');
 
+assert.match(page, /async function loadNotifications\(options=\{\}\)[\\s\\S]*?try\{[\\s\\S]*?finally\{[\\s\\S]*?loading=false;[\\s\\S]*?historyList\.setAttribute\('aria-busy','false'\)/, 'Notification loading must always release its busy state after thrown network failures');
+assert.match(page, /Notification refresh threw; keeping the last loaded notifications visible/, 'A thrown background refresh must preserve the previously loaded notification list');
+
 console.log('Notification-center regression checks passed (static checks only; no live account is accessed).');
