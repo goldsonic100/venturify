@@ -53,7 +53,7 @@
 <header><nav><a href="index.html"><strong>VENTURIFY</strong></a><div><a href="discover.html">Discover</a><a href="feed.html">Feed</a><a href="messages.html">Messages</a><a href="workspace.html">Workspaces</a><a href="profile.html">Profile</a></div></nav></header>
 <main id="main-content" class="wrap"><div class="kicker">Build together</div><h1>Collaboration requests</h1><p class="muted">Keep track of founders who want to build with you, requests you have sent, and accepted collaborations.</p>
 <div id="notice" class="notice">Checking your account…</div>
-<div id="app" class="hidden"><div class="tabs" role="group" aria-label="Filter collaboration requests"><button class="tab active" data-filter="all">All requests</button><button class="tab" data-filter="incoming">Received</button><button class="tab" data-filter="outgoing">Sent</button></div><div class="request-tools"><input id="requestSearch" type="search" placeholder="Search founders or messages…" aria-label="Search collaboration requests"><select id="statusFilter" aria-label="Filter by request status"><option value="all">Every status</option><option value="pending">Pending</option><option value="accepted">Accepted</option><option value="declined">Declined</option></select><select id="requestSort" aria-label="Sort collaboration requests"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="founder">Founder name A–Z</option></select><button id="exportRequests" class="btn" type="button">Export CSV</button></div><section class="card"><div id="summary" class="muted" aria-live="polite" aria-atomic="true" style="margin-bottom:12px"></div><div id="requests" role="region" aria-label="Collaboration request results" aria-live="polite" aria-relevant="additions text" aria-busy="true"><div class="empty">Loading requests…</div></div></section></div>
+<div id="app" class="hidden"><div class="tabs" role="group" aria-label="Filter collaboration requests"><button class="tab active" data-filter="all">All requests</button><button class="tab" data-filter="incoming">Received</button><button class="tab" data-filter="outgoing">Sent</button></div><div class="request-tools"><input id="requestSearch" type="search" placeholder="Search founders or messages…" aria-label="Search collaboration requests"><select id="statusFilter" aria-label="Filter by request status"><option value="all">Every status</option><option value="pending">Pending</option><option value="accepted">Accepted</option><option value="declined">Declined</option></select><select id="requestSort" aria-label="Sort collaboration requests"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="founder">Founder name A–Z</option></select><button id="exportRequests" class="btn" type="button">Export CSV</button></div><section class="card"><div id="summary" class="muted" aria-live="polite" aria-atomic="true" style="margin-bottom:12px"></div><div id="requests" role="region" aria-label="Collaboration request results" aria-live="polite" aria-relevant="additions text" aria-busy="true"><div class="empty">Loading requests…</div></div><button id="loadOlderRequests" class="btn" type="button" style="display:none;margin:16px auto 0">Load older requests</button></section></div>
 </main>
 <script>
 (()=> {
@@ -61,32 +61,51 @@
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  const initials=v=>(String(v||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
- let user=null,requests=[],profiles=new Map(),filter='all',statusFilter='all',searchTerm='',requestSort='newest',busy=false;
+ let user=null,requests=[],profiles=new Map(),filter='all',statusFilter='all',searchTerm='',requestSort='newest',busy=false,hasMoreRequests=false,loadingOlder=false;
+ const requestPageSize=100;
  function notice(message,error=false){$('notice').textContent=message;$('notice').classList.toggle('error',error);$('notice').classList.remove('hidden')}
  function date(v){try{return new Date(v).toLocaleString(undefined,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})}catch{return ''}}
  function render(){
   $('requests').setAttribute('aria-busy','false');
   const filtered=requests.filter(r=>(filter==='all'||(filter==='incoming'?r.recipient_id===user.id:r.requester_id===user.id))&&(statusFilter==='all'||r.status===statusFilter)&&(!searchTerm||((profiles.get(r.requester_id===user.id?r.recipient_id:r.requester_id)?.display_name||'')+' '+(profiles.get(r.requester_id===user.id?r.recipient_id:r.requester_id)?.username||'')+' '+(r.message||'')).toLowerCase().includes(searchTerm))).sort((a,b)=>requestSort==='oldest'?new Date(a.created_at)-new Date(b.created_at):requestSort==='founder'?((profiles.get(a.requester_id===user.id?a.recipient_id:a.requester_id)?.display_name||profiles.get(a.requester_id===user.id?a.recipient_id:a.requester_id)?.username||'').localeCompare(profiles.get(b.requester_id===user.id?b.recipient_id:b.requester_id)?.display_name||profiles.get(b.requester_id===user.id?b.recipient_id:b.requester_id)?.username||'')):new Date(b.created_at)-new Date(a.created_at));
   const pendingIn=requests.filter(r=>r.recipient_id===user.id&&r.status==='pending').length;
-  $('summary').textContent=requests.length+' total · '+pendingIn+' awaiting your response · '+requests.filter(r=>r.status==='accepted').length+' accepted';
+  $('summary').textContent='Showing '+requests.length+' loaded request'+(requests.length===1?'':'s')+' · '+pendingIn+' pending for you · '+requests.filter(r=>r.status==='accepted').length+' accepted'+(hasMoreRequests?' · More older requests available below':'');
   $('requests').innerHTML=filtered.map(r=>{
    const incoming=r.recipient_id===user.id,otherId=incoming?r.requester_id:r.recipient_id,p=profiles.get(otherId)||{},name=p.display_name||('@'+(p.username||'founder')),avatar=p.avatar_url&&/^https?:\/\//i.test(p.avatar_url)?'<img src="'+esc(p.avatar_url)+'" alt="">':esc(initials(name));
    const status=['pending','accepted','declined'].includes(r.status)?r.status:'unknown';
    return '<article class="request"><div class="request-head"><div class="avatar">'+avatar+'</div><div class="request-main"><div class="request-title">'+(incoming?'Request from ':'Request to ')+esc(name)+'</div><div class="request-sub">'+(p.username?'@'+esc(p.username)+' · ':'')+esc(date(r.created_at))+'</div></div><span class="status '+esc(status)+'">'+esc(status)+'</span></div><div class="message">'+esc(r.message)+'</div><div class="actions">'+(incoming&&status==='pending'?'<button class="btn primary" data-decision="accepted" data-id="'+esc(r.id)+'">Accept &amp; create workspace</button><button class="btn" data-decision="declined" data-id="'+esc(r.id)+'">Decline</button>':'')+(!incoming&&status==='pending'?'<button class="btn" data-withdraw="'+esc(r.id)+'">Withdraw request</button>':'')+(status==='accepted'?'<a class="btn primary" href="workspace.html?request='+encodeURIComponent(r.id)+'">Open workspace</a>':'')+(incoming?'<a class="btn" href="messages.html?to='+encodeURIComponent(r.requester_id)+'">Message founder</a>':'')+'</div></article>';
   }).join('')||'<div class="empty">'+(searchTerm||statusFilter!=='all'?'No requests match these search filters.':filter==='incoming'?'No requests received yet.':filter==='outgoing'?'You have not sent any collaboration requests yet.':'No collaboration requests yet. Find an opportunity in the feed to get started.')+'</div>';
   document.querySelectorAll('[data-filter]').forEach(b=>{b.classList.toggle('active',b.dataset.filter===filter);b.setAttribute('aria-pressed',String(b.dataset.filter===filter))});
+  $('loadOlderRequests').style.display=hasMoreRequests?'block':'none';$('loadOlderRequests').disabled=loadingOlder;
  }
  async function load(){
   if(busy)return;busy=true;
   const auth=await client.auth.getUser();user=auth.data?.user||null;
   if(!user){busy=false;$('app').classList.add('hidden');notice('Log in to view your collaboration requests. Open the Feed or Discover page to sign in.',true);return}
-  const result=await client.from('collaboration_requests').select('id,requester_id,recipient_id,message,status,created_at,updated_at').or('requester_id.eq.'+user.id+',recipient_id.eq.'+user.id).order('created_at',{ascending:false}).limit(100);
+  const result=await client.from('collaboration_requests').select('id,requester_id,recipient_id,message,status,created_at,updated_at').or('requester_id.eq.'+user.id+',recipient_id.eq.'+user.id).order('created_at',{ascending:false}).range(0,requestPageSize-1);
   if(result.error){busy=false;notice('Could not load collaboration requests. Please refresh and try again.',true);return}
-  requests=result.data||[];
+  requests=result.data||[];hasMoreRequests=requests.length===requestPageSize;
   const ids=[...new Set(requests.flatMap(r=>[r.requester_id,r.recipient_id]).filter(id=>id!==user.id))];
   if(ids.length){const pr=await client.from('profiles').select('id,username,display_name,avatar_url').in('id',ids);if(!pr.error)profiles=new Map((pr.data||[]).map(p=>[p.id,p]))}
   busy=false;$('app').classList.remove('hidden');$('notice').classList.add('hidden');render();
  }
+ async function loadOlderRequests(){
+  if(!user||busy||loadingOlder||!hasMoreRequests)return;
+  loadingOlder=true;const button=$('loadOlderRequests');button.disabled=true;button.textContent='Loading…';
+  try{
+   const from=requests.length,to=from+requestPageSize-1;
+   const result=await client.from('collaboration_requests').select('id,requester_id,recipient_id,message,status,created_at,updated_at').or('requester_id.eq.'+user.id+',recipient_id.eq.'+user.id).order('created_at',{ascending:false}).range(from,to);
+   if(result.error)throw result.error;
+   const existing=new Set(requests.map(r=>r.id));
+   const incoming=(result.data||[]).filter(r=>!existing.has(r.id));
+   requests=requests.concat(incoming);hasMoreRequests=(result.data||[]).length===requestPageSize;
+   const ids=[...new Set(incoming.flatMap(r=>[r.requester_id,r.recipient_id]).filter(id=>id!==user.id&&!profiles.has(id)))];
+   if(ids.length){const pr=await client.from('profiles').select('id,username,display_name,avatar_url').in('id',ids);if(!pr.error)profiles=new Map([...profiles,...(pr.data||[]).map(p=>[p.id,p])]);}
+   render();
+  }catch(error){notice('Could not load older requests. Please try again.',true);}
+  finally{loadingOlder=false;button.disabled=false;button.textContent='Load older requests';button.style.display=hasMoreRequests?'block':'none';}
+ }
+ $('loadOlderRequests').addEventListener('click',loadOlderRequests);
  document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;render()}));
  $('requestSearch').addEventListener('input',e=>{searchTerm=e.target.value.trim().toLowerCase();render()});
  $('statusFilter').addEventListener('change',e=>{statusFilter=e.target.value;render()});$('requestSort').addEventListener('change',e=>{requestSort=e.target.value;render()});
@@ -97,7 +116,7 @@
   const csv='\\uFEFF'+rows.map(row=>row.map(csvCell).join(',')).join('\\r\\n');
   const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})),a=document.createElement('a');
   a.href=url;a.download='venturify-collaboration-requests.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
-  notice('Exported '+requests.length+' collaboration request'+(requests.length===1?'':'s')+'.');
+  notice('Exported '+requests.length+' loaded collaboration request'+(requests.length===1?'':'s')+(hasMoreRequests?'. Load older requests first to include the full history.':'.'));
  });
  $('requests').addEventListener('click',async e=>{
   const withdraw=e.target.closest('[data-withdraw]');if(withdraw&&user){const id=withdraw.dataset.withdraw;if(!confirm('Withdraw this pending collaboration request?'))return;withdraw.disabled=true;const removed=await client.from('collaboration_requests').delete().eq('id',id).eq('requester_id',user.id).eq('status','pending').select('id').maybeSingle();if(removed.error||!removed.data){withdraw.disabled=false;notice('Could not withdraw this request. It may already have been handled.',true);return}requests=requests.filter(r=>r.id!==id);render();notice('Collaboration request withdrawn.');return}
