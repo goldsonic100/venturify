@@ -800,6 +800,7 @@ renderCases();
  document.getElementById('notificationHistorySearch')?.addEventListener('input',()=>renderNotificationLists());
  loadOlderButton.addEventListener('click',async()=>{if(!notificationUser||loading||!hasMoreNotifications)return;loadOlderButton.textContent='Loading older notifications…';await loadNotifications({append:true});loadOlderButton.textContent='Load older notifications'});
  markAllHistory.addEventListener('click',async()=>{if(!notificationUser||markAllHistory.disabled)return;markAllHistory.disabled=true;try{const r=await notificationClient.from('notifications').update({read_at:new Date().toISOString()}).eq('recipient_id',notificationUser.id).is('read_at',null);if(r.error){showNotificationError('notificationHistoryList','Could not mark notifications as read. Please try again.');return}await loadNotifications()}catch(error){console.warn('Mark-all history update failed',error);showNotificationError('notificationHistoryList','Could not mark notifications as read. Check your connection and try again.')}finally{markAllHistory.disabled=false}});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){panel.hidden=true;button.setAttribute('aria-expanded','false');button.focus()}});
  document.addEventListener('click',e=>{if(!e.target.closest('.notification-wrap')){panel.hidden=true;button.setAttribute('aria-expanded','false')}});
  notificationClient.auth.onAuthStateChange(()=>setTimeout(syncUser,0));
  syncUser().catch(e=>console.warn('Notifications unavailable',e));
