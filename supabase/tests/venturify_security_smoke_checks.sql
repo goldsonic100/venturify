@@ -283,8 +283,10 @@ checks AS (
       JOIN pg_catalog.pg_class c ON c.oid=t.tgrelid
       JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
       JOIN pg_catalog.pg_proc p ON p.oid=t.tgfoid
+      JOIN pg_catalog.pg_namespace pn ON pn.oid=p.pronamespace
       WHERE n.nspname='public' AND c.relname='messages'
-        AND t.tgname='venturify_notify_message' AND t.tgenabled='O'
+        AND t.tgname='notify_conversation_message_after_insert' AND t.tgenabled='O'
+        AND pn.nspname='private' AND p.proname='notify_conversation_message'
         AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'notify_messages') > 0
     ),
     'Message notification delivery respects the recipient preference'
@@ -323,13 +325,15 @@ checks AS (
       JOIN pg_catalog.pg_class c ON c.oid=t.tgrelid
       JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
       JOIN pg_catalog.pg_proc p ON p.oid=t.tgfoid
+      JOIN pg_catalog.pg_namespace pn ON pn.oid=p.pronamespace
       WHERE n.nspname='public'
         AND c.relname='messages'
-        AND t.tgname='venturify_notify_message'
+        AND t.tgname='notify_conversation_message_after_insert'
         AND t.tgenabled='O'
-        AND p.proname='venturify_notify_message'
+        AND pn.nspname='private'
+        AND p.proname='notify_conversation_message'
         AND NOT t.tgisinternal
-        AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'auth.uid() is distinct from new.sender_id') > 0
+        AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'auth.uid() is not null and auth.uid() <> new.sender_id') > 0
     ),
     'Message sends notify other conversation members only when the authenticated sender matches the message sender'
   UNION ALL
