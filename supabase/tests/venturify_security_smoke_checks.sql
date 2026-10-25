@@ -332,6 +332,67 @@ checks AS (
         AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'auth.uid() is distinct from new.sender_id') > 0
     ),
     'Message sends notify other conversation members only when the authenticated sender matches the message sender'
+  UNION ALL
+  SELECT
+    'discovery_and_messaging_rpc_not_executable_by_anon',
+    NOT has_function_privilege('anon', 'public.get_discoverable_founder_ids()', 'EXECUTE')
+      AND NOT has_function_privilege('anon', 'public.get_messageable_founder_ids()', 'EXECUTE'),
+    'Anonymous sessions cannot call founder discovery or messageable-account RPCs directly'
+  UNION ALL
+  SELECT
+    'moderator_security_definer_functions_check_moderator_membership',
+    NOT EXISTS (
+      SELECT 1
+      FROM pg_catalog.pg_proc p
+      JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+      WHERE n.nspname='public'
+        AND p.prosecdef
+        AND p.proname IN (
+          'moderator_dashboard_overview',
+          'moderator_list_recent_posts',
+          'moderator_list_recent_posts_page',
+          'moderator_list_reports',
+          'moderator_list_reports_page',
+          'moderator_list_users',
+          'moderator_update_report'
+        )
+        AND (
+          pg_catalog.strpos(pg_catalog.lower(pg_catalog.pg_get_functiondef(p.oid)), 'auth.uid()') = 0
+          OR pg_catalog.strpos(pg_catalog.lower(pg_catalog.pg_get_functiondef(p.oid)), 'private.moderators') = 0
+        )
+    ),
+    'Every moderator SECURITY DEFINER RPC checks the signed-in user against private.moderators'
+  UNION ALL
+  SELECT
+    'security_definer_functions_pin_search_path',
+    NOT EXISTS (
+      SELECT 1
+      FROM pg_catalog.pg_proc p
+      JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+      WHERE n.nspname='public'
+        AND p.prosecdef
+        AND p.proname IN (
+          'create_group_conversation',
+          'get_discoverable_founder_ids',
+          'get_messageable_founder_ids',
+          'get_or_create_direct_conversation',
+          'get_poll_results',
+          'moderator_dashboard_overview',
+          'moderator_list_recent_posts',
+          'moderator_list_recent_posts_page',
+          'moderator_list_reports',
+          'moderator_list_reports_page',
+          'moderator_list_users',
+          'moderator_update_report',
+          'sync_workspace_deadline_notifications'
+        )
+        AND NOT EXISTS (
+          SELECT 1
+          FROM unnest(coalesce(p.proconfig, ARRAY[]::text[])) cfg
+          WHERE cfg LIKE 'search_path=%'
+        )
+    ),
+    'Reviewed SECURITY DEFINER RPCs explicitly pin search_path'
 )
 SELECT check_name, passed, detail
 FROM checks
