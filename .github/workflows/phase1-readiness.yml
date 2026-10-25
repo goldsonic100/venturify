@@ -28,3 +28,5 @@ jobs:
           node-version: 22
       - name: Validate Phase 1 pages
         run: node scripts/check-phase1-readiness.mjs
+      - name: Validate Phase 1 functional contracts
+        run: node scripts/check-phase1-functional-contracts.mjs
