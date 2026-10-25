@@ -63,6 +63,8 @@ assert.match(accessibilityStyles, /forced-colors:active/, 'Shared accessibility 
 assert.match(accessibilityStyles, /cursor:not-allowed/, 'Disabled controls should expose a clear non-interactive cursor');
 
 for (const [path, html] of sources) {
+  assert.ok(html.includes('id="venturify-global-theme"'), path + ' must load the shared light/dark/system theme controller');
+  assert.ok(/@media\s*\(/i.test(html), path + ' must declare responsive layout rules');
   const viewportCount = (html.match(/<meta\s+name=["']viewport["']/gi) || []).length;
   assert.equal(viewportCount, 1, path + ' must contain exactly one responsive viewport declaration');
   assert.ok(/<meta\s+name=["']description["']/i.test(html), path + ' must include a page description');
