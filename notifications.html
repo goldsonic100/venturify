@@ -173,6 +173,7 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
 .topbar .nav .nav-icon-link{position:relative}.message-nav-count{position:absolute;top:0;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:#c8f169;color:#152319;border:2px solid #13241c;font-size:9px;font-weight:900;line-height:12px;display:inline-flex;align-items:center;justify-content:center}.message-nav-count[hidden]{display:none}
  .notification-search-label{display:block;margin:14px 0 6px;font-size:11px;font-weight:750;color:var(--muted)}.notification-history-search{width:100%;height:42px;border:1px solid var(--line);border-radius:8px;background:var(--card);padding:0 12px;font:inherit;font-size:12px;color:var(--ink);outline:none;margin-bottom:12px}.notification-history-search:focus{border-color:#8da98a;box-shadow:0 0 0 3px #dfead5}
 .notification-date-group{margin:0 0 18px}.notification-date-group h3{font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);padding:8px 2px;margin:8px 0;border-bottom:1px solid var(--line)}
+.notification-search-row{display:flex;gap:8px;align-items:center;margin-bottom:12px}.notification-search-row .notification-history-search{margin:0;min-width:0;flex:1}.notification-search-clear{height:42px;border:1px solid var(--line);border-radius:8px;background:var(--card);padding:0 13px;color:var(--ink);font-size:12px;font-weight:750;cursor:pointer}.notification-search-clear:hover{background:#edf4e5;border-color:#cad9bd}
 </style>
 <script id="venturify-global-theme">
 (function(){
@@ -264,7 +265,7 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
     <button type="button" data-notification-filter="tasks">Project tasks</button>
    </div>
    <label class="notification-search-label" for="notificationHistorySearch">Search loaded notifications</label>
-   <input id="notificationHistorySearch" class="notification-history-search" type="search" maxlength="120" placeholder="Search names, tasks, messages, or notification types…" autocomplete="off">
+   <div class="notification-search-row"><input id="notificationHistorySearch" class="notification-history-search" type="search" maxlength="120" placeholder="Search names, tasks, messages, or notification types…" autocomplete="off"><button type="button" id="clearNotificationHistorySearch" class="notification-search-clear" aria-label="Clear notification search">Clear</button></div>
    <div id="notificationHistoryList" role="region" aria-label="Notification history" aria-live="polite" aria-busy="false"><div class="notification-empty">Log in to see notifications.</div></div>
    <button type="button" id="loadOlderNotifications" class="notification-load-more" hidden>Load older notifications</button>
    <button type="button" id="markAllHistoryRead" class="btn btn-outline" style="margin-top:14px">Mark all as read</button>
@@ -799,6 +800,7 @@ renderCases();
  list.addEventListener('click',handleNotificationClick);historyList.addEventListener('click',handleNotificationClick);
  document.querySelectorAll('[data-notification-filter]').forEach(b=>b.addEventListener('click',()=>{notificationFilter=b.dataset.notificationFilter;try{sessionStorage.setItem('venturify.notificationFilter',notificationFilter)}catch{}renderNotificationLists()}));
  document.getElementById('notificationHistorySearch')?.addEventListener('input',()=>renderNotificationLists());
+ document.getElementById('clearNotificationHistorySearch')?.addEventListener('click',()=>{const input=document.getElementById('notificationHistorySearch');if(!input)return;input.value='';input.focus();renderNotificationLists()});
  loadOlderButton.addEventListener('click',async()=>{if(!notificationUser||loading||!hasMoreNotifications)return;loadOlderButton.textContent='Loading older notifications…';await loadNotifications({append:true});loadOlderButton.textContent='Load older notifications'});
  markAllHistory.addEventListener('click',async()=>{if(!notificationUser||markAllHistory.disabled)return;markAllHistory.disabled=true;try{const r=await notificationClient.from('notifications').update({read_at:new Date().toISOString()}).eq('recipient_id',notificationUser.id).is('read_at',null);if(r.error){showNotificationError('notificationHistoryList','Could not mark notifications as read. Please try again.');return}await loadNotifications()}catch(error){console.warn('Mark-all history update failed',error);showNotificationError('notificationHistoryList','Could not mark notifications as read. Check your connection and try again.')}finally{markAllHistory.disabled=false}});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){panel.hidden=true;button.setAttribute('aria-expanded','false');button.focus()}});
