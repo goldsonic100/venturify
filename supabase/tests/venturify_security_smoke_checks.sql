@@ -71,7 +71,8 @@ checks AS (
           'moderator_list_reports',
           'moderator_list_reports_page',
           'moderator_list_users',
-          'moderator_update_report'
+          'moderator_update_report',
+          'sync_workspace_deadline_notifications'
         ])
         AND pg_catalog.has_function_privilege('anon', p.oid, 'EXECUTE')
     ),
@@ -397,6 +398,45 @@ checks AS (
         )
     ),
     'Reviewed SECURITY DEFINER RPCs explicitly pin search_path'
+  UNION ALL
+  SELECT
+    'privileged_rpc_authentication_guards',
+    (
+      (SELECT count(*) = 4
+       FROM pg_catalog.pg_proc p
+       JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+       WHERE n.nspname='public'
+         AND p.proname = ANY (ARRAY[
+           'create_group_conversation',
+           'get_or_create_direct_conversation',
+           'get_poll_results',
+           'sync_workspace_deadline_notifications'
+         ]))
+      AND NOT EXISTS (
+        SELECT 1
+        FROM pg_catalog.pg_proc p
+        JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+        WHERE n.nspname='public'
+          AND p.proname = ANY (ARRAY[
+            'create_group_conversation',
+            'get_or_create_direct_conversation',
+            'get_poll_results',
+            'sync_workspace_deadline_notifications'
+          ])
+          AND (
+            pg_catalog.strpos(pg_catalog.lower(pg_catalog.pg_get_functiondef(p.oid)), 'auth.uid()') = 0
+            OR (
+              p.proname IN ('create_group_conversation','get_or_create_direct_conversation')
+              AND pg_catalog.strpos(pg_catalog.lower(pg_catalog.pg_get_functiondef(p.oid)), 'is null') = 0
+            )
+            OR (
+              p.proname IN ('get_poll_results','sync_workspace_deadline_notifications')
+              AND pg_catalog.strpos(pg_catalog.lower(pg_catalog.pg_get_functiondef(p.oid)), 'authentication required') = 0
+            )
+          )
+      )
+    ),
+    'Group creation, direct conversations, poll results, and workspace deadline sync retain signed-in-user guards'
 )
 SELECT check_name, passed, detail
 FROM checks
