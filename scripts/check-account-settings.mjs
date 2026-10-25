@@ -61,4 +61,20 @@ assert.match(privateDmFix, /f\.follower_id = candidate\.user_id\s+and f\.followi
 assert.match(privateDmFix, /c\.is_group = false/i,
   'The messageable-founder lookup must preserve access to existing direct conversations');
 
+
+// Navigation and local appearance must remain available even when the Supabase CDN fails.
+const navScriptIndex = page.indexOf('settings-section-navigation');
+const supabaseScriptIndex = page.indexOf('supabase-js@2');
+assert.ok(navScriptIndex >= 0, 'Settings must keep an independent section-navigation script');
+assert.ok(supabaseScriptIndex >= 0 && navScriptIndex < supabaseScriptIndex,
+  'Section navigation must be registered before loading the external Supabase client');
+assert.match(page, /querySelectorAll\(['"]\[data-section\]['"]\)/,
+  'Settings section navigation must bind to all section controls');
+assert.match(page, /matchMedia\(['"]\(prefers-color-scheme:\s*dark\)['"]\)/,
+  'Settings appearance must support the system color preference');
+assert.match(page, /venturify-theme/,
+  'Settings appearance must use the shared local theme preference');
+assert.match(page, /window\.supabase\?\.createClient|window\.supabase\s*&&\s*window\.supabase\.createClient/,
+  'Settings must safely handle a missing Supabase client library');
+
 console.log('Account-settings security regression checks passed (static checks only).');
