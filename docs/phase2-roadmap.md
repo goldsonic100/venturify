@@ -33,6 +33,7 @@
 - [x] Improve opportunity-card hierarchy and mobile action layout with responsive, page-scoped styles.
 - [x] Add retry recovery for saved-post loading failures and accessible status/alert semantics for feed states.
 - [x] Add a retry action and accessible error announcements to the collaboration request page when the initial load fails.
+- [x] Add retry recovery and accessible error announcements for failed profile and follower-list loads; improve small-screen interaction targets and reduced-motion handling.
 - [ ] Continue improving shared visual hierarchy, card consistency, and loading/error states on remaining pages.
 - [ ] Test keyboard focus, accessible status announcements, and light/dark/system themes after each change.
 - [ ] Avoid broad rewrites of the single-page app shell; keep each change isolated and run the existing readiness/regression scripts.

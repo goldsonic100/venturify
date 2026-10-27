@@ -39,3 +39,13 @@
     outline-offset:3px;
   }
 }
+
+/* Mobile interaction comfort and reduced-motion accessibility. */
+@media(max-width:700px){
+  :where(button,[role="button"],[role="tab"],[role="switch"]){min-height:40px;touch-action:manipulation;}
+  :where(input,select,textarea){scroll-margin-block:16px;}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important;}
+  :where(*,*::before,*::after){animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
+}
