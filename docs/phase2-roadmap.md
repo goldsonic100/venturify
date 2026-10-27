@@ -18,7 +18,8 @@
 
 ## Phase 2C — Connect people to ideas
 
-- [ ] Make opportunity and collaboration cards explain the need, requested skills/resources, stage, and next action.
+- [ ] Make opportunity cards explain the need, requested skills/resources, stage, and next action.
+- [x] Clarify next steps on existing collaboration request cards (review, waiting, accepted, declined) using only the current request status and message fields; structured skill/resource/stage fields are not added because they are not established in this request query.
 - [ ] Link relevant founder stories and communities from opportunities when reliable relationships exist in the data model.
 - [ ] Preserve Discover eligibility rules: verified accounts, Level 5+, at least one community, and no self-recommendation.
 - [ ] Preserve free-plan limits and existing privacy/blocked-user enforcement.
