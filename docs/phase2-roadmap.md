@@ -13,7 +13,8 @@
 
 - [x] Audit the existing case-study and story experience: case studies are local fictional demo records; story submission explicitly says it does not save or transmit submissions. No resource-specific table was established by this audit.
 - [x] Define the first resource-hub pathways without introducing an unverified resource schema: founder lessons, peer knowledge, communities, collaborations, founder discovery, and story sharing.
-- [ ] Add topic tags and consistent search/filter affordances to resource listings once real resource records and supported fields are identified.
+- [x] Add keyword search and goal filters for the six existing resource pathways using explicit page-authored tags; fix multi-tag matching and provide a clear-filters recovery action.
+- [ ] Add topic tags and consistent search/filter affordances to future resource listings only after real resource records and supported fields are identified.
 - [x] Explain the current demo-data and submission-storage limitations; require explicit permission before sharing sensitive founder material.
 
 ## Phase 2C — Connect people to ideas
@@ -22,7 +23,8 @@
 - [x] Clarify next steps on existing collaboration request cards (review, waiting, accepted, declined) using only current request status and message fields; structured skill/resource/stage fields are not added because they are not established in this request query.
 - [x] Add keyword search across existing offer/help/topic-tag fields and filter opportunities by the existing project-stage field.
 - [x] Link opportunities to their associated communities when `posts.community_id` is present; community links validate the requested ID against loaded community records.
-- [ ] Link relevant founder stories from opportunities only when a reliable story relationship exists in the data model.
+- [x] Audit founder-story relationships: the app's `stories` query is for expiring social story tiles, while opportunities use `posts`; the checked starter schema does not establish a founder-story foreign key to an opportunity.
+- [ ] Link relevant founder post-mortems from opportunities only after a stable, reviewed founder-story data model and relationship are established.
 - [ ] Preserve Discover eligibility rules: verified accounts, Level 5+, at least one community, and no self-recommendation.
 - [ ] Preserve free-plan limits and existing privacy/blocked-user enforcement.
 
