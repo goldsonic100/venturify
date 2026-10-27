@@ -1,24 +1,29 @@
 # Venturify Phase 1 security and release-readiness evidence
 
-**Review date:** 2026-10-25  
-**Scope:** Read-only checks against the configured Venturify Supabase project and static source checks against the repository's main branch.
+**Review date:** 2026-10-27  
+**Scope:** Read-only checks against the configured Venturify Supabase project and source contracts on the repository's main branch.
 
 ## Verified results
 
-- The Supabase security smoke SQL returned **26 checks passing** after the privileged-RPC authentication regression check was added.
+- The live Supabase security smoke SQL returned **26 of 26 checks passing** on 2026-10-27.
 - The RLS check inspected **34 public tables** and found RLS enabled on all of them.
-- Checks passed for account-settings owner policies, verified-email discovery visibility, private-profile/post visibility, message block guards, message and reaction realtime publication, notification preferences, free community membership enforcement, daily founder-match limit triggers, collaboration workspace creation, and moderator authorization.
-- A read-only source review of the six non-moderator SECURITY DEFINER RPCs confirmed that group creation, direct conversation creation, poll-result access, and workspace deadline synchronization include authentication checks; discovery and messageable-founder RPCs are not executable by the anonymous role and apply their eligibility/access rules.
-- Static checks on all 14 Phase 1 pages passed for inline JavaScript syntax, viewport metadata, responsive CSS presence, the shared accessibility stylesheet, and the shared theme controller.
-- The release-readiness workflow now checks core page contracts, Discover/settings/messaging/notification/collaboration contracts, and the presence of key security smoke-test assertions.
+- Passing checks cover account-settings owner policies, verified-email discovery visibility, private-profile/post/story/poll visibility, message block guards, message/reaction/read-receipt realtime publication, notification preferences, free community membership enforcement, daily founder-match limits, collaboration workspace creation, and moderator authorization.
+- The four reviewed privileged non-moderator RPCs for group creation, direct conversation creation, poll results, and workspace deadline synchronization retain signed-in-user checks. The two founder-discovery/messageable-founder RPCs are not executable by the anonymous role and apply eligibility/access rules.
+- The 13 public `SECURITY DEFINER` functions flagged by the Supabase advisor were inspected by function definition. All pin `search_path`; moderator RPCs check `auth.uid()` against `private.moderators`; group/direct conversation and workspace-sync RPCs have authentication and relevant access checks. The advisor warning is about authenticated-role executability and is not, by itself, proof of a vulnerability. Keep these functions under review if their bodies, grants, or intended callers change.
+- Static source checks cover 14 Phase 1 pages for inline JavaScript syntax, viewport metadata, responsive CSS presence, shared accessibility styles, and theme-controller presence.
+- The release-readiness workflow contains contract checks for core pages, Discover, settings persistence, messaging privacy, notification history, collaboration/workspaces, profiles, communities, moderator authorization, accessibility/theme consistency, and security smoke-test assertions.
+- The user reports that the texting/messaging flow works in their test. This is recorded as user-confirmed, not as an independently automated live-browser test.
 
-## Outstanding items — do not mark Phase 1 complete yet
+## Known free-plan limitation
 
-- **Leaked-password protection:** The Supabase security advisor reported this setting as disabled on the review date, despite an earlier report that it had been enabled. Re-open the Auth password-security settings in the Supabase dashboard and verify the persisted setting; rerun the advisor afterward.
-- **Live two-account testing:** Complete the manual checklist in [Phase 1 two-account smoke test](phase1-two-account-smoke-test.md). Static checks do not prove real-time message delivery, user privacy behavior, or collaboration workspace access in the deployed app.
-- **SECURITY DEFINER advisor notices:** The advisor still reports 13 authenticated-role execution warnings. These are not automatically proof of a vulnerability, but the affected RPCs must remain reviewed and covered by the SQL checks. Reassess if their function bodies, grants, or intended callers change.
-- **Visual QA:** Confirm the live site at mobile and desktop sizes and exercise Light, Dark, and System themes after deployment.
+- **Leaked-password protection:** On 2026-10-27, the Supabase dashboard returned an error when saving “Prevent use of leaked passwords,” stating that HaveIBeenPwned.org-based protection is available on Pro plans and above. The project is intentionally staying on the Free plan, so this feature remains unavailable and the Security Advisor warning is expected. Do not claim it is enabled. This is an explicitly accepted release limitation unless the plan changes; do not upgrade solely to clear this warning.
 
-## Release rule
+## Remaining release checks
 
-Do not describe Phase 1 as fully complete until the leaked-password setting is verified, all manual smoke-test items are recorded as PASS or have explicit accepted follow-ups, and there are no unresolved critical security issues.
+- Complete and record the manual checklist in [Phase 1 two-account smoke test](phase1-two-account-smoke-test.md), except that the unavailable paid-only leaked-password feature is an accepted limitation. Messaging is user-confirmed working; settings persistence/privacy, notifications, collaboration acceptance/workspace membership, blocking, and moderator authorization still need explicit PASS/FAIL results.
+- Complete live mobile and desktop visual QA, including theme switching, keyboard navigation, horizontal overflow, and stuck-loading checks.
+- Review any new or changed SECURITY DEFINER functions and grants individually. The current advisor count is 13 authenticated-role execution warnings; these should not be blindly “fixed” by revoking legitimate app access.
+
+## Release decision
+
+Phase 1 may be considered complete when all applicable manual smoke-test items have recorded outcomes, no critical security/privacy failures remain, mobile/desktop QA passes, and the Free-plan leaked-password limitation is explicitly accepted. A static CI pass or a successful SQL smoke suite alone does not prove real browser flows.
