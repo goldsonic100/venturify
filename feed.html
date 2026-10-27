@@ -559,7 +559,7 @@ $('feed').addEventListener('click',async e=>{
    client.from('collaboration_requests').select('id').eq('requester_id',recipientId).eq('recipient_id',user.id).eq('status','pending').limit(1)
   ]);
   if(pending.error||incoming.error){requestButton.disabled=false;return notice('Could not check existing requests. Please try again.')}
-  if((pending.data||[]).length){requestButton.textContent='Request already pending';requestButton.setAttribute('aria-label','Collaboration request already pending');requestButton.setAttribute('aria-disabled','true');return notice('You already have a pending request with this founder.')}
+  if((pending.data||[]).length){requestButton.textContent='Request already pending';requestButton.setAttribute('aria-label','Collaboration request already pending');requestButton.setAttribute('aria-disabled','true');requestButton.insertAdjacentHTML('afterend','<a class="btn btn-secondary" href="collaborations.html" aria-label="Track collaboration request">Track request</a>');return notice('You already have a pending request with this founder.')}
   if((incoming.data||[]).length){
    requestButton.textContent='Invitation received';
    requestButton.title='This founder has already invited you to collaborate.';
@@ -579,6 +579,7 @@ $('feed').addEventListener('click',async e=>{
   // The database trigger creates this notification securely; clients cannot insert notifications directly.
   notice('Collaboration request sent.');
   requestButton.textContent='✓ Request sent';requestButton.setAttribute('aria-label','Collaboration request sent');requestButton.setAttribute('aria-disabled','true');
+  requestButton.insertAdjacentHTML('afterend','<a class="btn btn-secondary" href="collaborations.html" aria-label="Track collaboration request">Track request</a>');
   return
  }
  const interest=e.target.closest('[data-opportunity-interest]');if(interest){if(!user)return loginRequired();const authorId=interest.dataset.opportunityAuthor,postId=interest.dataset.opportunityInterest,kind=interest.dataset.opportunityKind;if(!authorId||authorId===user.id)return notice('You cannot start a collaboration chat with yourself.');const intro='Hi! I saw your '+(kind==='idea'?'idea':kind==='resource'?'resource offer':'lesson learned')+' on Venturify and would like to discuss whether we could collaborate. Post: '+window.location.origin+window.location.pathname+'?view=feed#post-'+encodeURIComponent(postId);window.location.href='messages.html?to='+encodeURIComponent(authorId)+'&draft='+encodeURIComponent(intro);return}
