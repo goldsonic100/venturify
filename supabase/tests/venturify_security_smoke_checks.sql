@@ -400,6 +400,37 @@ checks AS (
     'Reviewed SECURITY DEFINER RPCs explicitly pin search_path'
   UNION ALL
   SELECT
+    'security_definer_execute_grants_are_least_privilege',
+    NOT EXISTS (
+      SELECT 1
+      FROM pg_catalog.pg_proc p
+      JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+      WHERE n.nspname='public'
+        AND p.prosecdef
+        AND p.proname = ANY (ARRAY[
+          'create_group_conversation',
+          'get_discoverable_founder_ids',
+          'get_messageable_founder_ids',
+          'get_or_create_direct_conversation',
+          'get_poll_results',
+          'moderator_dashboard_overview',
+          'moderator_list_recent_posts',
+          'moderator_list_recent_posts_page',
+          'moderator_list_reports',
+          'moderator_list_reports_page',
+          'moderator_list_users',
+          'moderator_update_report',
+          'sync_workspace_deadline_notifications'
+        ])
+        AND (
+          pg_catalog.has_function_privilege('anon', p.oid, 'EXECUTE')
+          OR pg_catalog.has_function_privilege('public', p.oid, 'EXECUTE')
+          OR NOT pg_catalog.has_function_privilege('authenticated', p.oid, 'EXECUTE')
+        )
+    ),
+    'Reviewed RPCs are not executable by anon/PUBLIC and remain callable by authenticated app users'
+  UNION ALL
+  SELECT
     'privileged_rpc_authentication_guards',
     (
       (SELECT count(*) = 4
