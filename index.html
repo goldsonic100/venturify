@@ -57,6 +57,7 @@
 .app-nav-links a{display:inline-flex;align-items:center;padding:8px 10px;border-radius:9px;font-size:12px;font-weight:750;color:var(--muted);white-space:nowrap}
 .app-nav-links a[aria-current="page"]{background:var(--deep);color:white}
 body[data-view]:not([data-view="home"]) .hero,
+body[data-view]:not([data-view="home"]) #ecosystem,
 body[data-view]:not([data-view="home"]) #library,
 body[data-view]:not([data-view="home"]) #method,
 body[data-view]:not([data-view="home"]) #submit,
@@ -243,6 +244,20 @@ input,select,textarea,button{max-width:100%}
 
 
 .home-profile-completion{margin:14px 0 4px;padding:14px;border:1px solid #dbe5d1;border-radius:12px;background:#f8faf4}.home-profile-completion-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.home-profile-completion-top strong{display:block;font-size:13px}.home-profile-completion-percent{font-size:18px;font-weight:850;color:#31543a;font-variant-numeric:tabular-nums}.home-profile-completion-track{height:7px;border-radius:99px;background:#e3e9de;overflow:hidden;margin-top:11px}.home-profile-completion-track>div{height:100%;border-radius:99px;background:#6b914e;transition:width .2s}.home-profile-completion-note{font-size:11px;line-height:1.5;color:#59675a;margin:8px 0 0}.home-profile-completion-missing{margin:8px 0 0;padding-left:18px;display:flex;flex-wrap:wrap;gap:5px 18px;font-size:11px;color:#59675a}.home-profile-completion-done{font-size:11px;font-weight:750;color:#31543a;margin:8px 0 0}#homeProfileCompletionMissing[hidden],#homeProfileCompletionDone[hidden]{display:none}
+
+/* Phase 2: make the founder ecosystem pathways visible and connected */
+.ecosystem-band{padding:56px 0;background:#eef2e8;border-bottom:1px solid var(--line)}
+.ecosystem-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-top:24px}
+.ecosystem-card{display:flex;flex-direction:column;min-width:0;padding:20px;border:1px solid #dbe3d3;border-radius:14px;background:#fffefa;transition:transform .18s,border-color .18s,box-shadow .18s}
+.ecosystem-card:hover{transform:translateY(-3px);border-color:#9db58d;box-shadow:0 12px 28px #253d2410}
+.ecosystem-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#e7efd9;color:#31543a;font-size:20px;font-weight:850}
+.ecosystem-card h3{font:500 23px/1.15 var(--serif);letter-spacing:-.5px;margin:17px 0 8px}
+.ecosystem-card p{color:#657064;font-size:12px;line-height:1.7;margin:0 0 18px}
+.ecosystem-link{display:inline-flex;align-items:center;gap:7px;margin-top:auto;color:#315b3a;font-size:11px;font-weight:850}
+.ecosystem-link:focus-visible,.ecosystem-card:focus-visible{outline:3px solid #719d54;outline-offset:3px}
+@media(max-width:850px){.ecosystem-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.ecosystem-band{padding:40px 0}.ecosystem-grid{grid-template-columns:minmax(0,1fr)}.ecosystem-card{padding:17px}.ecosystem-card h3{font-size:22px}}
+
 </style>
 <script id="venturify-global-theme">
 (function(){
@@ -319,6 +334,42 @@ input,select,textarea,button{max-width:100%}
   <div class="stats"><div class="stat"><strong>Real-world</strong><span>FOUNDER EXPERIENCES</span></div><div class="stat"><strong>Lessons first</strong><span>NOT GOTCHA STORIES</span></div><div class="stat"><strong>Privacy-led</strong><span>BY DESIGN</span></div></div>
  </div></div>
 </section>
+
+<section class="ecosystem-band" id="ecosystem" aria-labelledby="ecosystem-title">
+ <div class="wrap">
+  <div class="section-head">
+   <div><div class="kicker">One founder ecosystem</div><h2 id="ecosystem-title">From a hard lesson to your next move.</h2></div>
+   <p class="sub">Venturify connects the story, the people, and the practical help that can turn experience into progress.</p>
+  </div>
+  <div class="ecosystem-grid">
+   <a class="ecosystem-card" href="case-studies.html">
+    <span class="ecosystem-icon" aria-hidden="true">↺</span>
+    <h3>Learn from experience</h3>
+    <p>Explore honest founder stories, post-mortems, decisions, and lessons worth carrying forward.</p>
+    <span class="ecosystem-link">Read founder stories <span aria-hidden="true">→</span></span>
+   </a>
+   <a class="ecosystem-card" href="discover.html">
+    <span class="ecosystem-icon" aria-hidden="true">⌕</span>
+    <h3>Find the right people</h3>
+    <p>Discover eligible founders whose experience, interests, and goals complement your own.</p>
+    <span class="ecosystem-link">Discover founders <span aria-hidden="true">→</span></span>
+   </a>
+   <a class="ecosystem-card" href="communities.html">
+    <span class="ecosystem-icon" aria-hidden="true">◎</span>
+    <h3>Build with a community</h3>
+    <p>Share questions, compare approaches, and learn alongside people working through similar challenges.</p>
+    <span class="ecosystem-link">Explore communities <span aria-hidden="true">→</span></span>
+   </a>
+   <a class="ecosystem-card" href="collaborations.html">
+    <span class="ecosystem-icon" aria-hidden="true">↗</span>
+    <h3>Turn insight into action</h3>
+    <p>Find collaborators, exchange useful resources, and move promising ideas toward real work.</p>
+    <span class="ecosystem-link">Explore collaborations <span aria-hidden="true">→</span></span>
+   </a>
+  </div>
+ </div>
+</section>
+
 
 <section class="section community" id="community">
  <div class="wrap">

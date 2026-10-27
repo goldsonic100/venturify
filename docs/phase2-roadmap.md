@@ -1,0 +1,43 @@
+# Venturify Phase 2 roadmap
+
+**Goal:** Make Venturify a connected founder ecosystem where ideas, practical resources, and lived experience from successful and failed ventures all have equal value. Preserve working Phase 1 features and improve them in small, testable increments.
+
+## Phase 2A — Connect the ecosystem (in progress)
+
+- [x] Add a homepage pathway linking founder stories, Discover, Communities, and Collaborations.
+- [x] Keep the pathway visible on the home page only, without leaking it into app subviews.
+- [ ] Verify the new pathway at desktop and mobile widths on the deployed site.
+- [ ] Check all four links and signed-out browsing behavior.
+
+## Phase 2B — Make resources useful
+
+- [ ] Audit current case-study and story fields before adding new schema.
+- [ ] Define resource types such as templates, tools, lessons, and founder requests; distinguish community-submitted material from independently verified claims.
+- [ ] Add topic tags and consistent search/filter affordances where supported by current data.
+- [ ] Ensure any downloadable or sensitive founder material is shared only with explicit permission.
+
+## Phase 2C — Connect people to ideas
+
+- [ ] Make opportunity and collaboration cards explain the need, requested skills/resources, stage, and next action.
+- [ ] Link relevant founder stories and communities from opportunities when reliable relationships exist in the data model.
+- [ ] Preserve Discover eligibility rules: verified accounts, Level 5+, at least one community, and no self-recommendation.
+- [ ] Preserve free-plan limits and existing privacy/blocked-user enforcement.
+
+## Phase 2D — Product polish
+
+- [ ] Improve shared visual hierarchy, card consistency, empty/loading/error states, and responsive layouts in small page-scoped changes.
+- [ ] Test keyboard focus, accessible status announcements, and light/dark/system themes after each change.
+- [ ] Avoid broad rewrites of the single-page app shell; keep each change isolated and run the existing readiness/regression scripts.
+
+## Phase 2E — Release discipline
+
+- [ ] Every feature PR includes its behavior, constraints, and regression checks.
+- [ ] Run the relevant GitHub Actions workflows and Supabase smoke suite for changes that affect security/data behavior.
+- [ ] Record user-reported manual results separately from automated evidence.
+- [ ] Do not claim a feature works solely because a static contract test passes.
+
+## Guardrails
+
+- Do not weaken RLS, account privacy, moderator authorization, blocking, or verification rules for convenience.
+- Do not blanket-revoke authenticated execution from reviewed `SECURITY DEFINER` functions; inspect each function's callers and authorization logic first.
+- The Supabase Free-plan leaked-password protection limitation remains documented and is not represented as enabled.
