@@ -11,5 +11,8 @@ assert.ok(source0.includes("public_profile"), "settings.html is missing contract
 assert.ok(source0.includes("public_dms"), "settings.html is missing contract: public_dms");
 assert.ok(source0.includes("Settings saved."), "settings.html is missing contract: Settings saved.");
 assert.ok(source0.includes("Could not load settings:"), "settings.html is missing contract: Could not load settings:");
+assert.ok(source0.includes('id="retrySettingsLoad"'), 'Settings loading failures must expose a retry control.');
+assert.ok(source0.includes("addEventListener('click',()=>load())"), 'Settings retry control must call the load routine.');
+assert.ok(source0.includes("role=\"status\" aria-live=\"polite\""), 'Settings status feedback must remain accessible.');
 
 console.log("Phase 1 settings-persistence contract checks passed.");
