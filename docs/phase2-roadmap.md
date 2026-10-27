@@ -11,10 +11,10 @@
 
 ## Phase 2B — Make resources useful
 
-- [ ] Audit current case-study and story fields before adding new schema.
-- [ ] Define resource types such as templates, tools, lessons, and founder requests; distinguish community-submitted material from independently verified claims.
-- [ ] Add topic tags and consistent search/filter affordances where supported by current data.
-- [ ] Ensure any downloadable or sensitive founder material is shared only with explicit permission.
+- [x] Audit the existing case-study and story experience: case studies are local fictional demo records; story submission explicitly says it does not save or transmit submissions. No resource-specific table was established by this audit.
+- [x] Define the first resource-hub pathways without introducing an unverified resource schema: founder lessons, peer knowledge, communities, collaborations, founder discovery, and story sharing.
+- [ ] Add topic tags and consistent search/filter affordances to resource listings once real resource records and supported fields are identified.
+- [x] Explain the current demo-data and submission-storage limitations; require explicit permission before sharing sensitive founder material.
 
 ## Phase 2C — Connect people to ideas
 
