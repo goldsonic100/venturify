@@ -13,7 +13,8 @@
     .top{background:var(--forest);color:#fff}.nav{min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:20px;font-weight:850;letter-spacing:-.7px}.brand span{display:inline-grid;place-items:center;width:31px;height:31px;margin-right:8px;border-radius:9px;background:var(--lime);color:var(--forest)}.nav-links{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:#d6e0d6}.nav-links a:hover{color:var(--lime)}
     .hero{background:var(--forest);color:#fff;padding:64px 0 78px;position:relative;overflow:hidden}.hero:after{content:"";position:absolute;width:390px;height:390px;right:-90px;top:-110px;border:1px solid #c8f16935;border-radius:50%;box-shadow:0 0 0 45px #c8f1690b,0 0 0 90px #c8f1690b;pointer-events:none}.eyebrow{color:var(--lime);font-size:11px;font-weight:850;letter-spacing:1.7px;text-transform:uppercase}.hero h1{position:relative;z-index:1;font:500 clamp(42px,7vw,70px)/1.03 Georgia,serif;letter-spacing:-2px;max-width:720px;margin:16px 0}.hero p{position:relative;z-index:1;max-width:620px;color:#c3cec4;font-size:16px;line-height:1.8;margin:0}
     main{padding:44px 0 64px}.intro{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:22px}.intro h2{font:500 34px/1.1 Georgia,serif;letter-spacing:-.8px;margin:6px 0}.intro p{max-width:480px;color:var(--muted);font-size:13px;margin:0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.resource{display:flex;flex-direction:column;align-items:flex-start;min-height:220px;padding:23px;background:var(--card);border:1px solid var(--line);border-radius:16px;transition:transform .16s,border-color .16s,box-shadow .16s}.resource:hover{transform:translateY(-2px);border-color:#a8bd9d;box-shadow:0 12px 28px #17251b0b}.resource:focus-visible{outline:3px solid #668b4e;outline-offset:3px}.icon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#edf3e5;color:#31583a;font-size:20px}.tag{margin-top:18px;color:var(--accent);font-size:10px;font-weight:850;letter-spacing:1.2px;text-transform:uppercase}.resource h3{font:500 25px/1.2 Georgia,serif;margin:8px 0}.resource p{color:var(--muted);font-size:13px;line-height:1.7;margin:0 0 20px}.go{margin-top:auto;color:var(--accent);font-size:12px;font-weight:850}.note{margin-top:22px;padding:15px 17px;border:1px solid #d9e3d1;border-radius:11px;background:#edf2e8;color:#586a56;font-size:12px;line-height:1.7}.footer{padding:22px 0;border-top:1px solid var(--line);color:var(--muted);font-size:11px}.footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-    @media(max-width:650px){.nav{align-items:flex-start;flex-direction:column;padding:14px 0}.nav-links{gap:12px}.hero{padding:48px 0 58px}.hero:after{right:-270px}.intro{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.resource{min-height:190px}.intro h2{font-size:30px}}
+    .resource-tools{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(220px,.7fr);gap:12px;margin:0 0 10px;padding:16px;border:1px solid var(--line);border-radius:14px;background:#fffefa}.resource-tools label{display:grid;gap:6px;color:var(--muted);font-size:11px;font-weight:800}.resource-tools input,.resource-tools select{width:100%;min-height:42px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:white;color:var(--ink);font:inherit;font-size:13px}.resource-tools input:focus-visible,.resource-tools select:focus-visible{outline:3px solid #668b4e;outline-offset:2px}.resource-result-count{margin:0 0 14px;color:var(--muted);font-size:11px}.resource-empty{grid-column:1/-1;padding:26px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);text-align:center;background:#fffefa}.resource[hidden]{display:none!important}
+    @media(max-width:650px){.resource-tools{grid-template-columns:1fr}.nav{align-items:flex-start;flex-direction:column;padding:14px 0}.nav-links{gap:12px}.hero{padding:48px 0 58px}.hero:after{right:-270px}.intro{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.resource{min-height:190px}.intro h2{font-size:30px}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
   </style>
 </head>
@@ -32,16 +33,52 @@
   </div></section>
   <main id="main-content" class="wrap">
     <div class="intro"><div><div class="eyebrow" style="color:var(--accent)">Explore the ecosystem</div><h2>What would help you move forward?</h2></div><p>Different stages call for different kinds of help. Choose a starting point and follow the path that fits your current question.</p></div>
-    <div class="grid">
-      <a class="resource" href="case-studies.html"><span class="icon" aria-hidden="true">↗</span><span class="tag">Lessons learned</span><h3>Learn from founder stories</h3><p>Explore case-study examples and the decisions, trade-offs, and takeaways they illustrate.</p><span class="go">Explore stories →</span></a>
-      <a class="resource" href="feed.html"><span class="icon" aria-hidden="true">✦</span><span class="tag">Peer knowledge</span><h3>Learn from the community feed</h3><p>Browse founder updates, questions, and shared experiences. Sign in when you want to participate.</p><span class="go">Open the feed →</span></a>
-      <a class="resource" href="communities.html"><span class="icon" aria-hidden="true">◎</span><span class="tag">Focused help</span><h3>Find a community</h3><p>Look for people discussing the topics, industries, and challenges relevant to your work.</p><span class="go">Explore communities →</span></a>
-      <a class="resource" href="collaborations.html"><span class="icon" aria-hidden="true">↔</span><span class="tag">Build together</span><h3>Explore collaborations</h3><p>Review collaboration opportunities and requests, then connect through the existing workflow.</p><span class="go">View collaborations →</span></a>
-      <a class="resource" href="discover.html"><span class="icon" aria-hidden="true">⌕</span><span class="tag">People & skills</span><h3>Discover founders</h3><p>Find potential collaborators and people with relevant skills or shared interests.</p><span class="go">Meet founders →</span></a>
-      <a class="resource" href="share-story.html"><span class="icon" aria-hidden="true">＋</span><span class="tag">Give back</span><h3>Share what you learned</h3><p>Explore the founder-story submission path and its current limitations before sharing sensitive details.</p><span class="go">Share a story →</span></a>
+    <div class="resource-tools" aria-label="Find a resource">
+      <label for="resourceSearch">Search resources<input id="resourceSearch" type="search" placeholder="Try stories, community, collaboration…" autocomplete="off"></label>
+      <label for="resourceCategory">I’m looking for<select id="resourceCategory"><option value="all">Anything useful</option><option value="learn">Lessons and peer knowledge</option><option value="people">People and communities</option><option value="build">Collaboration and skills</option><option value="share">Share my experience</option></select></label>
+    </div>
+    <p id="resourceResultCount" class="resource-result-count" aria-live="polite">Showing all 6 pathways</p>
+    <div class="grid" id="resourceGrid">
+      <a class="resource" data-resource-tags="learn" href="case-studies.html"><span class="icon" aria-hidden="true">↗</span><span class="tag">Lessons learned</span><h3>Learn from founder stories</h3><p>Explore case-study examples and the decisions, trade-offs, and takeaways they illustrate.</p><span class="go">Explore stories →</span></a>
+      <a class="resource" data-resource-tags="learn" href="feed.html"><span class="icon" aria-hidden="true">✦</span><span class="tag">Peer knowledge</span><h3>Learn from the community feed</h3><p>Browse founder updates, questions, and shared experiences. Sign in when you want to participate.</p><span class="go">Open the feed →</span></a>
+      <a class="resource" data-resource-tags="people" href="communities.html"><span class="icon" aria-hidden="true">◎</span><span class="tag">Focused help</span><h3>Find a community</h3><p>Look for people discussing the topics, industries, and challenges relevant to your work.</p><span class="go">Explore communities →</span></a>
+      <a class="resource" data-resource-tags="build people" href="collaborations.html"><span class="icon" aria-hidden="true">↔</span><span class="tag">Build together</span><h3>Explore collaborations</h3><p>Review collaboration opportunities and requests, then connect through the existing workflow.</p><span class="go">View collaborations →</span></a>
+      <a class="resource" data-resource-tags="people build" href="discover.html"><span class="icon" aria-hidden="true">⌕</span><span class="tag">People & skills</span><h3>Discover founders</h3><p>Find potential collaborators and people with relevant skills or shared interests.</p><span class="go">Meet founders →</span></a>
+      <a class="resource" data-resource-tags="share learn" href="share-story.html"><span class="icon" aria-hidden="true">＋</span><span class="tag">Give back</span><h3>Share what you learned</h3><p>Explore the founder-story submission path and its current limitations before sharing sensitive details.</p><span class="go">Share a story →</span></a>
     </div>
     <aside class="note" role="note"><strong>Trust note:</strong> The case studies currently identify themselves as fictional examples. Do not treat them as verified company histories or actual financial disclosures. The founder-story submission page also describes its demo limitations; do not submit confidential documents until a secure, permission-based publishing flow is available.</aside>
   </main>
   <footer class="footer"><div class="wrap"><span>Venturify · A founder ecosystem built around useful experience.</span><a href="principles.html">Our principles and trust commitments</a></div></footer>
+<script>
+(()=> {
+ const search=document.getElementById('resourceSearch');
+ const category=document.getElementById('resourceCategory');
+ const grid=document.getElementById('resourceGrid');
+ const count=document.getElementById('resourceResultCount');
+ if(!search||!category||!grid||!count)return;
+ const cards=[...grid.querySelectorAll('[data-resource-tags]')];
+ const empty=document.createElement('div');
+ empty.className='resource-empty';
+ empty.hidden=true;
+ empty.textContent='No pathways match that search. Try a broader keyword or choose another goal.';
+ grid.append(empty);
+ const update=()=>{
+   const query=search.value.trim().toLowerCase();
+   const selected=category.value;
+   let visible=0;
+   cards.forEach(card=>{
+     const tags=(card.dataset.resourceTags||'').split(/\\s+/);
+     const matchesCategory=selected==='all'||tags.includes(selected);
+     const matchesQuery=!query||card.textContent.toLowerCase().includes(query)||tags.some(tag=>tag.includes(query));
+     card.hidden=!(matchesCategory&&matchesQuery);
+     if(!card.hidden)visible++;
+   });
+   empty.hidden=visible!==0;
+   count.textContent='Showing '+visible+' of '+cards.length+' pathways';
+ };
+ search.addEventListener('input',update);
+ category.addEventListener('change',update);
+})();
+</script>
 </body>
 </html>
