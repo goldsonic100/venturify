@@ -27,3 +27,17 @@
 ## Release decision
 
 Phase 1 may be considered complete when all applicable manual smoke-test items have recorded outcomes, no critical security/privacy failures remain, mobile/desktop QA passes, and the Free-plan leaked-password limitation is explicitly accepted. A static CI pass or a successful SQL smoke suite alone does not prove real browser flows.
+
+
+## SECURITY DEFINER grant review (2026-10-27)
+
+A live privilege query checked the 13 functions currently listed by the Supabase advisor. For every listed function:
+
+- `anon` cannot execute the function.
+- `PUBLIC` does not have effective execute privilege.
+- `authenticated` can execute it, as expected for the signed-in application paths.
+- Moderator RPC bodies check the caller against `private.moderators`; group/direct conversation and workspace deadline RPCs include authentication and access checks; founder discovery/messageable-founder RPCs apply eligibility/privacy rules; poll results require authentication.
+
+This grant check narrows the finding: the advisor warning is due to signed-in users being able to invoke `SECURITY DEFINER` functions. It does **not** show anonymous execution or a public grant. Revoking authenticated execution wholesale would break intended application features. The next security change should only be made alongside a reviewed alternative API/grant design and regression tests, rather than changing grants blindly.
+
+The live advisor still reports 13 authenticated-role execution warnings after this review. They are reviewed but not cleared.
