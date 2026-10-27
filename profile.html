@@ -677,8 +677,8 @@ renderCases();
    profileClient.from('comments').select('id',{count:'exact',head:true}).eq('user_id',id),
    profileClient.from('community_members').select('community_id').eq('user_id',id)
   ]);
-  const p=results[0].data,posts=results[1].data||[];
-  if(results[0].error||!p){content.innerHTML='<div class="community-empty">Could not load this profile.</div>';return}
+  const p=results[0]?.data,posts=results[1]?.data||[];
+  if(results[0]?.error||!p){content.innerHTML='<div class="community-empty" role="alert"><p>Could not load this profile right now. Your account and profile have not been changed.</p><button type="button" class="btn btn-primary" data-profile-retry="'+escProfile(id)+'">Retry loading profile</button></div>';return}
   const viewerId=window.venturifyCurrentUserId?.()||null;const own=p.id===viewerId;const collaborationRows=own?await profileClient.from('collaboration_requests').select('id,requester_id,message,created_at').eq('recipient_id',id).eq('status','pending').order('created_at',{ascending:false}).limit(30):{data:[]};const acceptedCollaborationRows=own?await profileClient.from('collaboration_requests').select('id,requester_id,recipient_id,created_at').eq('status','accepted').or('requester_id.eq.'+id+',recipient_id.eq.'+id).order('created_at',{ascending:false}).limit(30):{data:[]};const collaborationPeopleIds=[...new Set([...(collaborationRows.data||[]).map(r=>r.requester_id),...(acceptedCollaborationRows.data||[]).map(r=>r.requester_id===id?r.recipient_id:r.requester_id)])];const collaborationPeopleResult=collaborationPeopleIds.length?await profileClient.from('profiles').select('id,username,display_name,headline,avatar_url').in('id',collaborationPeopleIds):{data:[]};const collaborationPeople=new Map((collaborationPeopleResult.data||[]).map(person=>[person.id,person]));const followState=viewerId&&!own?await profileClient.from('follows').select('follower_id').eq('follower_id',viewerId).eq('following_id',id).maybeSingle():{data:null};const isFollowing=!!followState.data;
   const followers=results[2].count||0,following=results[3].count||0,totalPosts=results[4].count||0,totalComments=results[5].count||0,memberCommunityIds=[...new Set((results[6].data||[]).map(m=>m.community_id))],communityCount=memberCommunityIds.length;const communityRows=memberCommunityIds.length?await profileClient.from('communities').select('id,name,topic').in('id',memberCommunityIds):{data:[]};const memberCommunities=communityRows.data||[];
   const ageDays=Math.max(0,Math.floor((Date.now()-new Date(p.created_at||Date.now()).getTime())/86400000));
@@ -702,8 +702,9 @@ renderCases();
   content.innerHTML='<div class="community-empty">Loading '+label.toLowerCase()+'…</div>';
   const relation=kind==='followers'?'follower_id':'following_id';
   const target=kind==='followers'?'following_id':'follower_id';
-  const links=await profileClient.from('follows').select(relation).eq(target,id).limit(100);
-  if(links.error){content.innerHTML='<button type="button" class="btn btn-secondary" data-profile-back="'+escProfile(id)+'">← Back to profile</button><div class="community-empty">Could not load '+label.toLowerCase()+'.</div>';return}
+  let links;
+  try{links=await profileClient.from('follows').select(relation).eq(target,id).limit(100)}catch(error){content.innerHTML='<button type="button" class="btn btn-secondary" data-profile-back="'+escProfile(id)+'">← Back to profile</button><div class="community-empty" role="alert">Could not load '+label.toLowerCase()+'. <button type="button" class="btn btn-primary" data-profile-list="'+kind+'" data-profile-id="'+escProfile(id)+'">Retry</button></div>';return}
+  if(links.error){content.innerHTML='<button type="button" class="btn btn-secondary" data-profile-back="'+escProfile(id)+'">← Back to profile</button><div class="community-empty" role="alert">Could not load '+label.toLowerCase()+'. <button type="button" class="btn btn-primary" data-profile-list="'+kind+'" data-profile-id="'+escProfile(id)+'">Retry</button></div>';return}
   const ids=[...new Set((links.data||[]).map(row=>row[relation]))];
   const peopleResult=ids.length?await profileClient.from('profiles').select('id,username,display_name,headline,avatar_url').in('id',ids):{data:[]};
   if(peopleResult.error){content.innerHTML='<button type="button" class="btn btn-secondary" data-profile-back="'+escProfile(id)+'">← Back to profile</button><div class="community-empty">Could not load these profiles.</div>';return}
@@ -761,6 +762,7 @@ renderCases();
   if(follow){const id=follow.dataset.profileFollow,viewerId=window.venturifyCurrentUserId?.();if(!viewerId){document.getElementById('navAccount').click();return}follow.disabled=true;const existing=await profileClient.from('follows').select('follower_id').eq('follower_id',viewerId).eq('following_id',id).maybeSingle();let result;if(existing.error){follow.disabled=false;return}result=existing.data?await profileClient.from('follows').delete().eq('follower_id',viewerId).eq('following_id',id):await profileClient.from('follows').insert({follower_id:viewerId,following_id:id});if(result.error){follow.disabled=false;notice('Follow update failed: '+result.error.message);return}await showProfile(id);await loadPeople();return}
   const list=e.target.closest('[data-profile-list]');if(list){showProfileList(list.dataset.profileId,list.dataset.profileList);return}
   const back=e.target.closest('[data-profile-back]');if(back){showProfile(back.dataset.profileBack);return}
+  const retryProfile=e.target.closest('[data-profile-retry]');if(retryProfile){showProfile(retryProfile.dataset.profileRetry);return}
   const trigger=e.target.closest('[data-profile]');if(trigger){e.preventDefault();showProfile(trigger.dataset.profile)}
  });
  document.getElementById('closeProfile').addEventListener('click',()=>document.getElementById('profileBackdrop').classList.remove('open'));
