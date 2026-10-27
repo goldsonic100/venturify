@@ -32,6 +32,8 @@ jobs:
         run: node scripts/check-phase1-functional-contracts.mjs
       - name: Validate security smoke-test contract
         run: node scripts/check-security-smoke-contracts.mjs
+      - name: Validate profile contract
+        run: node scripts/check-profile-contracts.mjs
       - name: Validate moderator contract
         run: node scripts/check-moderator-contracts.mjs
       - name: Validate community contract
