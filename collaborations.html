@@ -53,7 +53,8 @@
 <a class="skip-link" href="#main-content">Skip to main content</a>
 <header><nav><a href="index.html"><strong>VENTURIFY</strong></a><div><a href="discover.html">Discover</a><a href="feed.html">Feed</a><a href="messages.html">Messages</a><a href="workspace.html">Workspaces</a><a href="profile.html">Profile</a></div></nav></header>
 <main id="main-content" class="wrap"><div class="kicker">Build together</div><h1>Collaboration requests</h1><p class="muted">Keep track of founders who want to build with you, requests you have sent, and accepted collaborations.</p>
-<div id="notice" class="notice">Checking your account…</div>
+<div id="notice" class="notice" role="status" aria-live="polite">Checking your account…</div>
+<button id="retryRequests" class="btn hidden" type="button" style="margin:0 0 14px;min-height:42px">Retry loading requests</button>
 <div id="app" class="hidden"><div class="tabs" role="group" aria-label="Filter collaboration requests"><button class="tab active" data-filter="all">All requests</button><button class="tab" data-filter="incoming">Received</button><button class="tab" data-filter="outgoing">Sent</button></div><div class="request-tools"><input id="requestSearch" type="search" placeholder="Search founders or messages…" aria-label="Search collaboration requests"><select id="statusFilter" aria-label="Filter by request status"><option value="all">Every status</option><option value="pending">Pending</option><option value="accepted">Accepted</option><option value="declined">Declined</option></select><select id="requestSort" aria-label="Sort collaboration requests"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="founder">Founder name A–Z</option></select><button id="exportRequests" class="btn" type="button">Export CSV</button></div><section class="card"><div id="summary" class="muted" aria-live="polite" aria-atomic="true" style="margin-bottom:12px"></div><div id="requests" role="region" aria-label="Collaboration request results" aria-live="polite" aria-relevant="additions text" aria-busy="true"><div class="empty">Loading requests…</div></div><button id="loadOlderRequests" class="btn" type="button" style="display:none;margin:16px auto 0">Load older requests</button></section></div>
 </main>
 <script>
@@ -64,7 +65,7 @@
  const initials=v=>(String(v||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
  let user=null,requests=[],profiles=new Map(),filter='all',statusFilter='all',searchTerm='',requestSort='newest',busy=false,hasMoreRequests=false,loadingOlder=false;
  const requestPageSize=100;
- function notice(message,error=false){$('notice').textContent=message;$('notice').classList.toggle('error',error);$('notice').classList.remove('hidden')}
+ function notice(message,error=false){$('notice').textContent=message;$('notice').setAttribute('role',error?'alert':'status');$('notice').setAttribute('aria-live',error?'assertive':'polite');$('notice').classList.toggle('error',error);$('notice').classList.remove('hidden')}
  function date(v){try{return new Date(v).toLocaleString(undefined,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})}catch{return ''}}
  function render(){
   $('requests').setAttribute('aria-busy','false');
@@ -81,15 +82,19 @@
   $('loadOlderRequests').style.display=hasMoreRequests?'block':'none';$('loadOlderRequests').disabled=loadingOlder;
  }
  async function load(){
-  if(busy)return;busy=true;
-  const auth=await client.auth.getUser();user=auth.data?.user||null;
-  if(!user){busy=false;$('app').classList.add('hidden');notice('Log in to view your collaboration requests. Open the Feed or Discover page to sign in.',true);return}
-  const result=await client.from('collaboration_requests').select('id,requester_id,recipient_id,message,status,created_at,updated_at').or('requester_id.eq.'+user.id+',recipient_id.eq.'+user.id).order('created_at',{ascending:false}).range(0,requestPageSize-1);
-  if(result.error){busy=false;notice('Could not load collaboration requests. Please refresh and try again.',true);return}
-  requests=result.data||[];hasMoreRequests=requests.length===requestPageSize;
-  const ids=[...new Set(requests.flatMap(r=>[r.requester_id,r.recipient_id]).filter(id=>id!==user.id))];
-  if(ids.length){const pr=await client.from('profiles').select('id,username,display_name,avatar_url').in('id',ids);if(!pr.error)profiles=new Map((pr.data||[]).map(p=>[p.id,p]))}
-  busy=false;$('app').classList.remove('hidden');$('notice').classList.add('hidden');render();
+  if(busy)return;busy=true;$('retryRequests').classList.add('hidden');$('requests').setAttribute('aria-busy','true');
+  try{
+   const auth=await client.auth.getUser();user=auth.data?.user||null;
+   if(!user){busy=false;$('app').classList.add('hidden');$('requests').setAttribute('aria-busy','false');notice('Log in to view your collaboration requests. Open the Feed or Discover page to sign in.',true);return}
+   const result=await client.from('collaboration_requests').select('id,requester_id,recipient_id,message,status,created_at,updated_at').or('requester_id.eq.'+user.id+',recipient_id.eq.'+user.id).order('created_at',{ascending:false}).range(0,requestPageSize-1);
+   if(result.error){busy=false;$('requests').setAttribute('aria-busy','false');notice('Could not load collaboration requests. Check your connection and try again.',true);$('retryRequests').classList.remove('hidden');return}
+   requests=result.data||[];hasMoreRequests=requests.length===requestPageSize;
+   const ids=[...new Set(requests.flatMap(r=>[r.requester_id,r.recipient_id]).filter(id=>id!==user.id))];
+   if(ids.length){const pr=await client.from('profiles').select('id,username,display_name,avatar_url').in('id',ids);if(!pr.error)profiles=new Map((pr.data||[]).map(p=>[p.id,p]))}
+   busy=false;$('app').classList.remove('hidden');$('notice').classList.add('hidden');$('retryRequests').classList.add('hidden');render();
+  }catch(error){
+   busy=false;$('requests').setAttribute('aria-busy','false');notice('Could not load collaboration requests. Check your connection and try again.',true);$('retryRequests').classList.remove('hidden');
+  }
  }
  async function loadOlderRequests(){
   if(!user||busy||loadingOlder||!hasMoreRequests)return;
@@ -107,6 +112,7 @@
   }catch(error){notice('Could not load older requests. Please try again.',true);}
   finally{loadingOlder=false;button.disabled=false;button.textContent='Load older requests';button.style.display=hasMoreRequests?'block':'none';}
  }
+ $('retryRequests').addEventListener('click',()=>{load().catch(error=>{console.error('Collaboration request retry failed',error);notice('Could not reload requests. Please try again.',true);$('retryRequests').classList.remove('hidden')})});
  $('loadOlderRequests').addEventListener('click',loadOlderRequests);
  document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;render()}));
  $('requestSearch').addEventListener('input',e=>{searchTerm=e.target.value.trim().toLowerCase();render()});
