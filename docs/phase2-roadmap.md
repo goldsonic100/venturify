@@ -28,7 +28,9 @@
 
 ## Phase 2D — Product polish
 
-- [ ] Improve shared visual hierarchy, card consistency, empty/loading/error states, and responsive layouts in small page-scoped changes.
+- [x] Improve opportunity-card hierarchy and mobile action layout with responsive, page-scoped styles.
+- [x] Add retry recovery for saved-post loading failures and accessible status/alert semantics for feed states.
+- [ ] Continue improving shared visual hierarchy, card consistency, and loading/error states on remaining pages.
 - [ ] Test keyboard focus, accessible status announcements, and light/dark/system themes after each change.
 - [ ] Avoid broad rewrites of the single-page app shell; keep each change isolated and run the existing readiness/regression scripts.
 
