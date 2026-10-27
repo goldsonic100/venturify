@@ -32,3 +32,5 @@ jobs:
         run: node scripts/check-phase1-functional-contracts.mjs
       - name: Validate security smoke-test contract
         run: node scripts/check-security-smoke-contracts.mjs
+      - name: Validate discover-eligibility contract
+        run: node scripts/check-discover-eligibility.mjs
