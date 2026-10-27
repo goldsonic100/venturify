@@ -12,5 +12,8 @@ assert.match(html, /aria-live="polite"/, 'Result count must be announced accessi
 assert.match(html, /No pathways match that search/, 'Empty search results must offer recovery guidance.');
 assert.match(html, /@media\(max-width:650px\)\{\.resource-tools\{grid-template-columns:1fr\}/, 'Search controls must stack on mobile.');
 assert.match(html, /cards\.forEach\(card=>/, 'Filter must update existing resource cards.');
+assert.match(html, /\.split\(\/\\s\+\/\)/, 'Multi-category tags must split on actual whitespace.');
+assert.match(html, /clearButton\.addEventListener\('click'/, 'Empty search state must let users clear filters.');
+assert.match(html, /empty\.setAttribute\('role','status'\)/, 'Empty search state must be announced accessibly.');
 assert.match(html, /Venturify|fictional examples/, 'Resource hub must preserve trust context.');
 console.log('Phase 2 resource discovery contracts passed.');
