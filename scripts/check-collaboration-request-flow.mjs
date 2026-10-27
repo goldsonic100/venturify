@@ -82,6 +82,10 @@ assert.match(migration, /enable row level security/i,
 assert.match(migration, /requester_id <> recipient_id/,
   'The database must prohibit self-directed requests');
 
+
+assert.ok(feed.includes("requestButton.insertAdjacentHTML('afterend','<a class=\"btn btn-secondary\" href=\"collaborations.html\" aria-label=\"Track collaboration request\">Track request</a>')"),
+  'Opportunity request cards must provide a direct path to track a sent or already-pending request');
+
 console.log('Collaboration request-to-workspace regression checks passed (static checks only; live two-account testing still required).');
 
 assert.ok(collaborations.includes('aria-live="polite"') && collaborations.includes('aria-busy="true"'), 'Collaboration request results should announce asynchronous loading and updates accessibly');
