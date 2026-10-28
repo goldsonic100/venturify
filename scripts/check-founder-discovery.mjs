@@ -238,6 +238,7 @@ assert.match(discoverHtml, /data-message-profile=/,
 assert.match(discoverHtml, /Users view their own founder shortlist|founder_shortlists/,
   'Shortlist markup and data flow should be present');
 
+assert.ok(discoverHtml.includes("if(intent==='collab')list=list.filter(p=>/co.?founder|collaborat|partner|team|teammate/i.test([p.looking_for,p.headline,p.bio,p.skills,p.interests,p.company].filter(Boolean).join(' ')));"), 'Collaborator discovery should search all relevant profile fields, not only Looking for');
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery and shortlist regression checks passed.');
 
 assert.ok(discoverHtml.includes('id="founderResults" class="founder-results" role="region" aria-label="Founder recommendations" aria-live="polite" aria-busy="true"'), 'Founder recommendations should expose a named live region while loading');
