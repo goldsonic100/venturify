@@ -21,6 +21,8 @@ for (const [index, match] of discoverScripts.entries()) {
   try { new Function(match[1]); }
   catch (error) { throw new Error('discover.html inline script ' + (index + 1) + ' has a syntax error: ' + error.message); }
 }
+assert.ok(discoverHtml.includes("p.looking_for,p.headline,p.bio,p.skills,p.interests,p.company].filter(Boolean).join(' ')"), 'Collaborator filtering should consider multiple relevant profile fields');
+assert.ok(discoverHtml.includes('Try a shorter keyword or switch from “Open to co-founders / collaborators” to “Everyone.”'), 'Empty searches should help users broaden the collaborator filter');
 assert.ok(discoverHtml.includes('Learn topic preferences from founders the viewer explicitly rated'),
   'Discover should learn topic preferences from explicit feedback');
 assert.ok(discoverHtml.includes('learnedTopicWeights.get(word)||0'),
@@ -238,6 +240,7 @@ assert.match(discoverHtml, /data-message-profile=/,
 assert.match(discoverHtml, /Users view their own founder shortlist|founder_shortlists/,
   'Shortlist markup and data flow should be present');
 
+assert.ok(discoverHtml.includes("test([p.looking_for,p.headline,p.bio,p.skills,p.interests,p.company].filter(Boolean).join(' '))"), 'Collaborator discovery should search all relevant profile fields, not only Looking for');
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery and shortlist regression checks passed.');
 
 assert.ok(discoverHtml.includes('id="founderResults" class="founder-results" role="region" aria-label="Founder recommendations" aria-live="polite" aria-busy="true"'), 'Founder recommendations should expose a named live region while loading');

@@ -56,6 +56,8 @@ assert.match(feed, /maxlength=["']500["']/i, 'Comment inputs must remain length-
 assert.match(feed, /function\s+loginRequired|const\s+loginRequired\s*=/, 'Feed must retain login gating for interactions');
 assert.match(feed, /@media\s*\(max-width:\s*760px\)/, 'Feed must retain a mobile breakpoint');
 
+assert.ok(files.feed.includes('comment-author profile-open') && files.feed.includes("data-profile=\"'+esc(r.user_id)+'\""), 'Reply authors should have clickable profile controls');
+assert.ok(files.feed.includes("usernameBase+'_'+user.id.replace(/-/g,'').slice(0,8)") && files.profile.includes("usernameBase+'_'+user.id.replace(/-/g,'').slice(0,8)"), 'Missing profile usernames should be repaired and persisted instead of displaying the @founder fallback');
 console.log('Profile/feed regression checks passed (scripts parsed; no live services called).');
 
 assert.ok(profile.includes('id="accountStatus" role="status" aria-live="polite" aria-atomic="true"'), 'Profile save feedback should be announced accessibly');
@@ -92,6 +94,7 @@ assert.ok(settings.includes("save.dataset.dirty='true';save.textContent='Save ch
 assert.ok(settings.includes("save.dataset.dirty='false';save.textContent='Save settings'"), 'Settings save action should return to its normal state after loading or saving preferences');
 
 
+assert.ok(files.feed.includes('commentUserIds=[...new Set((cr.data||[]).map(x=>x.user_id))]'), 'Feed should fetch profiles for comment authors too');
 assert.ok(files.feed.includes('data-retry-feed') && files.feed.includes("feedRetryRoot.addEventListener('click'"), 'Feed and opportunity query failures should expose a retry action');
 assert.ok(files.feed.includes('Retry feed</button>') && files.feed.includes('Retry feed</button></p></div>'), 'Retry controls should be present in feed query error states');
 
