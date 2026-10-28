@@ -95,6 +95,8 @@ assert.ok(settings.includes("save.dataset.dirty='false';save.textContent='Save s
 
 
 assert.ok(files.feed.includes('commentUserIds=[...new Set((cr.data||[]).map(x=>x.user_id))]'), 'Feed should fetch profiles for comment authors too');
+assert.ok(files.feed.includes("const extraProfiles=await client.from('profiles').select('id,username,display_name').in('id',commentUserIds)"), 'Feed should actually fetch commenter profiles missing from the post-author profile query');
+assert.ok(files.feed.includes('class="comment-author profile-open" data-profile="\'+esc(c.user_id)+\'"') && files.feed.includes('data-profile="\'+esc(r.user_id)+\'"'), 'Both comment and reply author names should be clickable profile controls');
 assert.ok(files.feed.includes('data-retry-feed') && files.feed.includes("feedRetryRoot.addEventListener('click'"), 'Feed and opportunity query failures should expose a retry action');
 assert.ok(files.feed.includes('Retry feed</button>') && files.feed.includes('Retry feed</button></p></div>'), 'Retry controls should be present in feed query error states');
 
