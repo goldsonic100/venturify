@@ -7,6 +7,9 @@ assert.ok(source0.includes("id=\"sendMessage\""), "messages.html is missing cont
 assert.ok(source0.includes("id=\"messagePerson\""), "messages.html is missing contract: id=\"messagePerson\"");
 assert.ok(source0.includes("id=\"messageStatus\""), "messages.html is missing contract: id=\"messageStatus\"");
 assert.ok(source0.includes("group:"), "messages.html is missing contract: group:");
+assert.ok(source0.includes("people.filter(p=>messageableFounderIds.has(p.id))"), "New group chat must only offer messageable founders.");
+assert.ok(source0.includes("get_messageable_founder_ids"), "Chat recipient choices must use the server messageability policy.");
+assert.ok(source0.includes("const handle=p=>p?.username||(p?.id?"), "Missing usernames should have a stable visible fallback.");
 const source1 = read('supabase/tests/venturify_security_smoke_checks.sql');
 assert.ok(source1.includes("block_guards_for_messages"), "supabase/tests/venturify_security_smoke_checks.sql is missing contract: block_guards_for_messages");
 assert.ok(source1.includes("messageable_founder_rpc_and_dm_preference_guard"), "supabase/tests/venturify_security_smoke_checks.sql is missing contract: messageable_founder_rpc_and_dm_preference_guard");
