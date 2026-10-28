@@ -937,11 +937,13 @@ renderCases();
  function render(){
   const q=$('founderSearch').value.trim().toLowerCase().split(/\s+/).filter(Boolean),intent=$('founderIntent').value;
   let list=rows.filter(p=>p.id!==currentUser?.id&&(communityCounts.get(p.id)||0)>=1&&founderLevel(p)>=5);
-  if(currentUser)list=list.filter(p=>dailyMatchIds.includes(p.id));
+  // The six-per-day limit applies to personalized recommendations, not explicit searches.
+  // Search remains limited to established community members, and does not consume a recommendation slot.
+  if(currentUser&&!q.length)list=list.filter(p=>dailyMatchIds.includes(p.id));
   if(intent==='collab')list=list.filter(p=>/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||''));
   const interestList=p=>[...new Set((p.interests||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g,' ')).filter(Boolean))];
   if(intent==='interests')list=list.filter(p=>interestList(p).some(x=>ownInterests.includes(x)));
-  if(q.length)list=list.filter(p=>{const hay=[p.display_name,p.username,p.headline,p.company,p.location,p.skills,p.interests,p.looking_for,p.bio].join(' ').toLowerCase();return q.every(t=>hay.includes(t))});
+  if(q.length)list=list.filter(p=>{const hay=[p.id,p.display_name,p.username,p.headline,p.company,p.location,p.skills,p.interests,p.looking_for,p.bio].join(' ').toLowerCase();return q.every(t=>hay.includes(t))});
   const normalizeTokens=v=>[...new Set((v||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g,' ')).filter(Boolean))];
   const normalizeOpportunityTokens=v=>topicTokens(v).filter(x=>x.length>3);
   const skillList=p=>normalizeTokens(p.skills);
