@@ -49,6 +49,7 @@ assert.ok(html.includes('Math.min(sharedCommunities,2)*5'),
   'Shared communities should provide a capped match-score bonus');
 assert.ok(html.includes("reasons.push('Shares '+sharedCommunities+' communit'+(sharedCommunities===1?'y':'ies')+' with you')"),
   'Match explanations should identify shared communities');
+assert.ok(discoverHtml.includes("if(currentUser&&!q.length&&intent==='all')list=list.filter(p=>dailyMatchIds.includes(p.id))"), 'The six daily recommendations should limit default recommendations but explicit search/filtering should reach all eligible founders');
 assert.match(html, /Math\.max\(0,6-dailyMatchIds\.length\)/,
   'Daily recommendations should retain the six-match limit');
 assert.match(html, /data-discovery-follow=/,
