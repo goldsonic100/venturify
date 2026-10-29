@@ -78,3 +78,53 @@ body{background-image:radial-gradient(ellipse at 8% 2%,rgba(139,123,255,.16),tra
 .feed-tab.active,.notification-filters .active{box-shadow:0 4px 14px rgba(66,107,75,.12)}
 input,textarea,select{accent-color:#6b61ce}
 @media(max-width:700px){.hero::before{width:210px;height:210px;right:-90px;top:-90px}.hero::after{right:50px}}
+
+
+/* Navigation repair: preserve every destination, keep account distinct from settings. */
+.topbar{
+  height:auto!important;min-height:74px;padding:10px clamp(12px,2.2vw,28px);
+  gap:14px;align-items:center;
+}
+.topbar .brand{flex:0 0 auto}
+.topbar .nav{
+  display:flex!important;flex:1 1 auto;min-width:0;max-width:100%;
+  flex-wrap:wrap!important;justify-content:flex-end;align-items:center;
+  gap:5px 7px!important;font-size:12px!important;line-height:1.2;
+}
+.topbar .nav>a:not(.nav-cta){
+  display:inline-flex!important;align-items:center;justify-content:center;
+  padding:8px 9px;border-radius:9px;white-space:nowrap;
+  color:inherit;opacity:1!important;font-size:12px!important;
+}
+.topbar .nav>a[href="messages.html"]{
+  color:inherit!important;opacity:1!important;font-weight:650;
+  background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.13);
+}
+.topbar .nav>a[href="messages.html"]:hover{background:rgba(200,241,105,.12);border-color:rgba(200,241,105,.45)}
+.topbar .nav>a#navAccount{
+  border:1px solid rgba(200,241,105,.5);background:rgba(200,241,105,.10);
+  font-weight:750;
+}
+.topbar .nav .notification-wrap{flex:0 0 auto}
+.topbar .nav .notification-button{min-height:34px;min-width:38px;display:inline-flex;align-items:center;justify-content:center}
+.topbar .nav .notification-panel{color:#243126}
+@media(max-width:1100px){
+  .topbar{align-items:flex-start}
+  .topbar .nav{gap:4px 5px!important}
+  .topbar .nav>a:not(.nav-cta){padding:7px 7px;font-size:11px!important}
+}
+@media(max-width:760px){
+  .topbar{position:relative!important;left:auto;right:auto;top:auto;flex-wrap:wrap;align-items:center;padding:12px 15px;background:var(--deep,#13241c);color:#fff;min-height:0}
+  .topbar .brand{font-size:19px}
+  .topbar .nav{
+    flex:1 0 100%;width:100%;max-width:100%;justify-content:flex-start;
+    flex-wrap:nowrap!important;overflow-x:auto;overflow-y:hidden;
+    padding:4px 0 7px;scrollbar-width:thin;overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .topbar .nav>a:not(.nav-cta){flex:0 0 auto;padding:8px 10px;font-size:12px!important}
+  .topbar .nav .notification-wrap{flex:0 0 auto}
+  .topbar .nav .notification-panel{position:fixed;top:110px;right:12px}
+  .hero{padding-top:clamp(55px,9vw,95px)!important}
+}
+@media(prefers-reduced-motion:reduce){.topbar .nav{scroll-behavior:auto}}
