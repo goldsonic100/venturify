@@ -224,23 +224,17 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
 <header class="topbar wrap">
   <a class="brand" href="index.html" aria-label="Venturify home"><span class="brand-mark">v.</span> venturify</a>
   <nav class="nav" aria-label="Main navigation">
+    <a href="principles.html" >Our Principles</a>
     <a href="feed.html" data-app-view="feed">Feed</a>
     <a href="discover.html" data-app-view="discover">Discover</a>
     <a href="communities.html" data-app-view="communities">Communities</a>
     <a href="collaborations.html" data-auth-only>Collaborations</a>
-    <a class="nav-icon-link" href="messages.html" data-auth-only aria-label="Messages" title="Messages">✉<span id="messageNavCount" class="message-nav-count" hidden>0</span></a>
-    <div class="notification-wrap" data-auth-only>
-      <button type="button" id="notificationButton" class="notification-button nav-icon-button" aria-label="Announcements and notifications" title="Announcements and notifications" aria-expanded="false" aria-controls="notificationPanel">🔔<span id="notificationCount" class="notification-count" hidden>0</span></button>
-      <div id="notificationPanel" class="notification-panel" hidden>
-        <div class="notification-panel-head"><strong>Announcements &amp; notifications</strong><button type="button" id="markAllNotifications" class="mark-all">Mark all read</button></div>
-        <div id="notificationList"><div class="notification-empty">No notifications yet.</div></div>
-        <a class="notification-view-all" href="notifications.html">View all notifications →</a>
-      </div>
-    </div>
+    <a href="profile.html" data-auth-only class="nav-profile">Profile</a>
+    <a href="messages.html" data-auth-only class="nav-icon-link" aria-label="Messages">Messages <span id="messageNavCount" class="message-nav-count" hidden>0</span></a>
+    <a href="notifications.html" data-auth-only>Announcements</a>
+    <a href="settings.html" data-auth-only>Settings</a>
     <a href="#" id="navAccount">Log in</a>
     <a href="#" id="navSignup" data-guest-only class="nav-signup">Sign up</a>
-    <a href="profile.html" data-auth-only class="nav-profile">Profile</a>
-    <a href="principles.html">Our principles</a>
   </nav>
 </header>
 <main id="main-content">
