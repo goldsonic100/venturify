@@ -171,6 +171,31 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
 .profile-actions .btn{margin-top:12px!important}
 
 .topbar .nav .nav-icon-link{position:relative}.message-nav-count{position:absolute;top:0;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:#c8f169;color:#152319;border:2px solid #13241c;font-size:9px;font-weight:900;line-height:12px;display:inline-flex;align-items:center;justify-content:center}.message-nav-count[hidden]{display:none}
+
+/* Profile-first layout refresh */
+.profile-public-card{padding:0;overflow:hidden;margin:0 0 18px;background:var(--card);border:1px solid var(--line);border-radius:18px}
+.profile-cover{height:132px;background:linear-gradient(120deg,#193d2c,#476f4e 58%,#c8f169);position:relative}
+.profile-public-body{padding:0 22px 22px}
+.profile-public-avatar{width:88px;height:88px;border-radius:50%;border:4px solid var(--card);background:#eaf2df;display:grid;place-items:center;overflow:hidden;font-size:30px;font-weight:850;margin-top:-42px;position:relative;color:#31553a}
+.profile-public-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-public-top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.profile-public-name{font-size:clamp(23px,3vw,32px);font-weight:850;letter-spacing:-.8px;margin:12px 0 1px;overflow-wrap:anywhere}
+.profile-public-handle{color:var(--muted);font-size:14px}
+.profile-public-bio{white-space:pre-wrap;overflow-wrap:anywhere;margin:15px 0 10px;line-height:1.65}
+.profile-public-meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:12px 0}
+.profile-public-stats{display:flex;gap:20px;flex-wrap:wrap;font-size:14px;margin-top:14px}
+.profile-public-stats strong{color:var(--ink)}
+.profile-tabs{display:flex;gap:4px;overflow-x:auto;border-top:1px solid var(--line);margin-top:20px}
+.profile-tabs a{padding:13px 15px;color:var(--muted);font-weight:700;white-space:nowrap;border-bottom:3px solid transparent}
+.profile-tabs a.active,.profile-tabs a:hover{color:var(--ink);border-bottom-color:var(--accent)}
+#profileEditorBackdrop{position:fixed;inset:0;z-index:1200;background:#101a1688;display:none;align-items:flex-start;justify-content:center;padding:4vh 14px;overflow:auto}
+#profileEditorBackdrop.open{display:flex}
+#profileEditorDialog{width:min(720px,100%);max-height:92vh;overflow:auto;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 24px 80px #0003}
+#profileEditorDialog .community-card{border:0;padding:0;box-shadow:none}
+#profileEditorDialog .editor-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+#profileEditorDialog .editor-heading h2{margin:0;font-size:23px}
+@media(max-width:650px){.profile-cover{height:96px}.profile-public-body{padding:0 16px 16px}.profile-public-avatar{width:76px;height:76px}.profile-tabs a{padding:12px 10px;font-size:13px}}
+
 </style>
 <script id="venturify-global-theme">
 (function(){
@@ -276,6 +301,7 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
   </div>
   <div class="community-current" id="communityCurrent" hidden><div><strong id="communityCurrentName">All community posts</strong><div><span id="communityCurrentMeta">Posts from everyone</span></div></div><button type="button" id="clearCommunityFilter">Show all posts ×</button></div>
   <div class="guest-banner" id="guestBanner" role="status" hidden><div><strong>You’re browsing Venturify as a guest.</strong><p>You can explore posts, founder profiles, and communities. Create a free account to like, comment, follow founders, join communities, publish posts, or send messages.</p></div><div class="guest-banner-actions"><button type="button" id="guestLogin">Log in</button><button type="button" class="guest-signup" id="guestSignup">Create free account ↗</button></div></div>
+  <section class="profile-public-card" aria-label="Founder profile"><div class="profile-cover" id="publicProfileCover"></div><div class="profile-public-body"><div class="profile-public-top"><div class="profile-public-avatar" id="publicProfileAvatar">V</div><button type="button" class="btn btn-outline" id="openProfileEditor" data-auth-only>Edit profile</button></div><h1 class="profile-public-name" id="publicProfileName">Your founder profile</h1><div class="profile-public-handle" id="publicProfileHandle">@founder</div><p class="profile-public-bio" id="publicProfileBio">Share what you're building, what you've learned, and what you'd like to work on next.</p><div class="profile-public-meta" id="publicProfileMeta"></div><div class="profile-public-stats"><span><strong id="publicProfilePostCount">—</strong> posts &amp; stories</span></div><nav class="profile-tabs" aria-label="Profile activity"><a class="active" href="#profileActivity">Posts</a><a href="#profileActivity">Replies</a><a href="#profileStories">Stories</a><a href="#profileAbout">About</a></nav></div></section>
   <div class="community-layout">
    <div>
     <div class="community-card compose">
@@ -290,12 +316,12 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
      <p class="muted-small" style="margin:9px 0 0">Choose your page to share with the wider founder feed, or select a community for a focused discussion. Community posts can also appear in your feed.</p>
      <div class="compose-bottom"><span class="muted-small">Up to 1,200 characters</span><button class="btn btn-primary" id="publishPost" type="button">Publish post ↗</button></div>
     </div>
-    <section class="community-card stories-shelf" aria-label="Founder stories"><div class="stories-head"><strong>Founder stories</strong><span>Quick updates · disappear after 24 hours</span></div><div class="stories-row" id="storiesRow"><div class="community-empty">Loading stories…</div></div><div class="story-composer"><input id="storyText" type="text" maxlength="280" placeholder="Share a quick founder update…"><button class="btn btn-primary" id="publishStory" type="button">＋ Story</button></div><div class="field" style="margin-top:8px"><label for="storyImageFile" class="muted-small">Story photo (optional)</label><input id="storyImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><div class="file-name" id="storyImageName">Optional photo · max 10 MB</div></div></section>
-    <div class="feed-tabs" role="group" aria-label="Choose feed"><button type="button" class="feed-tab active" data-feed-mode="for-you">For you</button><button type="button" class="feed-tab" data-feed-mode="following">Following</button><button type="button" class="feed-tab" data-feed-mode="communities">Communities</button><button type="button" class="feed-tab" data-feed-mode="all">Everyone</button><button type="button" class="feed-tab" data-feed-mode="trending">Trending</button><button type="button" class="feed-tab" data-feed-mode="saved">Saved</button></div><div id="feed" aria-live="polite"></div>
+    <section class="community-card stories-shelf" id="profileStories" aria-label="Founder stories"><div class="stories-head"><strong>Founder stories</strong><span>Quick updates · disappear after 24 hours</span></div><div class="stories-row" id="storiesRow"><div class="community-empty">Loading stories…</div></div><div class="story-composer"><input id="storyText" type="text" maxlength="280" placeholder="Share a quick founder update…"><button class="btn btn-primary" id="publishStory" type="button">＋ Story</button></div><div class="field" style="margin-top:8px"><label for="storyImageFile" class="muted-small">Story photo (optional)</label><input id="storyImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><div class="file-name" id="storyImageName">Optional photo · max 10 MB</div></div></section>
+    <div class="feed-tabs" role="group" aria-label="Choose feed"><button type="button" class="feed-tab active" data-feed-mode="for-you">For you</button><button type="button" class="feed-tab" data-feed-mode="following">Following</button><button type="button" class="feed-tab" data-feed-mode="communities">Communities</button><button type="button" class="feed-tab" data-feed-mode="all">Everyone</button><button type="button" class="feed-tab" data-feed-mode="trending">Trending</button><button type="button" class="feed-tab" data-feed-mode="saved">Saved</button></div><div id="profileActivity"></div><div id="feed" aria-live="polite"></div>
    </div>
    <aside class="community-side">
-    <div class="community-card">
-     <div class="kicker">Your profile</div>
+    <div class="community-card" id="profileEditorCard">
+      <div class="kicker">Your profile</div>
      <h3 style="font-family:var(--serif);font-size:24px;font-weight:500;margin:10px 0 5px">Show up as yourself.</h3>
      <p class="muted-small" style="margin-bottom:14px">Sign in to manage your public founder profile and community activity.</p>
      <div class="field"><label for="displayName">Display name</label><input id="displayName" maxlength="60" placeholder="e.g. Alex Chen"></div>
@@ -917,6 +943,10 @@ document.addEventListener('click',function(e){
  Object.assign(link.style,{display:'grid',placeItems:'center',width:'40px',height:'40px',flex:'0 0 40px',border:'1px solid #607165',borderRadius:'9px',color:'#c8f169',fontSize:'22px',lineHeight:'1',marginLeft:'12px',background:'transparent'});
  header.appendChild(link);
 })();
+</script>
+<div id="profileEditorBackdrop" role="dialog" aria-modal="true" aria-labelledby="profileEditorTitle"><div id="profileEditorDialog"><div class="editor-heading"><h2 id="profileEditorTitle">Edit profile</h2><button type="button" class="btn btn-outline" id="closeProfileEditor" aria-label="Close edit profile">Close</button></div><p class="muted-small">Only you can see these editing controls. Your public profile shows the information you save here.</p><div id="profileEditorMount"></div></div></div>
+<script id="profile-first-editor">
+(function(){const open=document.getElementById('openProfileEditor'),backdrop=document.getElementById('profileEditorBackdrop'),mount=document.getElementById('profileEditorMount'),card=document.getElementById('profileEditorCard');if(!open||!backdrop||!mount||!card)return;mount.appendChild(card);const close=()=>backdrop.classList.remove('open');open.addEventListener('click',()=>{backdrop.classList.add('open');document.getElementById('displayName')?.focus()});document.getElementById('closeProfileEditor')?.addEventListener('click',close);backdrop.addEventListener('click',e=>{if(e.target===backdrop)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});const safeUrl=v=>{try{const u=new URL(v);return ['http:','https:'].includes(u.protocol)?u.href:''}catch{return ''}};window.venturifyRenderPublicProfile=function(p){p=p||{};const put=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v||''};put('publicProfileName',p.display_name||'Your founder profile');put('publicProfileHandle','@'+(p.username||'founder'));put('publicProfileBio',p.bio||p.headline||'Share what you’re building, what you’ve learned, and what you’d like to work on next.');const meta=document.getElementById('publicProfileMeta');if(meta){meta.replaceChildren();[['company',p.company],['location',p.location],['website_url',p.website_url]].forEach(([k,v])=>{if(!v)return;const s=document.createElement('span');if(k==='website_url'){const a=document.createElement('a');a.href=safeUrl(v)||'#';a.target='_blank';a.rel='noopener noreferrer';a.textContent='Website';s.appendChild(a)}else s.textContent=v;meta.appendChild(s)})}const avatar=document.getElementById('publicProfileAvatar');if(avatar){avatar.replaceChildren();const url=safeUrl(p.avatar_url);if(url){const img=document.createElement('img');img.src=url;img.alt='Profile photo';avatar.appendChild(img)}else avatar.textContent=(p.display_name||'V').trim().slice(0,1).toUpperCase()}}})();
 </script>
 </body>
 </html>
