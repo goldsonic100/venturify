@@ -128,3 +128,58 @@ input,textarea,select{accent-color:#6b61ce}
   .hero{padding-top:clamp(55px,9vw,95px)!important}
 }
 @media(prefers-reduced-motion:reduce){.topbar .nav{scroll-behavior:auto}}
+
+
+/* Navigation polish follow-up: keep every destination visible and remove the
+   redundant floating Settings gear (the labeled Settings destination remains). */
+.topbar.wrap{
+  width:min(100% - 32px, 1440px)!important;
+  max-width:1440px!important;
+}
+.topbar .nav{
+  flex:1 1 760px!important;
+  min-width:0!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  justify-content:flex-end!important;
+  align-items:center!important;
+  gap:4px 6px!important;
+  overflow:visible!important;
+}
+.topbar .nav>a,
+.topbar .nav>div{
+  flex:0 0 auto!important;
+}
+.topbar .nav>a[href="messages.html"]{
+  min-width:38px!important;
+  min-height:38px!important;
+  padding:7px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:21px!important;
+  line-height:1!important;
+  opacity:1!important;
+}
+.topbar .nav .message-nav-count{
+  font-size:11px!important;
+}
+[data-global-settings-link]{
+  display:none!important;
+}
+@media(max-width:760px){
+  .topbar .nav{
+    flex:1 0 100%!important;
+    flex-wrap:nowrap!important;
+    justify-content:flex-start!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    padding:4px 0 7px!important;
+  }
+  .topbar .nav>a{flex:0 0 auto!important}
+}
+/* Trim the oversized empty cover area on profile pages while retaining the
+   gradient identity and overlapping avatar treatment. */
+.profile-cover{height:104px!important}
+.profile-public-body{padding-top:0!important}
+.profile-public-avatar{margin-top:-38px!important}
