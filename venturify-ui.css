@@ -78,3 +78,48 @@ body{background-image:radial-gradient(ellipse at 8% 2%,rgba(139,123,255,.16),tra
 .feed-tab.active,.notification-filters .active{box-shadow:0 4px 14px rgba(66,107,75,.12)}
 input,textarea,select{accent-color:#6b61ce}
 @media(max-width:700px){.hero::before{width:210px;height:210px;right:-90px;top:-90px}.hero::after{right:50px}}
+
+
+/* Navigation regression fix: keep every primary destination reachable and prevent
+   the account shortcut from visually duplicating Settings. */
+nav.nav[aria-label="Main navigation"]{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:4px 6px!important;
+  min-width:0!important;
+  max-width:100%!important;
+  overflow:visible!important;
+  white-space:normal!important;
+}
+nav.nav[aria-label="Main navigation"] > a{
+  flex:0 0 auto!important;
+  padding:8px 9px!important;
+  font-size:13px!important;
+  line-height:1.25!important;
+  white-space:nowrap!important;
+}
+nav.nav[aria-label="Main navigation"] > .message-nav-emoji{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:38px!important;
+  min-height:38px!important;
+  padding:7px!important;
+  font-size:21px!important;
+  text-decoration:none!important;
+}
+nav.nav[aria-label="Main navigation"] > .message-nav-emoji .message-nav-count{
+  font-size:11px!important;
+}
+@media(max-width:900px){
+  nav.nav[aria-label="Main navigation"]{
+    justify-content:flex-start!important;
+    row-gap:5px!important;
+  }
+  nav.nav[aria-label="Main navigation"] > a{
+    padding:7px 8px!important;
+    font-size:12px!important;
+  }
+}
