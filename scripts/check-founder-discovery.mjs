@@ -23,6 +23,9 @@ for (const [index, match] of discoverScripts.entries()) {
 }
 assert.ok(discoverHtml.includes("p.looking_for,p.headline,p.bio,p.skills,p.interests,p.company].filter(Boolean).join(' ')"), 'Collaborator filtering should consider multiple relevant profile fields');
 assert.ok(discoverHtml.includes('Try a shorter keyword or switch from “Open to co-founders / collaborators” to “Everyone.”'), 'Empty searches should help users broaden the collaborator filter');
+assert.ok(discoverHtml.includes("created_at,email_verified"), 'Guest discovery must select the trusted profile email_verified field before filtering unregistered guests');
+assert.ok(discoverHtml.includes('data-clear-discover-search'), 'Empty discovery searches should offer a clear-search recovery action');
+assert.ok(discoverHtml.includes("$('founderSearch').value='';$('founderIntent').value='all';render()"), 'Clear-search recovery should reset both keyword and collaborator filters');
 assert.ok(discoverHtml.includes('Learn topic preferences from founders the viewer explicitly rated'),
   'Discover should learn topic preferences from explicit feedback');
 assert.ok(discoverHtml.includes('learnedTopicWeights.get(word)||0'),
