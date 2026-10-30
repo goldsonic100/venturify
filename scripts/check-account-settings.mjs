@@ -6,6 +6,11 @@ const schema = readFileSync(
   new URL('../supabase/migrations/20261022120000_add_account_settings_and_message_privacy.sql', import.meta.url),
   'utf8',
 );
+const accessMigration = readFileSync(
+  new URL('../supabase/migrations/20261030184616_tighten_account_settings_access.sql', import.meta.url),
+  'utf8',
+);
+
 const enforcement = readFileSync(
   new URL('../supabase/migrations/20261022140000_enforce_account_feature_preferences.sql', import.meta.url),
   'utf8',
@@ -78,3 +83,28 @@ assert.match(page, /window\.supabase\?\.createClient|window\.supabase\s*&&\s*win
   'Settings must safely handle a missing Supabase client library');
 
 console.log('Account-settings security regression checks passed (static checks only).');
+
+assert.match(accessMigration, /revoke all privileges on table public\.account_settings from anon/i,
+  'Anonymous clients must not reach private account settings');
+assert.match(accessMigration, /grant select, insert, update on table public\.account_settings to authenticated/i,
+  'Signed-in users need only the read/create/update privileges used by settings');
+assert.match(accessMigration, /for select\s+to authenticated\s+using \(\(select auth\.uid\(\)\) = user_id\)/i,
+  'Settings reads must be restricted to the current authenticated user');
+assert.match(accessMigration, /for insert\s+to authenticated\s+with check \(\(select auth\.uid\(\)\) = user_id\)/i,
+  'Settings creation must be restricted to the current authenticated user');
+assert.match(accessMigration, /for update\s+to authenticated\s+using \(\(select auth\.uid\(\)\) = user_id\)\s+with check \(\(select auth\.uid\(\)\) = user_id\)/i,
+  'Settings updates must preserve row ownership');
+assert.match(page, /id="section-features" hidden aria-hidden="true"/,
+  'Inactive settings panels must start hidden to prevent content flash');
+assert.match(page, /id="section-notifications" hidden aria-hidden="true"/,
+  'Inactive notification settings must start hidden');
+assert.match(page, /id="section-appearance" hidden aria-hidden="true"/,
+  'Inactive appearance settings must start hidden');
+assert.match(page, /id="section-security" hidden aria-hidden="true"/,
+  'Inactive safety settings must start hidden');
+assert.match(page, /event==='SIGNED_IN'\|\|event==='SIGNED_OUT'/,
+  'Settings must not reload on token refresh and overwrite unsaved edits');
+assert.match(page, /if\(!dirty\)\{setStatus\('Your settings are already saved\.'/,
+  'Save action must avoid unnecessary writes when there are no changes');
+assert.match(page, /You have unsaved settings\. Log out without saving them\?/,
+  'Logging out must confirm before discarding unsaved preferences');
