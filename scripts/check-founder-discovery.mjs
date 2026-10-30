@@ -245,6 +245,16 @@ assert.match(discoverHtml, /Users view their own founder shortlist|founder_short
   'Shortlist markup and data flow should be present');
 
 assert.ok(discoverHtml.includes("test([p.looking_for,p.headline,p.bio,p.skills,p.interests,p.company].filter(Boolean).join(' '))"), 'Collaborator discovery should search all relevant profile fields, not only Looking for');
+
+assert.match(discoverHtml, /let collaboratorFallback=false/,
+  'Collaborator discovery should track when no explicit collaboration matches exist');
+assert.match(discoverHtml, /if\(collaboratorMatches\.length\)list=collaboratorMatches;\s*else collaboratorFallback=true/,
+  'Collaborator discovery should fall back to other eligible founders instead of showing an empty list');
+assert.match(discoverHtml, /No eligible founders have explicitly listed collaboration goals yet\. Showing other verified, established founders/,
+  'Collaborator fallback should explain why other eligible founders are shown');
+assert.match(discoverHtml, /No explicit collaboration matches; showing /,
+  'Accessible result status should announce when collaborator discovery uses its fallback');
+
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery and shortlist regression checks passed.');
 
 assert.ok(discoverHtml.includes('id="founderResults" class="founder-results" role="region" aria-label="Founder recommendations" aria-live="polite" aria-busy="true"'), 'Founder recommendations should expose a named live region while loading');
