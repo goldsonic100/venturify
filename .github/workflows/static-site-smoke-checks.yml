@@ -23,5 +23,7 @@ jobs:
         run: node scripts/validate-static-site.mjs
       - name: Check collaboration notification and deep-link invariants
         run: node scripts/check-workspace-notifications.mjs
+      - name: Check global Settings and Account navigation
+        run: node scripts/check-global-account-navigation.mjs
       - name: Check dedicated community pages and feed controls
         run: node scripts/check-community-page.mjs
