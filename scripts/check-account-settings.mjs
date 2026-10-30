@@ -32,9 +32,10 @@ for (const setting of [
 
 assert.match(page, /from\('account_settings'\)/, 'Settings must load/save persisted preferences');
 assert.match(page, /id="saveSettings"/, 'Settings must retain an explicit save action');
-assert.match(page, /<a href="settings\.html"[^>]*>Settings<\/a>/, 'Settings navigation must have one settings destination.');
-assert.match(page, /<a href="profile\.html" id="navAccount"[^>]*>Account<\/a>/, 'Account navigation must lead to the profile/account page, not Settings.');
-assert.equal((page.match(/href="settings\.html"/g)||[]).length, 1, 'Settings page must not contain duplicate Settings and Account destinations.');
+assert.match(page, /class="nav-icon-link settings-gear-link" aria-label="Settings"/, 'Settings navigation must be a clearly labeled gear icon.');
+assert.match(page, /data-section="account"/, 'Account must be a dedicated Settings section.');
+assert.match(page, /id="section-account"/, 'Account section panel must exist inside Settings.');
+assert.match(page, /id="settingsLogout"/, 'Account section must retain the logout control.');
 assert.match(page, /beforeunload/, 'Settings must warn about unsaved changes');
 assert.match(page, /aria-live="polite"/, 'Settings status must be accessible');
 assert.match(schema, /create table if not exists public\.account_settings/i, 'Account preferences need a dedicated table');
