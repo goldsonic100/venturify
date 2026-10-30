@@ -485,14 +485,6 @@ $('chatForm').addEventListener('submit',async e=>{e.preventDefault();if(!workspa
 })();
 await load();
 })();
-</script><script>
-(function(){
- const header=document.querySelector('header.topbar');
- if(!header||header.querySelector('[data-global-settings-link]'))return;
- const link=document.createElement('a');link.href='settings.html';link.dataset.globalSettingsLink='true';link.setAttribute('aria-label','Settings');link.title='Settings';link.textContent='⚙';
- Object.assign(link.style,{display:'grid',placeItems:'center',width:'40px',height:'40px',flex:'0 0 40px',border:'1px solid #607165',borderRadius:'9px',color:'#c8f169',fontSize:'22px',lineHeight:'1',marginLeft:'12px',background:'transparent'});
- header.appendChild(link);
-})();
 </script>
 
 <div id="notificationPage" hidden><div id="notificationHistoryList"></div><button type="button" id="markAllHistoryRead">Mark all read</button></div>
