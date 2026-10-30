@@ -84,15 +84,15 @@ assert.match(page, /window\.supabase\?\.createClient|window\.supabase\s*&&\s*win
 
 console.log('Account-settings security regression checks passed (static checks only).');
 
-assert.match(accessMigration, /revoke all privileges on table public\\.account_settings from anon/i,
+assert.match(accessMigration, /revoke all privileges on table public\.account_settings from anon/i,
   'Anonymous clients must not reach private account settings');
-assert.match(accessMigration, /grant select, insert, update on table public\\.account_settings to authenticated/i,
+assert.match(accessMigration, /grant select, insert, update on table public\.account_settings to authenticated/i,
   'Signed-in users need only the read/create/update privileges used by settings');
-assert.match(accessMigration, /for select\\s+to authenticated\\s+using \\(\\(select auth\\.uid\\(\\)\\) = user_id\\)/i,
+assert.match(accessMigration, /for select\s+to authenticated\s+using \(\(select auth\.uid\(\)\) = user_id\)/i,
   'Settings reads must be restricted to the current authenticated user');
-assert.match(accessMigration, /for insert\\s+to authenticated\\s+with check \\(\\(select auth\\.uid\\(\\)\\) = user_id\\)/i,
+assert.match(accessMigration, /for insert\s+to authenticated\s+with check \(\(select auth\.uid\(\)\) = user_id\)/i,
   'Settings creation must be restricted to the current authenticated user');
-assert.match(accessMigration, /for update\\s+to authenticated\\s+using \\(\\(select auth\\.uid\\(\\)\\) = user_id\\)\\s+with check \\(\\(select auth\\.uid\\(\\)\\) = user_id\\)/i,
+assert.match(accessMigration, /for update\s+to authenticated\s+using \(\(select auth\.uid\(\)\) = user_id\)\s+with check \(\(select auth\.uid\(\)\) = user_id\)/i,
   'Settings updates must preserve row ownership');
 assert.match(page, /id="section-features" hidden aria-hidden="true"/,
   'Inactive settings panels must start hidden to prevent content flash');
