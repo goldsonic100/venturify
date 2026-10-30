@@ -70,7 +70,7 @@ assert.ok(feed.includes("1200-$('postText').value.length") && feed.includes("cha
 const settings = readFileSync(new URL('../settings.html', import.meta.url), 'utf8');
 parseInlineScripts('settings', settings);
 const settingTabs = [...settings.matchAll(/<button[^>]*data-section="([^"]+)"[^>]*>/g)].map(match => match[1]);
-assert.deepEqual(settingTabs, ['privacy', 'features', 'notifications', 'appearance', 'security'], 'Settings navigation tabs/order must remain complete');
+assert.deepEqual(settingTabs, ['privacy', 'features', 'notifications', 'appearance', 'account', 'security'], 'Settings navigation tabs/order must remain complete');
 for (const section of settingTabs) {
   assert.ok(settings.includes('id="section-' + section + '"'), 'Settings tab "' + section + '" needs a matching section');
   assert.ok(settings.includes('aria-controls="section-' + section + '"'), 'Settings tab "' + section + '" needs an accessible panel association');
