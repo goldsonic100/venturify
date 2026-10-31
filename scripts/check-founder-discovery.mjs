@@ -65,6 +65,7 @@ assert.match(html, /id="peopleLevelFilter"/, 'People directory must filter by mi
 assert.match(html, /id="peopleSort"/, 'People directory must provide sorting controls');
 assert.match(html, /founderLevel\(p\)>=Math\.max\(5,minimumLevel\)/, 'People directory must preserve Level 5+ eligibility');
 assert.match(html, /browseMode==='recommended'/, 'The six-per-day cap must apply only to personalized picks');
+assert.match(html, /browseMode==='recommended'&&!q\.length&&!skillQuery&&intent==='all'/, 'Explicit searches and filters must reach all eligible people instead of being limited to six daily picks');
 assert.match(html, />Level '\+founderLevel\(p\)/, 'People cards must display reputation level');
 assert.match(html, /href="#founderDiscovery" data-app-view="people">People<\/a>/, 'Main navigation must expose the People directory');
 
