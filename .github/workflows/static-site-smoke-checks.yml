@@ -29,3 +29,5 @@ jobs:
         run: node scripts/check-community-page.mjs
       - name: Check shared directory sorting and persisted preferences
         run: node scripts/check-directory-sorting.mjs
+      - name: Check people and follower directory sorting
+        run: node scripts/check-people-directory-sorting.mjs
