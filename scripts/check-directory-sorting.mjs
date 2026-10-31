@@ -8,6 +8,10 @@ assert.match(utility,/localStorage/,'Sort preferences must persist between visit
 assert.match(communities,/id="communitySort"[^>]*>[\s\S]*?value="relevant"/,'Communities must default to relevance.');
 for(const value of ['members','active','trending','discussed','newest','oldest','az','za'])assert.ok(communities.includes('value="'+value+'"'),'Community sort missing '+value);
 assert.match(communities,/VenturifyDirectorySort\.sort\(matches,sort,sortRules\)/,'Community list must use shared sorter.');
+assert.match(communities,/const communityPageSize=20/,'Community directory should show 20 groups per page.');
+assert.match(communities,/pageItems=sorted\.slice\(\(communityPage-1\)\*communityPageSize,communityPage\*communityPageSize\)/,'Community directory should render only the active page.');
+assert.match(communities,/data-community-page/,'Community directory should provide previous and next page controls.');
+assert.match(communities,/const resetCommunityPage=\(\)=>\{communityPage=1;renderCommunityLists\(\)\}/,'Community search and topic filters should reset pagination.');
 assert.match(discover,/id="founderSort"[^>]*>[\s\S]*?value="relevant"/,'Founder discovery must default to relevance.');
 for(const value of ['level_desc','level_asc','followers','communities','newest','oldest','az','za'])assert.ok(discover.includes('value="'+value+'"'),'Founder sort missing '+value);
 assert.match(discover,/VenturifyDirectorySort\.sort\(list,founderSort,founderSortRules\)/,'Founder list must use shared sorter.');
