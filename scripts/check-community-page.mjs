@@ -11,6 +11,14 @@ assert.match(page,/from\('community_members'\)/,'Membership must use the communi
 assert.match(page,/from\('posts'\)/,'Community discussions must load from posts.');
 assert.match(page,/from\('likes'\)/,'Community voting must use the existing likes table.');
 assert.match(page,/from\('comments'\)/,'Community replies must use the existing comments table.');
+
+for(const id of ['memberList','memberToggle','memberPreview'])assert.ok(page.includes('id="'+id+'"'),'Community member directory is missing #'+id);
+assert.match(page,/from\('community_members'\)\.select\('user_id'\)/,'Member directory must derive membership from the community_members table.');
+assert.match(page,/from\('profiles'\)\.select\('id,username,display_name,avatar_url'\)/,'Member directory must load only public profile display fields.');
+assert.match(page,/function renderMembers\(\)/,'Community member directory must render a member list.');
+assert.match(page,/profile\.html\?id=/,'Community members must link to their profiles.');
+assert.match(page,/View all /,'Member directory must provide an expand/collapse control for larger communities.');
+
 assert.match(page,/Join this community before posting/,'Posting must require community membership.');
 assert.match(page,/maxlength="5000"/,'Community posts must retain the 5,000-character limit.');
 assert.match(page,/maxlength="500"/,'Community comments must retain the 500-character limit.');
