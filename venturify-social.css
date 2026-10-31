@@ -1,0 +1,289 @@
+/* Venturify social-first redesign: Nextdoor + Twitter + Reddit */
+:root {
+  --social-bg: #f3f4f7;
+  --social-surface: #ffffff;
+  --social-surface-alt: #f7f8fa;
+  --social-surface-soft: #eef3f8;
+  --social-border: #dfe5ee;
+  --social-text: #1b2431;
+  --social-muted: #5c6a7d;
+  --social-accent: #ff7b54;
+  --social-accent-2: #1d9bf0;
+  --social-green: #2b7a4b;
+  --social-shadow: 0 16px 36px rgba(15, 23, 42, 0.07);
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(255, 123, 84, 0.12), transparent 25%),
+    radial-gradient(circle at top right, rgba(29, 155, 240, 0.10), transparent 20%),
+    linear-gradient(180deg, #f6f7f8 0%, #eef3f8 100%);
+  color: var(--social-text);
+}
+
+body, button, input, textarea, select {
+  font-family: Inter, "Segoe UI", sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+.topbar,
+.topbar.wrap {
+  background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+  border-bottom: 1px solid rgba(164, 179, 210, 0.18);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.topbar .brand,
+.topbar .nav a,
+.topbar .nav .nav-icon-link,
+.topbar .nav .nav-signup,
+.topbar .nav .nav-profile {
+  color: #edf4ff;
+}
+
+.topbar .brand-mark {
+  background: linear-gradient(135deg, #ffcb7d, #ff7b54);
+  color: #111827;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(255, 123, 84, 0.2);
+}
+
+.topbar .nav a {
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: 0.2s ease;
+}
+
+.topbar .nav a:hover,
+.topbar .nav .nav-icon-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.topbar .nav .nav-signup {
+  background: linear-gradient(135deg, #ffb98f 0%, #ff7b54 100%);
+  color: #1a1a1a;
+  border: none;
+  box-shadow: 0 10px 22px rgba(255, 123, 84, 0.2);
+}
+
+.hero {
+  padding-top: 56px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+}
+
+.hero .eyebrow,
+.kicker {
+  letter-spacing: 0.14em;
+  color: var(--social-accent);
+  font-weight: 800;
+}
+
+.hero h1 {
+  font-size: clamp(2.7rem, 5vw, 5rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  margin-bottom: 18px;
+}
+
+.hero p {
+  max-width: 640px;
+  color: var(--social-muted);
+  font-size: 1.05rem;
+}
+
+.hero .btn-primary {
+  background: linear-gradient(135deg, #ff9d6e, #ff7b54);
+  border: none;
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(255, 123, 84, 0.28);
+}
+
+.hero .btn-outline {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--social-border);
+  color: var(--social-text);
+}
+
+.hero .stats .stat {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(160, 170, 184, 0.25);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.ecosystem-band {
+  background: rgba(247, 249, 252, 0.9);
+  border-top: 1px solid var(--social-border);
+  border-bottom: 1px solid var(--social-border);
+}
+
+.ecosystem-card,
+.community-card,
+.founder-result,
+.profile-card,
+.notification-item,
+.workspace-card,
+.settings-card,
+.post,
+.comment,
+.card,
+.panel,
+.modal,
+.message-panel {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--social-border);
+  border-radius: 20px;
+  box-shadow: var(--social-shadow);
+}
+
+.ecosystem-card {
+  padding: 22px;
+}
+
+.ecosystem-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 40px rgba(15, 23, 42, 0.08);
+  border-color: rgba(29, 155, 240, 0.25);
+}
+
+.ecosystem-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #eaf5ff 0%, #fcece3 100%);
+  color: var(--social-text);
+  display: inline-grid;
+  place-items: center;
+}
+
+.community-card,
+.founder-result {
+  padding: 18px;
+}
+
+.community-card .kicker,
+.founder-result .kicker,
+.section-head .kicker {
+  color: var(--social-accent-2);
+}
+
+.feed-tabs .feed-tab,
+.notification-filters button {
+  border-radius: 999px;
+  border: 1px solid var(--social-border);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--social-muted);
+  font-weight: 700;
+}
+
+.feed-tabs .feed-tab.active,
+.notification-filters button.active {
+  background: linear-gradient(135deg, #eef7ff, #eefbf1);
+  border-color: rgba(29, 155, 240, 0.18);
+  color: var(--social-text);
+  box-shadow: inset 0 0 0 1px rgba(29, 155, 240, 0.08);
+}
+
+.community-card textarea,
+.community-card input,
+.community-card select,
+.field input,
+.field textarea,
+.field select,
+.searchbox input {
+  border-radius: 14px;
+  border: 1px solid var(--social-border);
+  background: var(--social-surface-alt);
+  color: var(--social-text);
+}
+
+.community-card textarea:focus,
+.community-card input:focus,
+.community-card select:focus,
+.field input:focus,
+.field textarea:focus,
+.field select:focus,
+.searchbox input:focus {
+  border-color: rgba(29, 155, 240, 0.55);
+  box-shadow: 0 0 0 4px rgba(29, 155, 240, 0.08);
+}
+
+.action-btn,
+.follow-btn,
+.btn {
+  border-radius: 999px;
+  border: 1px solid var(--social-border);
+  background: #fff;
+  color: var(--social-text);
+  font-weight: 700;
+}
+
+.action-btn:hover,
+.follow-btn:hover,
+.btn:hover {
+  background: #f5f7fb;
+}
+
+.btn-primary {
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1d9bf0, #0f86d9);
+  color: #fff;
+  border: none;
+  box-shadow: 0 12px 22px rgba(29, 155, 240, 0.18);
+}
+
+.btn-outline {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.community-current,
+.notification-wrap .notification-panel,
+.modal-backdrop .modal {
+  border-radius: 22px;
+}
+
+.post,
+.notification-item {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 251, 253, 0.96));
+}
+
+.post .post-actions .action-btn.active {
+  background: #eef7ff;
+  border-color: rgba(29, 155, 240, 0.18);
+  color: #0f5ea8;
+}
+
+.comment {
+  background: #f6f8fb;
+  border: 1px solid #eef2f7;
+}
+
+.comment b,
+.follow-person strong,
+.community-top strong {
+  color: var(--social-text);
+}
+
+@media (max-width: 760px) {
+  .topbar.wrap {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .hero {
+    padding-top: 38px;
+  }
+
+  .ecosystem-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .community-layout,
+  .community-hub {
+    grid-template-columns: 1fr;
+  }
+}
