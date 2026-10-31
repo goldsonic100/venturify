@@ -20,6 +20,9 @@
       --soft: #f1f8ec;
       --shadow: 0 18px 48px rgba(17, 24, 39, 0.08);
       --radius: 20px;
+      --danger: #b42318;
+      --warning: #b45309;
+      --success: #1f7a4d;
     }
 
     * { box-sizing: border-box; }
@@ -34,6 +37,9 @@
     }
     a { color: inherit; text-decoration: none; }
     img { max-width: 100%; display: block; }
+    button, input, select, textarea {
+      font: inherit;
+    }
 
     .topbar {
       width: min(1280px, calc(100% - 24px));
@@ -190,6 +196,7 @@
       border: 1px solid var(--line);
       font-weight: 700;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
     }
 
     .cta:hover {
@@ -251,7 +258,11 @@
     .panel li,
     .rule-list li,
     .step-copy,
-    .note {
+    .note,
+    .meta,
+    .report-card p,
+    .issue-card p,
+    .issue-card li {
       color: var(--muted);
       line-height: 1.7;
       font-size: 1rem;
@@ -259,7 +270,8 @@
 
     .panel ul,
     .step-list,
-    .rule-list {
+    .rule-list,
+    .issue-card ul {
       list-style: none;
       padding: 0;
       margin: 18px 0 0;
@@ -369,6 +381,164 @@
       margin: 0;
     }
 
+    .report-shell {
+      margin-top: 18px;
+      margin-bottom: 32px;
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 22px;
+    }
+
+    .report-card,
+    .issue-card {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px 20px;
+      box-shadow: 0 16px 30px rgba(16, 24, 40, 0.04);
+    }
+
+    .report-form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+      text-transform: uppercase;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--ink);
+      resize: vertical;
+      min-height: 42px;
+    }
+
+    .field textarea {
+      min-height: 120px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+    }
+
+    .status-open {
+      background: rgba(180, 83, 9, 0.09);
+      color: var(--warning);
+      border-color: rgba(180, 83, 9, 0.12);
+    }
+
+    .status-review {
+      background: rgba(66, 107, 75, 0.1);
+      color: var(--accent);
+      border-color: rgba(66, 107, 75, 0.15);
+    }
+
+    .status-resolved {
+      background: rgba(31, 122, 77, 0.1);
+      color: var(--success);
+      border-color: rgba(31, 122, 77, 0.15);
+    }
+
+    .issue-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .issue-card {
+      padding: 18px;
+    }
+
+    .issue-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .issue-title {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: -0.04em;
+    }
+
+    .issue-card .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      margin-top: 8px;
+      font-size: 0.82rem;
+    }
+
+    .issue-card p {
+      margin: 12px 0 0;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .mini-btn {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 7px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .mini-btn.primary {
+      background: var(--deep);
+      border-color: var(--deep);
+      color: white;
+    }
+
+    .mini-btn.danger {
+      background: rgba(180, 35, 24, 0.05);
+      border-color: rgba(180, 35, 24, 0.14);
+      color: var(--danger);
+    }
+
     .bottom-cta {
       margin-top: 8px;
       background: linear-gradient(135deg, rgba(200, 241, 105, 0.25), rgba(150, 178, 255, 0.12));
@@ -396,7 +566,8 @@
     @media (max-width: 960px) {
       .two-col,
       .principles-grid,
-      .steps {
+      .steps,
+      .report-shell {
         grid-template-columns: 1fr;
       }
 
@@ -427,7 +598,9 @@
       }
       .panel,
       .hero,
-      .bottom-cta {
+      .bottom-cta,
+      .report-card,
+      .issue-card {
         padding-left: 18px;
         padding-right: 18px;
       }
@@ -587,6 +760,57 @@
       </ul>
     </section>
 
+    <section class="report-shell">
+      <article class="report-card">
+        <span class="pill">Report center</span>
+        <h2>Report a person or post</h2>
+        <form id="reportForm" class="report-form">
+          <div class="field">
+            <label for="reportTarget">Report target</label>
+            <input id="reportTarget" name="target" type="text" value="@mila.growth" readonly>
+          </div>
+
+          <div class="field">
+            <label for="reportType">Issue type</label>
+            <select id="reportType" name="type">
+              <option value="Harassment">Harassment</option>
+              <option value="Spam">Spam</option>
+              <option value="Impersonation">Impersonation</option>
+              <option value="Misinformation">Misinformation</option>
+              <option value="Hate speech">Hate speech</option>
+              <option value="Privacy concern">Privacy concern</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="reportSeverity">Urgency</label>
+            <select id="reportSeverity" name="severity">
+              <option value="Low">Low</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="reportDetails">What happened?</label>
+            <textarea id="reportDetails" name="details" placeholder="Tell us what the issue was, what you saw, and why it needs review."></textarea>
+          </div>
+
+          <div class="row">
+            <span class="meta">Reports are reviewed by the Venturify moderation team.</span>
+            <button class="cta primary" type="submit">Submit report</button>
+          </div>
+        </form>
+      </article>
+
+      <article class="report-card">
+        <span class="pill">Issue list</span>
+        <h2>Open reports</h2>
+        <div id="issueList" class="issue-list" aria-live="polite"></div>
+      </article>
+    </section>
+
     <div class="bottom-cta">
       <div>
         <h3>Venturify is for practical learning.</h3>
@@ -595,5 +819,112 @@
       <a class="cta primary" href="feed.html">Start posting</a>
     </div>
   </main>
+
+  <script>
+    const issues = [
+      {
+        id: 1,
+        title: '@mila.growth',
+        type: 'Harassment',
+        status: 'Open',
+        urgency: 'High',
+        time: '12 minutes ago',
+        description: 'Repeated private messages after a user asked to stop. This pattern is consistent and escalating.'
+      },
+      {
+        id: 2,
+        title: 'Post: “Burn-down update”',
+        type: 'Misinformation',
+        status: 'Under review',
+        urgency: 'Medium',
+        time: '2 hours ago',
+        description: 'The post claims a startup hit 60% retention without explaining the cohort or methodology.'
+      },
+      {
+        id: 3,
+        title: '@founderjack',
+        type: 'Impersonation',
+        status: 'Resolved',
+        urgency: 'High',
+        time: 'Yesterday',
+        description: 'Account was impersonating a known founder with a mismatched profile and copied bio.'
+      }
+    ];
+
+    const issueList = document.getElementById('issueList');
+    const reportForm = document.getElementById('reportForm');
+
+    function statusClass(status) {
+      if (status === 'Resolved') return 'status-resolved';
+      if (status === 'Under review') return 'status-review';
+      return 'status-open';
+    }
+
+    function renderIssues() {
+      issueList.innerHTML = issues.map(issue => `
+        <div class="issue-card">
+          <div class="issue-head">
+            <h3 class="issue-title">${issue.title}</h3>
+            <span class="status-chip ${statusClass(issue.status)}">${issue.status}</span>
+          </div>
+          <div class="meta">
+            <span>${issue.type}</span>
+            <span>${issue.urgency}</span>
+            <span>${issue.time}</span>
+          </div>
+          <p>${issue.description}</p>
+          <div class="action-row">
+            <button class="mini-btn primary" data-action="review" data-id="${issue.id}">Review</button>
+            <button class="mini-btn" data-action="resolve" data-id="${issue.id}">Resolve</button>
+            <button class="mini-btn danger" data-action="dismiss" data-id="${issue.id}">Dismiss</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    issueList.addEventListener('click', (event) => {
+      const target = event.target.closest('button');
+      if (!target) return;
+      const { action, id } = target.dataset;
+      const issue = issues.find(item => String(item.id) === String(id));
+      if (!issue) return;
+
+      if (action === 'review') {
+        issue.status = 'Under review';
+      }
+      if (action === 'resolve') {
+        issue.status = 'Resolved';
+      }
+      if (action === 'dismiss') {
+        const index = issues.findIndex(item => String(item.id) === String(id));
+        if (index >= 0) issues.splice(index, 1);
+      }
+
+      renderIssues();
+    });
+
+    reportForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(reportForm);
+      const issue = {
+        id: Date.now(),
+        title: formData.get('target') || 'Unspecified target',
+        type: formData.get('type') || 'Other',
+        status: 'Open',
+        urgency: formData.get('severity') || 'Medium',
+        time: 'just now',
+        description: formData.get('details') || 'A report was submitted without additional details.'
+      };
+
+      issues.unshift(issue);
+      renderIssues();
+      reportForm.reset();
+      document.getElementById('reportTarget').value = '@mila.growth';
+      document.getElementById('reportSeverity').value = 'Medium';
+    });
+
+    renderIssues();
+  </script>
 </body>
 </html>
