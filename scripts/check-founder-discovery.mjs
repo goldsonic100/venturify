@@ -63,6 +63,10 @@ assert.match(html, /value="all">Browse all eligible people/, 'People directory m
 assert.match(html, /id="peopleSkillFilter"/, 'People directory must filter by skill');
 assert.match(html, /id="peopleLevelFilter"/, 'People directory must filter by minimum reputation level');
 assert.match(html, /id="peopleSort"/, 'People directory must provide sorting controls');
+assert.match(html, /const peoplePageSize=24/, 'People directory should render a manageable page of 24 profiles at a time');
+assert.match(html, /pageItems=list\.slice\(pageStart,pageStart\+peoplePageSize\)/, 'People directory should render only the active page');
+assert.match(html, /data-people-page/, 'People directory should expose working previous and next page controls');
+assert.match(html, /const resetPeoplePage=\(\)=>\{peoplePage=1;render\(\)\}/, 'Changing filters should return the directory to its first page');
 assert.match(html, /founderLevel\(p\)>=Math\.max\(5,minimumLevel\)/, 'People directory must preserve Level 5+ eligibility');
 assert.match(html, /browseMode==='recommended'/, 'The six-per-day cap must apply only to personalized picks');
 assert.match(html, /browseMode==='recommended'&&!q\.length&&!skillQuery&&intent==='all'/, 'Explicit searches and filters must reach all eligible people instead of being limited to six daily picks');
