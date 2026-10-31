@@ -57,6 +57,17 @@ assert.match(html, /Math\.max\(0,6-dailyMatchIds\.length\)/,
   'Daily recommendations should retain the six-match limit');
 assert.match(html, /data-discovery-follow=/,
   'Founder cards must retain the follow control');
+
+assert.match(html, /id="peopleBrowseMode"/, 'People directory must distinguish personalized picks from the full directory');
+assert.match(html, /value="all">Browse all eligible people/, 'People directory must offer full eligible-member browsing');
+assert.match(html, /id="peopleSkillFilter"/, 'People directory must filter by skill');
+assert.match(html, /id="peopleLevelFilter"/, 'People directory must filter by minimum reputation level');
+assert.match(html, /id="peopleSort"/, 'People directory must provide sorting controls');
+assert.match(html, /founderLevel\(p\)>=Math\.max\(5,minimumLevel\)/, 'People directory must preserve Level 5+ eligibility');
+assert.match(html, /browseMode==='recommended'/, 'The six-per-day cap must apply only to personalized picks');
+assert.match(html, /'Level '\+founderLevel\(p\)/, 'People cards must display reputation level');
+assert.match(html, /href="#founderDiscovery" data-app-view="people">People<\/a>/, 'Main navigation must expose the People directory');
+
 assert.match(html, /data-profile=/,
   'Founder cards must retain the profile link');
 
