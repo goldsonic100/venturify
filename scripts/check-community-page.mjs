@@ -14,6 +14,13 @@ assert.match(page,/from\('comments'\)/,'Community replies must use the existing 
 assert.match(page,/Join this community before posting/,'Posting must require community membership.');
 assert.match(page,/maxlength="5000"/,'Community posts must retain the 5,000-character limit.');
 assert.match(page,/maxlength="500"/,'Community comments must retain the 500-character limit.');
+
+for(const href of ['principles.html','feed.html','discover.html','communities.html','collaborations.html','profile.html','messages.html','notifications.html','settings.html'])assert.ok(page.includes('href="'+href+'"'),'Community navigation is missing '+href);
+assert.match(page,/data-auth-only/,'Authenticated navigation destinations must be marked for signed-in users.');
+assert.match(page,/data-guest-only/,'Guest login and signup destinations must remain available.');
+assert.match(page,/overflow-x:auto/,'Mobile community navigation must remain horizontally accessible instead of hiding destinations.');
+assert.match(page,/function syncNavigation\(\)/,'Community navigation must respond to authentication state.');
+
 const scripts=[...page.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=>x[1].trim()).filter(Boolean);
 assert.ok(scripts.length,'Community page must have an application script.');
 scripts.forEach((source,index)=>{try{new Function(source)}catch(error){throw new Error('community.html inline script '+(index+1)+' failed to parse: '+error.message)}});
