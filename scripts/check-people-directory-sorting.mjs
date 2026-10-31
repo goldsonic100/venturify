@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const page=readFileSync(new URL('../profile.html',import.meta.url),'utf8');
+const sort=readFileSync(new URL('../directory-sort.js',import.meta.url),'utf8');
+assert.match(page,/src="directory-sort\.js"/,'Profile page must load the shared sorter.');
+assert.match(page,/id="peopleDirectorySort"/,'People directory needs a sort control.');
+for(const v of ['relevant','newest','oldest','az','za'])assert.ok(page.includes('value="'+v+'"'),'People sort option missing: '+v);
+assert.match(page,/VenturifyDirectorySort\.sort\(people,sortMode,rules\)/,'People directory must use shared sorting.');
+assert.match(page,/id="profileListSort"/,'Follower/following lists need a sort control.');
+assert.match(page,/VenturifyDirectorySort\.sort\(ordered,sortMode,rules\)/,'Follower/following lists must use shared sorting.');
+assert.match(page,/data-profile-list/,'Follower and following navigation must remain available.');
+assert.match(sort,/VenturifyDirectorySort/,'Shared sorter must exist.');
+const scripts=[...page.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=>x[1].trim()).filter(Boolean);
+scripts.forEach((script,i)=>{try{new Function(script)}catch(e){throw new Error('profile inline script '+(i+1)+': '+e.message)}});
+new Function(sort);
+console.log('People and follower sorting checks passed.');
