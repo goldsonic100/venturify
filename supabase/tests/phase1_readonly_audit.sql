@@ -90,3 +90,27 @@ ORDER BY c.relname, t.tgname;
 SELECT version, name
 FROM supabase_migrations.schema_migrations
 ORDER BY version;
+
+-- 7) Detect duplicate social notification trigger registrations.
+-- The expected design is one generic trigger per table, because
+-- create_activity_notification handles posts and comment replies.
+SELECT
+  c.relname AS table_name,
+  count(*) FILTER (WHERE t.tgname IN ('notify_on_new_comment','venturify_notify_comment')) AS comment_notification_triggers,
+  count(*) FILTER (WHERE t.tgname IN ('notify_on_new_follow','venturify_notify_follow')) AS follow_notification_triggers,
+  count(*) FILTER (WHERE t.tgname IN ('notify_on_new_like','venturify_notify_like')) AS like_notification_triggers,
+  array_agg(t.tgname ORDER BY t.tgname) AS registered_notification_triggers
+FROM pg_catalog.pg_trigger t
+JOIN pg_catalog.pg_class c ON c.oid = t.tgrelid
+JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+WHERE n.nspname = 'public'
+  AND NOT t.tgisinternal
+  AND (
+    t.tgname IN (
+      'notify_on_new_comment','venturify_notify_comment',
+      'notify_on_new_follow','venturify_notify_follow',
+      'notify_on_new_like','venturify_notify_like'
+    )
+  )
+GROUP BY c.relname
+ORDER BY c.relname;
