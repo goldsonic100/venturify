@@ -7,6 +7,7 @@
   <title>Our principles · Venturify</title>
   <meta name="description" content="Venturify's principles: honest founder learning, real traction, and safer startup communities.">
   <link rel="stylesheet" href="venturify-a11y.css">
+  <link rel="stylesheet" href="assets/venturify-design-system.css">
   <style>
     :root {
       --ink: #15221c;
@@ -536,8 +537,49 @@
       h1 { font-size: 2.4rem; }
     }
   </style>
+  <style>
+    body.authenticated [data-guest-only] { display: none !important; }
+    body:not(.authenticated) [data-auth-only] { display: none !important; }
+  </style>
+<script id="venturify-global-theme">
+(function(){
+ const key='venturify-theme';
+ function apply(theme){
+  const actual=theme==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):theme;
+  document.documentElement.dataset.theme=actual;
+  document.documentElement.style.colorScheme=actual;
+  let style=document.getElementById('venturify-theme-overrides');
+  if(!style){style=document.createElement('style');style.id='venturify-theme-overrides';document.head.appendChild(style)}
+  style.textContent=actual==='dark'?`
+   :root{--paper:#0b1220;--card:#111c2e;--ink:#e7edf7;--muted:#9baac0;--line:#29384d;--deep:#08101c;--accent:#3985ff}
+   body{background:#0b1220!important;color:#e7edf7!important}
+   .topbar,header.topbar,.nav,.site-header{background:#08101c!important;color:#eef4ff!important;border-color:#29384d!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#111c2e!important;color:#e7edf7!important;border-color:#29384d!important}
+   input,textarea,select{background:#111c2e!important;color:#e7edf7!important;border-color:#35465f!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#a8b6ca}
+   a{color:#8ab8ff}
+  `:`
+   :root{--paper:#f5f7fb;--card:#fff;--ink:#182337;--muted:#63718a;--line:#dbe3ee;--deep:#f0f4fa;--accent:#1769e0}
+   body{background:#f5f7fb!important;color:#182337!important}
+   .topbar,header.topbar,.nav,.site-header{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   input,textarea,select{background:#fff!important;color:#182337!important;border-color:#cbd5e1!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#63718a}
+   a{color:#1769e0}
+  `;
+ }
+ let initial=localStorage.getItem(key)||'system';
+ try{const raw=localStorage.getItem('supabase.auth.token');if(raw){const parsed=JSON.parse(raw);const token=parsed?.currentSession?.user?.id;if(token){}}}catch(e){}
+ apply(initial);
+ window.addEventListener('storage',e=>{if(e.key===key)apply(e.newValue||'system')});
+ const media=window.matchMedia('(prefers-color-scheme: dark)');
+ if(media.addEventListener)media.addEventListener('change',()=>{if((localStorage.getItem(key)||'system')==='system')apply('system')});
+ window.venturifyApplyTheme=apply;
+})();
+</script>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
   <header class="topbar">
     <div class="brand" aria-label="Venturify home">
       <div class="brand-mark">V</div>
@@ -555,12 +597,14 @@
     </nav>
 
     <div class="nav-actions" aria-label="Quick actions">
+      <a href="settings.html" data-auth-only class="nav-icon-link settings-gear-link" aria-label="Settings" title="Settings">⚙</a>
+      <a href="#" id="navAccount" data-guest-only>Log in</a>
       <button class="icon-btn" aria-label="Notifications">🔔</button>
       <button class="icon-btn" aria-label="Account">👤</button>
     </div>
   </header>
 
-  <main class="page">
+  <main id="main-content" class="page">
     <section class="hero">
       <div class="eyebrow">Venturify</div>
       <h1>Built for honest founder learning.</h1>
