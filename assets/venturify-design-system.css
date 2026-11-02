@@ -154,3 +154,51 @@ body[data-view="messages"] .messages-composer .comment-input:focus { border-colo
 @media(prefers-reduced-motion:reduce) {
   :where(a,button,input,select,textarea,[role="button"],[role="tab"],[role="switch"]) { scroll-behavior: auto !important; }
 }
+
+
+/* Keep the full global navigation reachable on narrow screens. */
+@media (max-width: 760px) {
+  .topbar.wrap {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+  .topbar.wrap .nav {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    gap: 7px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 3px 2px 9px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #496487 transparent;
+  }
+  .topbar.wrap .nav > a,
+  .topbar.wrap .nav > .notification-wrap {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+  .topbar.wrap .nav > .notification-wrap {
+    display: flex;
+    align-items: center;
+  }
+  .topbar.wrap .nav a,
+  .topbar.wrap .nav button {
+    min-height: 40px;
+  }
+}
+@media (max-width: 420px) {
+  .topbar.wrap .nav { gap: 5px; }
+  .topbar.wrap .nav > a:not(.nav-icon-link) {
+    padding-inline: 8px;
+    font-size: .72rem;
+  }
+}
