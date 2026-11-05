@@ -6,6 +6,7 @@
   <meta name="description" content="Find founder lessons, practical conversations, communities, and collaboration opportunities across Venturify.">
   <meta name="theme-color" content="#13241c">
   <link rel="stylesheet" href="venturify-a11y.css">
+  <link rel="stylesheet" href="assets/venturify-design-system.css">
   <title>Founder resources — Venturify</title>
   <style>
     :root{color-scheme:light;--ink:#18251d;--muted:#657268;--paper:#f5f6ef;--card:#fffefa;--line:#dfe5d9;--forest:#13241c;--lime:#c8f169;--accent:#426b4b}
@@ -17,15 +18,85 @@
     @media(max-width:650px){.resource-tools{grid-template-columns:1fr}.nav{align-items:flex-start;flex-direction:column;padding:14px 0}.nav-links{gap:12px}.hero{padding:48px 0 58px}.hero:after{right:-270px}.intro{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.resource{min-height:190px}.intro h2{font-size:30px}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
   </style>
+  <style>
+    .topbar.wrap{width:min(1200px,calc(100% - 28px));margin:14px auto;padding:12px 18px;position:relative;display:flex;align-items:center;justify-content:space-between;gap:16px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 28px rgba(20,31,26,.08)}
+    .topbar .brand{min-width:auto;white-space:nowrap;font-size:1.2rem;font-weight:850;display:flex;align-items:center;gap:9px;color:var(--ink)}
+    .topbar .brand-mark{width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#1677ff;color:white;font-weight:900}
+    .topbar .nav{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;width:auto;min-height:0}
+    .topbar .nav>a,.topbar .nav button{min-height:38px;padding:8px 10px;border-radius:9px;font-size:.78rem;font-weight:750;color:var(--ink);white-space:nowrap}
+    .topbar .nav>a:hover{background:rgba(56,144,255,.1);color:#3980db}
+    .topbar .nav .nav-icon-link{display:inline-flex;align-items:center;justify-content:center;min-width:38px;padding:8px}
+    .topbar .nav .notification-button{background:transparent;border:1px solid var(--line)}
+    .topbar .nav .nav-signup{background:#1677ff;color:#fff;border:1px solid #1677ff}
+    .topbar .nav a[data-auth-only],.topbar .nav [data-auth-only]{display:none}
+    body.authenticated .topbar .nav [data-auth-only]{display:inline-flex}
+    body.authenticated .topbar .nav [data-guest-only]{display:none!important}
+    @media(max-width:900px){.topbar.wrap{align-items:flex-start;flex-direction:column}.topbar .nav{justify-content:flex-start;width:100%}}
+    @media(max-width:560px){.topbar.wrap{width:calc(100% - 16px);padding:12px}.topbar .nav{gap:4px}.topbar .nav>a,.topbar .nav button{font-size:.72rem;padding:7px}}
+  </style>
+  <script id="venturify-global-theme">
+(function(){
+ const key='venturify-theme';
+ function apply(theme){
+  const actual=theme==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):theme;
+  document.documentElement.dataset.theme=actual;
+  document.documentElement.style.colorScheme=actual;
+  let style=document.getElementById('venturify-theme-overrides');
+  if(!style){style=document.createElement('style');style.id='venturify-theme-overrides';document.head.appendChild(style)}
+  style.textContent=actual==='dark'?`
+   :root{--paper:#0b1220;--card:#111c2e;--ink:#e7edf7;--muted:#9baac0;--line:#29384d;--deep:#08101c;--accent:#3985ff}
+   body{background:#0b1220!important;color:#e7edf7!important}
+   .topbar,header.topbar,.nav,.site-header{background:#08101c!important;color:#eef4ff!important;border-color:#29384d!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#111c2e!important;color:#e7edf7!important;border-color:#29384d!important}
+   input,textarea,select{background:#111c2e!important;color:#e7edf7!important;border-color:#35465f!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#a8b6ca}
+   a{color:#8ab8ff}
+  `:`
+   :root{--paper:#f5f7fb;--card:#fff;--ink:#182337;--muted:#63718a;--line:#dbe3ee;--deep:#f0f4fa;--accent:#1769e0}
+   body{background:#f5f7fb!important;color:#182337!important}
+   .topbar,header.topbar,.nav,.site-header{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   input,textarea,select{background:#fff!important;color:#182337!important;border-color:#cbd5e1!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#63718a}
+   a{color:#1769e0}
+  `;
+ }
+ let initial=localStorage.getItem(key)||'system';
+ try{const raw=localStorage.getItem('supabase.auth.token');if(raw){const parsed=JSON.parse(raw);const token=parsed?.currentSession?.user?.id;if(token){}}}catch(e){}
+ apply(initial);
+ window.addEventListener('storage',e=>{if(e.key===key)apply(e.newValue||'system')});
+ const media=window.matchMedia('(prefers-color-scheme: dark)');
+ if(media.addEventListener)media.addEventListener('change',()=>{if((localStorage.getItem(key)||'system')==='system')apply('system')});
+ window.venturifyApplyTheme=apply;
+})();
+</script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to main content</a>
-  <header class="top"><div class="wrap nav">
-    <a class="brand" href="index.html"><span>v.</span> venturify</a>
-    <nav class="nav-links" aria-label="Main navigation">
-      <a href="index.html">Home</a><a href="case-studies.html">Founder stories</a><a href="discover.html">Discover</a><a href="communities.html">Communities</a><a href="collaborations.html">Collaborate</a>
-    </nav>
-  </div></header>
+<header class="topbar wrap">
+  <a class="brand" href="index.html" aria-label="Venturify home"><span class="brand-mark">v.</span> venturify</a>
+  <nav class="nav" aria-label="Main navigation">
+    <a href="principles.html" >Our Principles</a>
+    <a href="feed.html" data-app-view="feed">Feed</a>
+    <a href="discover.html" data-app-view="discover">Discover</a>
+    <a href="communities.html" data-app-view="communities">Communities</a>
+    <a href="collaborations.html" data-auth-only>Collaborations</a>
+    <a href="profile.html" data-auth-only class="nav-profile">Profile</a>
+    <a href="messages.html" data-auth-only class="nav-icon-link message-nav-emoji" aria-label="Messages" title="Messages"><span aria-hidden="true">💬</span><span id="messageNavCount" class="message-nav-count" hidden>0</span></a>
+    <div class="notification-wrap" data-auth-only>
+      <button type="button" id="notificationButton" class="notification-button nav-icon-button" aria-label="Announcements and notifications" title="Announcements and notifications" aria-expanded="false" aria-controls="notificationPanel">🔔<span id="notificationCount" class="notification-count" hidden>0</span></button>
+      <div id="notificationPanel" class="notification-panel" hidden>
+        <div class="notification-panel-head"><strong>Announcements &amp; notifications</strong><button type="button" id="markAllNotifications" class="mark-all">Mark all read</button></div>
+        <div id="notificationList"><div class="notification-empty">No notifications yet.</div></div>
+        <a class="notification-view-all" href="notifications.html">View all notifications →</a>
+      </div>
+    </div>
+    <a href="settings.html" data-auth-only class="nav-icon-link settings-gear-link" aria-label="Settings" title="Settings"><span aria-hidden="true">⚙</span></a>
+    
+    <a href="#" id="navAccount" data-guest-only>Log in</a>
+    <a href="#" id="navSignup" data-guest-only class="nav-signup">Sign up</a>
+  </nav>
+</header>
   <section class="hero"><div class="wrap">
     <div class="eyebrow">The founder toolkit</div>
     <h1>Find a lesson. Find your people. Make your next move.</h1>
