@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#101a16">
+  <title>Post-mortem review — Venturify moderator</title>
+  <link rel="stylesheet" href="venturify-a11y.css"><link rel="stylesheet" href="venturify-ui.css">
+  <style>
+    :root{--ink:#15221c;--muted:#68766c;--paper:#f5f6ef;--card:#fffefa;--line:#dfe5d9;--green:#31583a}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{width:min(100% - 28px,1000px);margin:auto}.topbar{display:flex;justify-content:space-between;gap:12px;padding:16px 0;border-bottom:1px solid var(--line)}.brand{font-size:20px;font-weight:850;text-decoration:none}main{padding:32px 0}.notice,.story{padding:18px;margin:14px 0;background:var(--card);border:1px solid var(--line);border-radius:12px}.story h2{margin:4px 0}.meta,.muted{color:var(--muted);font-size:13px}.story-body{white-space:pre-wrap;overflow-wrap:anywhere}.review-form{display:grid;grid-template-columns:1fr 2fr auto;gap:9px;margin-top:14px}select,textarea,button{font:inherit}select,textarea{padding:9px;border:1px solid #bdc9bc;border-radius:7px;background:white;color:var(--ink)}textarea{min-height:50px}button{padding:9px 13px;border:0;border-radius:7px;background:var(--green);color:white;font-weight:750;cursor:pointer}button:disabled{opacity:.6}.error{color:#8b2013}.status{min-height:1.5em}@media(max-width:700px){.review-form{grid-template-columns:1fr}.topbar{flex-direction:column}}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body><a class="skip-link" href="#main-content">Skip to main content</a><header class="wrap topbar"><a class="brand" href="moderator.html">Venturify moderator</a><a href="moderator.html">Back to dashboard</a></header>
+<main id="main-content" class="wrap"><h1>Founder post-mortem review</h1><p class="muted">This queue contains private submissions and is available only to accounts provisioned in <code>private.moderators</code>. Check consent and remove sensitive third-party information before approval.</p><div id="status" class="notice status" role="status" aria-live="polite">Checking moderator access…</div><div id="queue"></div></main>
+<script>
+(() => {
+  const client = window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co', 'sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
+  const $ = id => document.getElementById(id);
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const label = value => String(value || '').replace(/[-_]/g, ' ');
+  async function load() {
+    $('status').textContent = 'Loading private review queue…';
+    const { data: auth, error: authError } = await client.auth.getUser();
+    if (authError || !auth.user) { $('status').textContent = 'Sign in with an authorized moderator account to review submissions.'; return; }
+    const { data, error } = await client.rpc('moderator_list_founder_postmortems', { p_status: 'pending', p_limit: 50 });
+    if (error) { $('status').textContent = 'Moderator access denied or review migration not applied. Ask an administrator to verify your allowlist and migrations.'; $('status').classList.add('error'); return; }
+    $('status').textContent = data.length ? `${data.length} pending submission${data.length === 1 ? '' : 's'}.` : 'No pending submissions.';
+    $('queue').innerHTML = data.map(story => `<article class="story" data-story="${esc(story.id)}">
+      <div class="meta">${esc(story.industry)} · ${esc(label(story.company_stage))} · ${esc(label(story.primary_lesson))} · Submitted ${esc(new Date(story.created_at).toLocaleString())}</div>
+      <h2>${esc(story.company_name || 'Company name not provided')} — ${esc(story.author_display_name || story.author_username || 'Founder')}</h2>
+      <p><strong>Requested attribution:</strong> ${esc(story.author_display_mode)} · company ${esc(story.company_visibility)}. Consent: ${esc(story.consent_to_publish ? story.consent_version : 'MISSING')} at ${esc(new Date(story.consent_at).toLocaleString())}.</p>
+      <h3>Summary</h3><p class="story-body">${esc(story.summary)}</p><h3>What happened</h3><p class="story-body">${esc(story.what_happened)}</p><h3>Lessons learned</h3><p class="story-body">${esc(story.lessons_learned)}</p>
+      ${story.financial_context ? `<h3>Financial context (optional)</h3><p class="story-body">${esc(story.financial_context)}</p>` : ''}
+      <form class="review-form"><label>Decision<select name="decision"><option value="needs_edits">Request edits</option><option value="approved">Approve for library</option><option value="rejected">Reject</option></select></label><label>Private moderator notes<textarea name="notes" maxlength="2000" placeholder="Never shown publicly"></textarea></label><button type="submit">Save review</button></form>
+    </article>`).join('');
+  }
+  $('queue').addEventListener('submit', async event => {
+    if (!event.target.matches('.review-form')) return;
+    event.preventDefault();
+    const form = event.target, card = form.closest('[data-story]'), button = form.querySelector('button');
+    button.disabled = true;
+    const { error } = await client.rpc('moderator_review_founder_postmortem', {
+      p_story_id: card.dataset.story,
+      p_status: form.elements.decision.value,
+      p_moderator_notes: form.elements.notes.value.trim()
+    });
+    button.disabled = false;
+    if (error) { $('status').textContent = 'Could not save this decision. Refresh the queue and try again.'; $('status').classList.add('error'); return; }
+    await load();
+  });
+  load().catch(error => { console.error('Post-mortem review queue failed', error); $('status').textContent = 'Could not load the review queue. Refresh and try again.'; });
+})();
+</script></body></html>

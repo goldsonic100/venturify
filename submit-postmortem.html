@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101a16">
+  <meta name="description" content="Share a startup post-mortem with clear consent and control over attribution.">
+  <title>Submit a founder post-mortem — Venturify</title>
+  <link rel="stylesheet" href="venturify-a11y.css">
+  <link rel="stylesheet" href="venturify-ui.css">
+  <style>
+    :root{--ink:#15221c;--muted:#68766c;--paper:#f5f6ef;--card:#fffefa;--line:#dfe5d9;--green:#31583a}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit}
+    .wrap{width:min(100% - 32px,820px);margin:auto}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 0;border-bottom:1px solid var(--line)}.brand{font-weight:850;font-size:20px;text-decoration:none}.nav{display:flex;gap:16px;flex-wrap:wrap}.nav a{text-decoration:none;font-size:14px}
+    main{padding:42px 0 70px}.kicker{text-transform:uppercase;letter-spacing:.1em;font-size:12px;font-weight:800;color:var(--green)}h1{font-size:clamp(32px,5vw,48px);line-height:1.12;letter-spacing:-.035em;margin:8px 0 12px}.lede{color:#526052;max-width:700px}.panel{margin-top:24px;padding:24px;background:var(--card);border:1px solid var(--line);border-radius:16px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:grid;gap:5px}.field.full{grid-column:1/-1}.field label,.fieldset legend{font-weight:750;font-size:14px}.field small,.help{font-size:13px;color:var(--muted)}input,select,textarea{width:100%;padding:11px 12px;min-height:44px;border:1px solid #bdc9bc;border-radius:8px;background:white;color:var(--ink);font:inherit}textarea{min-height:125px;resize:vertical}.fieldset{border:1px solid var(--line);border-radius:10px;padding:14px;margin:16px 0}.choice{display:flex;gap:10px;align-items:flex-start;margin:8px 0}.choice input{width:auto;min-height:0;margin-top:5px}.choice label{font-size:14px}.consent{background:#f1f5ec;border-radius:10px;padding:14px;margin:18px 0}.actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.button{border:0;border-radius:8px;padding:12px 18px;background:#31583a;color:white;font:inherit;font-weight:800;cursor:pointer}.button:disabled{opacity:.6;cursor:wait}.status{margin:16px 0 0;padding:12px;border-radius:8px;background:#eef3e8}.status[hidden]{display:none}.error{background:#fff0ee;color:#7a1e12}.success{background:#edf7ed;color:#1c5128}.footer{border-top:1px solid var(--line);padding:18px 0;color:var(--muted);font-size:13px}
+    @media(max-width:640px){.topbar{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.panel{padding:17px}main{padding-top:30px}}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="wrap topbar">
+    <a class="brand" href="index.html">v. venturify</a>
+    <nav class="nav" aria-label="Main navigation"><a href="case-studies.html">Post-mortems</a><a href="feed.html">Feed</a><a href="principles.html">Our principles</a></nav>
+  </header>
+  <main id="main-content" class="wrap">
+    <div class="kicker">Your story, your terms</div>
+    <h1>Share a founder post-mortem</h1>
+    <p class="lede">Your submission is private while it is reviewed. It will not appear in the public library unless an authorized moderator approves it. You can choose whether your Venturify profile and company name appear, and you can withdraw a submission later.</p>
+    <div id="authNotice" class="status" role="status" hidden></div>
+    <form id="storyForm" class="panel" hidden>
+      <div class="grid">
+        <div class="field"><label for="companyName">Company name <span class="help">(optional)</span></label><input id="companyName" maxlength="120" autocomplete="organization" placeholder="Leave blank or choose not to publish"></div>
+        <div class="field"><label for="industry">Industry</label><input id="industry" maxlength="100" required placeholder="e.g. developer tools"></div>
+        <div class="field"><label for="stage">Company stage</label><select id="stage" required><option value="">Choose a stage</option><option value="idea">Idea / validation</option><option value="pre-seed">Pre-seed</option><option value="seed">Seed</option><option value="series-a">Series A</option><option value="series-b-plus">Series B or later</option><option value="bootstrapped">Bootstrapped</option><option value="other">Other</option></select></div>
+        <div class="field"><label for="lesson">Primary lesson</label><select id="lesson" required><option value="">Choose a topic</option><option value="market">Market / customer fit</option><option value="cash-runway">Cash / runway</option><option value="growth">Growth / retention</option><option value="operations">Operations</option><option value="team">Team</option><option value="timing">Timing</option><option value="fundraising">Fundraising</option><option value="other">Other</option></select></div>
+        <div class="field full"><label for="summary">Short summary</label><textarea id="summary" minlength="40" maxlength="1000" required placeholder="What was the company trying to do, and what was the key outcome? (40–1,000 characters)"></textarea></div>
+        <div class="field full"><label for="whatHappened">What happened?</label><textarea id="whatHappened" minlength="40" maxlength="5000" required placeholder="Describe the assumptions, decisions, signals, and events that mattered. Avoid private information about other people or customers."></textarea></div>
+        <div class="field full"><label for="lessons">What did you learn or change?</label><textarea id="lessons" minlength="20" maxlength="3000" required placeholder="What would you do differently, and what might help another founder? (20–3,000 characters)"></textarea></div>
+        <div class="field full"><label for="financial">Financial context <span class="help">(optional; broad ranges only)</span></label><textarea id="financial" maxlength="500" placeholder="Optional approximate ranges only. Do not include bank details, investor names, or confidential documents."></textarea></div>
+      </div>
+      <fieldset class="fieldset">
+        <legend>How should your story identify you?</legend>
+        <div class="choice"><input type="radio" id="anonymous" name="authorDisplay" value="anonymous" checked><label for="anonymous">Publish as “Anonymous founder.” My identity remains private to the review process.</label></div>
+        <div class="choice"><input type="radio" id="profile" name="authorDisplay" value="profile"><label for="profile">Attribute the story to my Venturify profile if it is approved.</label></div>
+        <div class="choice"><input type="checkbox" id="publishCompany"><label for="publishCompany">If approved, show the company name I entered above. Leave unchecked to keep it private.</label></div>
+      </fieldset>
+      <div class="consent">
+        <div class="choice"><input type="checkbox" id="consent" required><label for="consent"><strong>I confirm I have the right to share this story, have removed confidential or identifying information about other people, and explicitly consent to Venturify reviewing it and publishing the approved version according to the choices above.</strong> I understand that publication is not guaranteed and that I can request withdrawal after submission.</label></div>
+      </div>
+      <p class="help">Reviewers may ask for edits or decline a submission. Do not include sensitive personal data, customer records, private messages, passwords, or confidential pitch-deck/financial documents. The story is stored privately in Supabase; only approved stories are exposed in the public library.</p>
+      <div class="actions"><button class="button" id="submitButton" type="submit">Submit for review</button><a href="case-studies.html">Cancel</a></div>
+      <div id="formStatus" class="status" role="status" aria-live="polite" hidden></div>
+    </form>
+  </main>
+  <footer class="wrap footer">Venturify · Learn from what didn’t work. Build what comes next.</footer>
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://edyssdvytwdvpqkmalow.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W';
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      const form = document.getElementById('storyForm');
+      const authNotice = document.getElementById('authNotice');
+      const status = document.getElementById('formStatus');
+      const button = document.getElementById('submitButton');
+      const showStatus = (element, message, kind = '') => {
+        element.textContent = message;
+        element.className = 'status' + (kind ? ' ' + kind : '');
+        element.hidden = false;
+      };
+      async function init() {
+        const { data, error } = await client.auth.getUser();
+        if (error || !data.user) {
+          showStatus(authNotice, 'Sign in to submit a story. Use the Log in link on the Feed page, then return here.', '');
+          authNotice.insertAdjacentHTML('beforeend', ' <a href="feed.html">Go to Feed</a>');
+          return;
+        }
+        form.hidden = false;
+      }
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+        button.disabled = true;
+        button.textContent = 'Submitting…';
+        status.hidden = true;
+        const { data: authData, error: authError } = await client.auth.getUser();
+        if (authError || !authData.user) {
+          showStatus(status, 'Your session expired. Sign in again and retry.', 'error');
+          button.disabled = false;
+          button.textContent = 'Submit for review';
+          return;
+        }
+        const payload = {
+          author_id: authData.user.id,
+          company_name: document.getElementById('companyName').value.trim(),
+          industry: document.getElementById('industry').value.trim(),
+          company_stage: document.getElementById('stage').value,
+          primary_lesson: document.getElementById('lesson').value,
+          summary: document.getElementById('summary').value.trim(),
+          what_happened: document.getElementById('whatHappened').value.trim(),
+          lessons_learned: document.getElementById('lessons').value.trim(),
+          financial_context: document.getElementById('financial').value.trim(),
+          author_display_mode: form.elements.authorDisplay.value,
+          company_visibility: document.getElementById('publishCompany').checked ? 'public' : 'hidden',
+          consent_to_publish: document.getElementById('consent').checked,
+          consent_version: 'postmortem-consent-v1'
+        };
+        const { error } = await client.from('founder_postmortems').insert(payload);
+        button.disabled = false;
+        button.textContent = 'Submit for review';
+        if (error) {
+          console.error('Founder post-mortem submission failed', error);
+          showStatus(status, 'We could not submit your story. Check that the post-mortem migration has been applied, then try again.', 'error');
+          return;
+        }
+        form.reset();
+        form.hidden = true;
+        showStatus(authNotice, 'Your story was submitted privately for review. It is not public yet. You can ask a moderator to withdraw it at any time.', 'success');
+      });
+      init().catch(error => {
+        console.error('Founder story form could not initialize', error);
+        showStatus(authNotice, 'Could not check your sign-in. Please refresh and try again.', 'error');
+      });
+    })();
+  </script>
+</body>
+</html>
