@@ -83,7 +83,7 @@ input,textarea,select{accent-color:#6b61ce}
 .topbar .nav>a[href="messages.html"]{min-width:38px!important;min-height:38px!important;padding:7px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:21px!important;line-height:1!important;opacity:1!important;}
 .topbar .nav .message-nav-count{font-size:11px!important;}
 [data-global-settings-link]{display:none!important}
-@media(max-width:760px){.topbar .nav{flex:1 0 100%!important;flex-wrap:nowrap!important;justify-content:flex-start!important;overflow-x:auto!important;overflow-y:hidden!important;padding:4px 0 7px!important;scrollbar-width:thin!important;}}
+@media(max-width:760px){.topbar .nav{flex:1 0 100%!important;flex-wrap:nowrap!important;justify-content:flex-start!important;overflow-x:auto!important;overflow-y:hidden!important;padding:4px 0 7px!important;scrollbar-width:thin!important;}.topbar .nav>a:not(.nav-cta){padding:7px 8px!important;min-height:32px!important;font-size:11px!important}.topbar .nav>a[href="messages.html"]{min-width:32px!important;min-height:32px!important;padding:6px!important;font-size:18px!important}.topbar .nav .notification-button{min-height:32px!important;min-width:34px!important}.topbar .nav .notification-wrap{display:flex!important;align-items:center}.topbar .nav .notification-panel{top:100%!important;right:8px!important;left:auto!important}} 
 /* Trim the oversized empty cover area on profile pages while retaining the
    gradient identity and overlapping avatar treatment. */
 .profile-cover{height:104px!important}.profile-public-body{padding-top:0!important}.profile-public-avatar{margin-top:-38px!important}
@@ -354,3 +354,39 @@ body .topbar .nav>a[data-auth-only][hidden]{display:inline-flex!important;visibi
 body .topbar .nav>.notification-wrap[data-auth-only],
 body .topbar .nav>.notification-wrap[data-auth-only][hidden]{display:flex!important;visibility:visible!important;}
 body .topbar .nav>.notification-wrap>#notificationButton[hidden]{display:inline-flex!important;visibility:visible!important;}
+
+/* Compact mobile nav: reduced spacing so all tabs fit without crowding the row. */
+@media (max-width: 760px) {
+  .topbar {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+  .topbar .brand {
+    font-size: 18px !important;
+  }
+  .topbar .nav {
+    gap: 4px 5px !important;
+    padding: 3px 0 5px !important;
+  }
+  .topbar .nav > a:not(.nav-cta),
+  .topbar .nav > div {
+    padding: 6px 8px !important;
+    min-height: 30px !important;
+    line-height: 1.1 !important;
+  }
+  .topbar .nav > a[href="messages.html"] {
+    min-width: 30px !important;
+    min-height: 30px !important;
+    padding: 5px !important;
+    font-size: 17px !important;
+  }
+  .topbar .nav .notification-button {
+    min-width: 30px !important;
+    min-height: 30px !important;
+    padding: 5px !important;
+  }
+  .topbar .nav .message-nav-count,
+  .topbar .nav .notification-count {
+    transform: scale(.9);
+  }
+}
