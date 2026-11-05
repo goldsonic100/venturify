@@ -538,10 +538,22 @@
     }
   </style>
   <style>
-    body.authenticated [data-guest-only] { display: none !important; }
-    body:not(.authenticated) [data-auth-only] { display: none !important; }
+    .topbar.wrap{width:min(1200px,calc(100% - 28px));margin:18px auto 0;padding:12px 18px;position:relative;display:flex;align-items:center;justify-content:space-between;gap:16px;background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 28px rgba(20,31,26,.08)}
+    .topbar .brand{min-width:auto;white-space:nowrap;font-size:1.2rem;font-weight:850;display:flex;align-items:center;gap:9px}
+    .topbar .brand-mark{width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#1677ff;color:white;font-weight:900}
+    .topbar .nav{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;width:auto}
+    .topbar .nav>a,.topbar .nav button{min-height:38px;padding:8px 10px;border-radius:9px;font-size:.78rem;font-weight:750;color:var(--ink);white-space:nowrap}
+    .topbar .nav>a:hover,.topbar .nav>a.active{background:rgba(56,144,255,.1);border-color:rgba(56,144,255,.2);color:#3980db}
+    .topbar .nav .nav-icon-link{display:inline-flex;align-items:center;justify-content:center;min-width:38px;padding:8px}
+    .topbar .nav .notification-button{background:transparent;border:1px solid var(--line)}
+    .topbar .nav .nav-signup{background:#1677ff;color:#fff;border:1px solid #1677ff}
+    .topbar .nav a[data-auth-only],.topbar .nav [data-auth-only]{display:none}
+    body.authenticated .topbar .nav [data-auth-only]{display:inline-flex}
+    body.authenticated .topbar .nav [data-guest-only]{display:none!important}
+    @media(max-width:900px){.topbar.wrap{align-items:flex-start;flex-direction:column}.topbar .nav{justify-content:flex-start;width:100%}}
+    @media(max-width:560px){.topbar.wrap{width:calc(100% - 16px);padding:12px}.topbar .nav{gap:4px}.topbar .nav>a,.topbar .nav button{font-size:.72rem;padding:7px}}
   </style>
-<script id="venturify-global-theme">
+  <script id="venturify-global-theme">
 (function(){
  const key='venturify-theme';
  function apply(theme){
@@ -578,31 +590,32 @@
 })();
 </script>
 </head>
-<body>
+<body data-view="principles">
   <a class="skip-link" href="#main-content">Skip to main content</a>
-  <header class="topbar">
-    <div class="brand" aria-label="Venturify home">
-      <div class="brand-mark">V</div>
-      <div class="brand-text">venturify</div>
+  <header class="topbar wrap">
+  <a class="brand" href="index.html" aria-label="Venturify home"><span class="brand-mark">v.</span> venturify</a>
+  <nav class="nav" aria-label="Main navigation">
+    <a href="principles.html" >Our Principles</a>
+    <a href="feed.html" data-app-view="feed">Feed</a>
+    <a href="discover.html" data-app-view="discover">Discover</a>
+    <a href="communities.html" data-app-view="communities">Communities</a>
+    <a href="collaborations.html" data-auth-only>Collaborations</a>
+    <a href="profile.html" data-auth-only class="nav-profile">Profile</a>
+    <a href="messages.html" data-auth-only class="nav-icon-link message-nav-emoji" aria-label="Messages" title="Messages"><span aria-hidden="true">💬</span><span id="messageNavCount" class="message-nav-count" hidden>0</span></a>
+    <div class="notification-wrap" data-auth-only>
+      <button type="button" id="notificationButton" class="notification-button nav-icon-button" aria-label="Announcements and notifications" title="Announcements and notifications" aria-expanded="false" aria-controls="notificationPanel">🔔<span id="notificationCount" class="notification-count" hidden>0</span></button>
+      <div id="notificationPanel" class="notification-panel" hidden>
+        <div class="notification-panel-head"><strong>Announcements &amp; notifications</strong><button type="button" id="markAllNotifications" class="mark-all">Mark all read</button></div>
+        <div id="notificationList"><div class="notification-empty">No notifications yet.</div></div>
+        <a class="notification-view-all" href="notifications.html">View all notifications →</a>
+      </div>
     </div>
-
-    <nav class="nav" aria-label="Main navigation">
-      <a href="index.html">Home</a>
-      <a href="feed.html">Feed</a>
-      <a href="discover.html">Discover</a>
-      <a href="communities.html">Communities</a>
-      <a href="collaborations.html">Collaborations</a>
-      <a href="profile.html">Profile</a>
-      <a class="active" href="principles.html">Our Principles</a>
-    </nav>
-
-    <div class="nav-actions" aria-label="Quick actions">
-      <a href="settings.html" data-auth-only class="nav-icon-link settings-gear-link" aria-label="Settings" title="Settings">⚙</a>
-      <a href="#" id="navAccount" data-guest-only>Log in</a>
-      <button class="icon-btn" aria-label="Notifications">🔔</button>
-      <button class="icon-btn" aria-label="Account">👤</button>
-    </div>
-  </header>
+    <a href="settings.html" data-auth-only class="nav-icon-link settings-gear-link" aria-label="Settings" title="Settings"><span aria-hidden="true">⚙</span></a>
+    
+    <a href="#" id="navAccount" data-guest-only>Log in</a>
+    <a href="#" id="navSignup" data-guest-only class="nav-signup">Sign up</a>
+  </nav>
+</header>
 
   <main id="main-content" class="page">
     <section class="hero">
