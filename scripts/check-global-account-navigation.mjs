@@ -1,15 +1,71 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const pages=['case-studies.html','communities.html','discover.html','feed.html','index.html','messages.html','notifications.html','principles.html','profile.html','share-story.html'];
-for(const path of pages){
- const html=readFileSync(new URL('../'+path,import.meta.url),'utf8');
- const account=(html.match(/<a\b[^>]*id="navAccount"[^>]*>/g)||[]);
- assert.equal(account.length,1,path+' must have exactly one login/account auth control.');
- assert.match(account[0],/data-guest-only/,path+' login/account control must be guest-only so signed-in users do not see a duplicate Account link.');
- const gears=(html.match(/<a\b[^>]*class="nav-icon-link settings-gear-link"[^>]*>/g)||[]);
- assert.equal(gears.length,1,path+' must have exactly one Settings gear link.');
- assert.match(gears[0],/data-auth-only/,path+' Settings gear must only appear to signed-in users.');
- assert.match(html,/body\.authenticated[^\n]*data-guest-only[^\n]*display:none!important|body\.authenticated[\s\S]{0,500}\[data-guest-only\]/,path+' must hide guest-only navigation for authenticated users.');
+const pages = [
+  'case-studies.html', 'communities.html', 'community.html',
+  'collaborations.html', 'discover.html', 'feed.html', 'index.html',
+  'messages.html', 'notifications.html', 'principles.html', 'profile.html',
+  'resources.html', 'settings.html', 'share-story.html', 'workspace.html',
+];
+
+const requiredDestinations = [
+  ['principles.html', 'Our Principles'],
+  ['feed.html', 'Feed'],
+  ['discover.html', 'Discover'],
+  ['communities.html', 'Communities'],
+  ['collaborations.html', 'Collaborations'],
+  ['profile.html', 'Profile'],
+  ['messages.html', 'Messages'],
+  ['settings.html', 'Settings'],
+];
+
+function openingTagContaining(source, marker) {
+  const markerIndex = source.indexOf(marker);
+  if (markerIndex < 0) return '';
+  const start = source.lastIndexOf('<a ', markerIndex);
+  const end = source.indexOf('>', markerIndex);
+  return start >= 0 && end >= 0 ? source.slice(start, end + 1) : '';
 }
-console.log('Global Settings and Account navigation checks passed.');
+
+for (const path of pages) {
+  const html = readFileSync(new URL('../' + path, import.meta.url), 'utf8');
+  const navStart = html.indexOf('<nav class="nav venturify-primary-nav"');
+  const navEnd = html.indexOf('</nav>', navStart);
+  assert.ok(navStart >= 0 && navEnd > navStart, path + ' must contain the shared primary navigation.');
+  const nav = html.slice(navStart, navEnd + 6);
+
+  for (const [href, label] of requiredDestinations) {
+    assert.ok(nav.includes('href="' + href + '"'), path + ' must include the ' + label + ' destination.');
+  }
+  assert.ok(nav.includes('href="discover.html#founderDiscovery"') || nav.includes('href="#founderDiscovery"'),
+    path + ' must include the People directory destination.');
+
+  const navItemClasses = nav.match(/class="[^"]*nav-item[^"]*"/g) || [];
+  assert.ok(navItemClasses.length >= 8, path + ' must expose the full set of consistently styled text tabs.');
+  for (const key of ['principles', 'feed', 'discover', 'communities', 'collaborations', 'profile']) {
+    assert.ok(nav.includes('data-nav-key="' + key + '"'), path + ' must expose a stable key for ' + key + '.');
+  }
+
+  const accountTag = openingTagContaining(html, 'id="navAccount"');
+  assert.ok(accountTag, path + ' must have exactly one login/account control.');
+  assert.ok(accountTag.includes('data-guest-only'), path + ' login control must be guest-only.');
+  assert.equal((html.match(/id="navAccount"/g) || []).length, 1, path + ' must not duplicate the login/account control.');
+
+  const gearTag = openingTagContaining(nav, 'settings-gear-link');
+  assert.ok(gearTag, path + ' must have exactly one Settings gear link.');
+  assert.ok(gearTag.includes('class="nav-icon-link settings-gear-link"'), path + ' Settings must use the shared icon-link class.');
+  assert.ok(gearTag.includes('data-auth-only'), path + ' Settings gear must only appear to signed-in users.');
+  assert.equal((nav.match(/settings-gear-link/g) || []).length, 1, path + ' must not duplicate the Settings gear.');
+
+  assert.ok(/body\.authenticated[^\n]*data-guest-only[^\n]*display:none!important|body\.authenticated[\s\S]{0,500}\[data-guest-only\]/.test(html),
+    path + ' must hide guest-only navigation for authenticated users.');
+}
+
+const css = readFileSync(new URL('../assets/venturify-design-system.css', import.meta.url), 'utf8');
+assert.ok(css.includes('.nav.venturify-primary-nav'), 'Shared navigation styles must exist.');
+assert.ok(css.includes('min-height:40px'), 'All navigation tabs must share a consistent minimum height.');
+assert.ok(css.includes('overflow-x:auto'), 'Mobile navigation must allow access to every tab through horizontal scrolling.');
+assert.ok(css.includes('aria-current="page"'), 'The active navigation destination must have a distinct visible state.');
+assert.ok(css.includes('prefers-reduced-motion:reduce'), 'Navigation must respect reduced-motion preferences.');
+
+console.log('Consistent global navigation checks passed for ' + pages.length + ' pages.');
