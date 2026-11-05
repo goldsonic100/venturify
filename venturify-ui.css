@@ -17,7 +17,7 @@ button,a,[role="button"],input,textarea,select{transition:background-color .18s 
 button:focus-visible,a:focus-visible,[role="button"]:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid rgba(167,139,250,.75);outline-offset:3px}
 button:not(:disabled):active,[role="button"]:active{transform:translateY(1px)}
 /* Cards get a social-app feel: subtle borders, rounded corners and depth. */
-.card,.post,.post-card,.community-card,.community,.notification,.notification-card,.panel,.settings-card,.stat-card,.profile-card,.match-card,.opportunity-card,.workspace-card,.conversation-card,.message-panel,.chat-panel,.profile-post,
+.card,.post,.post-card,.community-card,.community,.notification,.notification-card,.panel,.settings-card,.stat-card,.profile-card,.match-card,.opportunity-card,.workspace-card,.conversation-card,.feed-card,.surface,.modal,.dropdown{border:1px solid var(--line, #e2e6dc);border-radius:18px;box-shadow:0 8px 26px rgba(18,35,28,.045);transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease}
 .feed-card,.surface,.modal,.dropdown{border:1px solid var(--line, #e2e6dc);border-radius:18px;box-shadow:0 8px 26px rgba(18,35,28,.045);transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease}
 .card:hover,.community-card:hover,.match-card:hover,.opportunity-card:hover,.profile-card:hover{border-color:rgba(126,112,231,.34);box-shadow:0 14px 34px rgba(28,35,65,.09);transform:translateY(-2px)}
 button.primary,button[type="submit"],.primary-button,.btn-primary,.cta,.join-button{box-shadow:0 6px 18px rgba(86,113,58,.14);font-weight:750}
@@ -39,10 +39,10 @@ hr{border:0;border-top:1px solid var(--line,#e2e6dc)}
 
 /* Phase 1 visual pass: richer founder-community identity, editorial hierarchy, and tactile surfaces. */
 :root{--v-violet:#8b7bff;--v-coral:#ff987d;--v-mint:#bdf7d0;--v-surface:rgba(255,255,255,.78)}
-body{background-image:radial-gradient(ellipse at 8% 2%,rgba(139,123,255,.16),transparent 31%),radial-gradient(ellipse at 94% 9%,rgba(189,247,208,.28),transparent 27%),radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.52),transparent 38%),var(--paper,#f6f6f0)}
+body{background-image:radial-gradient(ellipse at 8% 2%,rgba(139,123,255,.16),transparent 31%),radial-gradient(ellipse at 94% 9%,rgba(189,247,208,.28),transparent 27%),radial-gradient(ellipse at 50% 100%,rgba(255,152,125,.09),transparent 35%)}
 .hero{isolation:isolate;position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;z-index:-1;pointer-events:none;width:330px;height:330px;right:-78px;top:-135px;border-radius:44% 56% 61% 39%/42% 43% 57% 58%;background:linear-gradient(135deg,rgba(139,123,255,.15),rgba(189,247,208,.12));filter:blur(8px)}
-.hero::after{content:"";position:absolute;z-index:-1;pointer-events:none;width:145px;height:145px;right:145px;bottom:-92px;border:1px solid rgba(139,123,255,.28);border-radius:50%;box-shadow:0 0 0 28px rgba(139,123,255,.04)}
+.hero::before{content:"";position:absolute;z-index:-1;pointer-events:none;width:330px;height:330px;right:-78px;top:-135px;border-radius:44% 56% 61% 39%/42% 43% 57% 58%;background:linear-gradient(135deg,rgba(139,123,255,.22),rgba(189,247,208,.19));transform:rotate(-12deg)}
+.hero::after{content:"";position:absolute;z-index:-1;pointer-events:none;width:145px;height:145px;right:145px;bottom:-92px;border:1px solid rgba(139,123,255,.28);border-radius:50%;box-shadow:0 0 0 22px rgba(139,123,255,.05),0 0 0 44px rgba(189,247,208,.07)}
 .eyebrow,.kicker{letter-spacing:.12em;text-transform:uppercase;font-size:.72rem;font-weight:800}
 .hero h1,.hero h2{letter-spacing:-.045em;text-wrap:balance}
 .hero .btn-primary{background:linear-gradient(120deg,#c8f169,#d9f89b);color:#15221c;border:1px solid rgba(255,255,255,.55)}
@@ -51,7 +51,7 @@ body{background-image:radial-gradient(ellipse at 8% 2%,rgba(139,123,255,.16),tra
 .stat,.community-card,.post,.notification,.profile-card,.workspace-card,.settings-card,.match-card,.opportunity-card,.message-panel,.conversation-card,.panel,.card{backdrop-filter:blur(12px)}
 .stats .stat{position:relative;overflow:hidden}
 .stats .stat::after{content:"";position:absolute;right:-18px;bottom:-24px;width:74px;height:74px;border-radius:50%;background:linear-gradient(135deg,rgba(139,123,255,.13),rgba(189,247,208,.23));pointer-events:none}
-.community-card,.post,.notification-card,.profile-card,.match-card,.opportunity-card,.workspace-card,.settings-card,.message-panel,.conversation-card,.panel,.card{box-shadow:0 10px 28px rgba(28,40,32,.08)}
+.community-card,.post,.notification-card,.profile-card,.match-card,.opportunity-card,.workspace-card,.settings-card,.message-panel,.conversation-card,.panel,.card{box-shadow:0 10px 28px rgba(28,40,32,.07)}
 .community-card:hover,.post:hover,.profile-card:hover,.match-card:hover,.opportunity-card:hover{box-shadow:0 18px 42px rgba(28,40,32,.10);border-color:rgba(139,123,255,.38)}
 .avatar{background:linear-gradient(135deg,#c8f169,#bdf7d0 45%,#b6aaff)}
 .feed-tab.active,.notification-filters .active{box-shadow:0 4px 14px rgba(66,107,75,.12)}
@@ -62,7 +62,7 @@ input,textarea,select{accent-color:#6b61ce}
 /* Navigation repair: preserve every destination, keep account distinct from settings. */
 .topbar{height:auto!important;min-height:74px;padding:10px clamp(12px,2.2vw,28px);gap:14px;align-items:center;}
 .topbar .brand{flex:0 0 auto}
-.topbar .nav{display:flex!important;flex:1 1 auto;min-width:0;max-width:100%;flex-wrap:wrap!important;justify-content:flex-end;align-items:center;gap:5px 7px!important;font-size:12px!important;line-height:1.2;}
+.topbar .nav{display:flex!important;flex:1 1 auto;min-width:0;max-width:100%;flex-wrap:wrap!important;justify-content:flex-end;align-items:center;gap:5px 7px!important;font-size:12px!important;line-height:1.2;overflow:visible!important}
 .topbar .nav>a:not(.nav-cta){display:inline-flex!important;align-items:center;justify-content:center;padding:8px 9px;border-radius:9px;white-space:nowrap;color:inherit;opacity:1!important;font-size:12px!important;}
 .topbar .nav>a[href="messages.html"]{color:inherit!important;opacity:1!important;font-weight:650;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.13);}
 .topbar .nav>a[href="messages.html"]:hover{background:rgba(200,241,105,.12);border-color:rgba(200,241,105,.45)}
@@ -83,7 +83,7 @@ input,textarea,select{accent-color:#6b61ce}
 .topbar .nav>a[href="messages.html"]{min-width:38px!important;min-height:38px!important;padding:7px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;font-size:21px!important;line-height:1!important;opacity:1!important;}
 .topbar .nav .message-nav-count{font-size:11px!important;}
 [data-global-settings-link]{display:none!important}
-@media(max-width:760px){.topbar .nav{flex:1 0 100%!important;flex-wrap:nowrap!important;justify-content:flex-start!important;overflow-x:auto!important;overflow-y:hidden!important;padding:4px 0 7px!important}.topbar .nav>a{flex:0 0 auto!important}}
+@media(max-width:760px){.topbar .nav{flex:1 0 100%!important;flex-wrap:nowrap!important;justify-content:flex-start!important;overflow-x:auto!important;overflow-y:hidden!important;padding:4px 0 7px!important;scrollbar-width:thin!important;}}
 /* Trim the oversized empty cover area on profile pages while retaining the
    gradient identity and overlapping avatar treatment. */
 .profile-cover{height:104px!important}.profile-public-body{padding-top:0!important}.profile-public-avatar{margin-top:-38px!important}
@@ -332,7 +332,7 @@ body[data-view="profile"] .profile-actions .btn-primary,
 body[data-view="profile"] .btn-primary{background:#111827;color:#fff;border-color:#111827}
 body[data-view="profile"] #profileEditorBackdrop{position:fixed;inset:0;z-index:1200;background:#101a1688;display:none;align-items:flex-start;justify-content:center;padding:4vh 14px;overflow:auto}
 body[data-view="profile"] #profileEditorBackdrop.open{display:flex}
-body[data-view="profile"] #profileEditorDialog{width:min(720px,100%);max-height:92vh;overflow:auto;background:var(--creator-panel);color:var(--creator-text);border:1px solid var(--creator-border);border-radius:18px;padding:20px;box-shadow:0 24px 80px rgba(15,23,42,.18)}
+body[data-view="profile"] #profileEditorDialog{width:min(720px,100%);max-height:92vh;overflow:auto;background:var(--creator-panel);color:var(--creator-text);border:1px solid var(--creator-border);border-radius:20px;padding:22px;box-shadow:0 25px 80px rgba(0,0,0,.24)}
 
 @media(max-width:900px){
   body[data-view="profile"] #community .community-layout{grid-template-columns:1fr;}
@@ -347,3 +347,10 @@ body[data-view="profile"] #profileEditorDialog{width:min(720px,100%);max-height:
   body[data-view="profile"] .profile-public-stats{gap:12px}
 }
 
+/* Keep auth-gated destinations discoverable on every page. The destination
+   pages still ask visitors to sign in before showing private account data. */
+body .topbar .nav>a[data-auth-only],
+body .topbar .nav>a[data-auth-only][hidden]{display:inline-flex!important;visibility:visible!important;}
+body .topbar .nav>.notification-wrap[data-auth-only],
+body .topbar .nav>.notification-wrap[data-auth-only][hidden]{display:flex!important;visibility:visible!important;}
+body .topbar .nav>.notification-wrap>#notificationButton[hidden]{display:inline-flex!important;visibility:visible!important;}

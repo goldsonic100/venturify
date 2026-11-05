@@ -59,6 +59,8 @@ for (const path of pages) {
 
   assert.ok(nav.includes('data-auth-only') && nav.includes('data-guest-only'),
     path + ' must mark authenticated and guest navigation controls explicitly.');
+  assert.ok(nav.includes('aria-label="Announcements and notifications"'),
+    path + ' must expose the Announcements and notifications control.');
 }
 
 const css = readFileSync(new URL('../assets/venturify-design-system.css', import.meta.url), 'utf8');
@@ -67,5 +69,11 @@ assert.ok(css.includes('min-height:40px'), 'All navigation tabs must share a con
 assert.ok(css.includes('overflow-x:auto'), 'Mobile navigation must allow access to every tab through horizontal scrolling.');
 assert.ok(css.includes('aria-current="page"'), 'The active navigation destination must have a distinct visible state.');
 assert.ok(css.includes('prefers-reduced-motion:reduce'), 'Navigation must respect reduced-motion preferences.');
+
+const navigationPolish = readFileSync(new URL('../venturify-ui.css', import.meta.url), 'utf8');
+assert.match(navigationPolish, /\.topbar \.nav>a\[data-auth-only\]\[hidden\]\{display:inline-flex!important/,
+  'Auth-gated destination links must stay visible even when page scripts mark them hidden for guests.');
+assert.match(navigationPolish, /\.topbar \.nav>\.notification-wrap\[data-auth-only\]\[hidden\]\{display:flex!important/,
+  'The Announcements control must stay visible for guests as well as signed-in users.');
 
 console.log('Consistent global navigation checks passed for ' + pages.length + ' pages.');
