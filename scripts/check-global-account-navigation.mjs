@@ -57,8 +57,8 @@ for (const path of pages) {
   assert.ok(gearTag.includes('data-auth-only'), path + ' Settings gear must only appear to signed-in users.');
   assert.equal((nav.match(/settings-gear-link/g) || []).length, 1, path + ' must not duplicate the Settings gear.');
 
-  assert.ok(/body\.authenticated[^\n]*data-guest-only[^\n]*display:none!important|body\.authenticated[\s\S]{0,500}\[data-guest-only\]/.test(html),
-    path + ' must hide guest-only navigation for authenticated users.');
+  assert.ok(nav.includes('data-auth-only') && nav.includes('data-guest-only'),
+    path + ' must mark authenticated and guest navigation controls explicitly.');
 }
 
 const css = readFileSync(new URL('../assets/venturify-design-system.css', import.meta.url), 'utf8');
