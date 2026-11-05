@@ -63,15 +63,16 @@ main{padding:24px 0 60px}.back{display:inline-flex;align-items:center;gap:7px;fo
 <a class="skip-link" href="#main-content">Skip to main content</a>
 <header class="topbar wrap">
   <a class="brand" href="index.html" aria-label="Venturify home"><span class="brand-mark">v.</span> venturify</a>
-  <nav class="nav" aria-label="Main navigation">
-    <a href="principles.html" >Our Principles</a>
-    <a href="feed.html" data-app-view="feed">Feed</a>
-    <a href="discover.html" data-app-view="discover">Discover</a>
-    <a href="communities.html" data-app-view="communities">Communities</a>
-    <a href="collaborations.html" data-auth-only>Collaborations</a>
-    <a href="profile.html" data-auth-only class="nav-profile">Profile</a>
-    <a href="messages.html" data-auth-only class="nav-icon-link message-nav-emoji" aria-label="Messages" title="Messages"><span aria-hidden="true">💬</span><span id="messageNavCount" class="message-nav-count" hidden>0</span></a>
-    <div class="notification-wrap" data-auth-only>
+  <nav class="nav venturify-primary-nav" aria-label="Main navigation">
+    <a href="principles.html" class="nav-item" data-nav-key="principles">Our Principles</a>
+    <a href="feed.html" class="nav-item" data-app-view="feed" data-nav-key="feed">Feed</a>
+    <a href="discover.html" class="nav-item" data-app-view="discover" data-nav-key="discover">Discover</a>
+    <a href="discover.html#founderDiscovery" class="nav-item" data-app-view="people" data-nav-key="founders">Founders</a>
+    <a href="communities.html" class="nav-item" data-app-view="communities" data-nav-key="communities">Communities</a>
+    <a href="collaborations.html" data-auth-only class="nav-item" data-nav-key="collaborations">Collaborations</a>
+    <a href="profile.html" data-auth-only class="nav-item nav-profile" data-nav-key="profile">Profile</a>
+    <a href="messages.html" data-auth-only class="nav-item nav-icon-link message-nav-emoji" data-nav-key="messages" aria-label="Messages" title="Messages"><span aria-hidden="true">💬</span><span id="messageNavCount" class="message-nav-count" hidden>0</span></a>
+    <div class="notification-wrap nav-icon-slot" data-auth-only>
       <button type="button" id="notificationButton" class="notification-button nav-icon-button" aria-label="Announcements and notifications" title="Announcements and notifications" aria-expanded="false" aria-controls="notificationPanel">🔔<span id="notificationCount" class="notification-count" hidden>0</span></button>
       <div id="notificationPanel" class="notification-panel" hidden>
         <div class="notification-panel-head"><strong>Announcements &amp; notifications</strong><button type="button" id="markAllNotifications" class="mark-all">Mark all read</button></div>
@@ -79,10 +80,9 @@ main{padding:24px 0 60px}.back{display:inline-flex;align-items:center;gap:7px;fo
         <a class="notification-view-all" href="notifications.html">View all notifications →</a>
       </div>
     </div>
-    <a href="settings.html" data-auth-only class="nav-icon-link settings-gear-link" aria-label="Settings" title="Settings"><span aria-hidden="true">⚙</span></a>
-    
-    <a href="#" id="navAccount" data-guest-only>Log in</a>
-    <a href="#" id="navSignup" data-guest-only class="nav-signup">Sign up</a>
+    <a href="settings.html" data-auth-only class="nav-item nav-icon-link settings-gear-link" data-nav-key="settings" aria-label="Settings" title="Settings"><span aria-hidden="true">⚙</span></a>
+    <a href="#" id="navAccount" data-guest-only class="nav-item">Log in</a>
+    <a href="#" id="navSignup" data-guest-only class="nav-item nav-signup">Sign up</a>
   </nav>
 </header>
 <main id="main-content" class="wrap">
