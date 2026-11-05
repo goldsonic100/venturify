@@ -19,29 +19,73 @@ main{padding:24px 0 60px}.back{display:inline-flex;align-items:center;gap:7px;fo
 .compose{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px;margin-bottom:13px}.compose label{display:block;font-size:12px;font-weight:850;margin-bottom:9px}.compose textarea{width:100%;min-height:95px;border:1px solid var(--line);border-radius:9px;padding:12px;resize:vertical;background:#fff;outline:none;font-size:13px}.compose textarea:focus,.comment-input:focus{border-color:#93aa83;box-shadow:0 0 0 3px #e7efdd}.compose-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px}.muted{font-size:10px;color:var(--muted)}
 .feed-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:19px 0 11px}.feed-head h2{font-size:18px;letter-spacing:-.5px;margin:0}.sorts{display:flex;gap:6px;flex-wrap:wrap}.sort-btn{border:1px solid var(--line);background:#fffefa;color:#657064;border-radius:999px;padding:8px 12px;font-size:10px;font-weight:850;cursor:pointer}.sort-btn.active{background:var(--deep);border-color:var(--deep);color:white}.time-filter{border:1px solid var(--line);border-radius:8px;background:#fffefa;padding:8px 10px;font-size:10px;color:#58665b}
 .post{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:17px;margin-bottom:12px}.post-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}.avatar{width:36px;height:36px;display:grid;place-items:center;flex-shrink:0;border-radius:50%;background:#e7efd9;color:#36583b;font-weight:850;font-size:11px;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover}.author{min-width:0}.author button{border:0;padding:0;background:none;color:var(--ink);font-size:12px;font-weight:850;cursor:pointer}.author small{display:block;color:#879087;font-size:10px;margin-top:3px}.post-body{font-size:13px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere;color:#344138}.post-image{max-width:100%;max-height:440px;object-fit:contain;border-radius:10px;margin:10px 0}.post-actions{display:flex;gap:7px;flex-wrap:wrap;border-top:1px solid #edf0e8;padding-top:12px;margin-top:13px}.action{border:1px solid var(--line);background:#fffefa;border-radius:8px;padding:8px 11px;font-size:10px;font-weight:800;color:#526352;cursor:pointer}.action.active{background:#edf4e5;border-color:#cbdcbd;color:#31583a}.comments{display:grid;gap:8px;margin-top:12px}.comment{border-radius:9px;background:#f2f5ee;padding:10px 12px;font-size:11px;line-height:1.65;overflow-wrap:anywhere}.comment strong{display:block;margin-bottom:3px}.comment-row{display:flex;gap:7px;margin-top:10px}.comment-input{min-width:0;flex:1;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:11px;outline:none}.empty{padding:32px 20px;text-align:center;border:1px dashed #d6dfd2;border-radius:12px;color:#718071;font-size:12px;line-height:1.7;background:#fffefa}.loading{opacity:.7}
-.feed-pagination{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 2px;margin:8px 0 22px;color:var(--muted);font-size:11px}.feed-pagination[hidden]{display:none}.feed-pagination>div{display:flex;gap:7px}.feed-pagination button:disabled{opacity:.4;cursor:not-allowed}@media(max-width:480px){.feed-pagination{align-items:flex-start;flex-direction:column}.feed-pagination>div{width:100%}.feed-pagination button{flex:1}}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#15271c;color:white;border-radius:9px;padding:11px 15px;font-size:11px;z-index:10;display:none}.toast.show{display:block}
 @media(max-width:820px){.layout{grid-template-columns:1fr}.side{grid-template-columns:repeat(2,minmax(0,1fr))}.community-hero{align-items:flex-start;flex-direction:column}.hero-actions{align-self:flex-start}}@media(max-width:560px){.wrap{width:calc(100% - 24px)}.topbar{padding:10px 12px;min-height:68px;flex-wrap:wrap;gap:8px}.nav{width:100%;gap:8px;overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap;justify-content:flex-start;padding:2px 0 7px;scrollbar-width:thin}.nav a{padding:7px 9px;border:1px solid #e2e6dc;border-radius:8px;background:#fffefa}.nav .nav-label{display:inline}.community-hero{padding:22px;min-height:0}.stats{gap:12px;flex-wrap:wrap}.side{grid-template-columns:1fr}.post{padding:13px}.feed-head{align-items:flex-start;flex-direction:column}}
 </style>
+<script id="venturify-global-theme">
+(function(){
+ const key='venturify-theme';
+ function apply(theme){
+  const actual=theme==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):theme;
+  document.documentElement.dataset.theme=actual;
+  document.documentElement.style.colorScheme=actual;
+  let style=document.getElementById('venturify-theme-overrides');
+  if(!style){style=document.createElement('style');style.id='venturify-theme-overrides';document.head.appendChild(style)}
+  style.textContent=actual==='dark'?`
+   :root{--paper:#0b1220;--card:#111c2e;--ink:#e7edf7;--muted:#9baac0;--line:#29384d;--deep:#08101c;--accent:#3985ff}
+   body{background:#0b1220!important;color:#e7edf7!important}
+   .topbar,header.topbar,.nav,.site-header{background:#08101c!important;color:#eef4ff!important;border-color:#29384d!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#111c2e!important;color:#e7edf7!important;border-color:#29384d!important}
+   input,textarea,select{background:#111c2e!important;color:#e7edf7!important;border-color:#35465f!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#a8b6ca}
+   a{color:#8ab8ff}
+  `:`
+   :root{--paper:#f5f7fb;--card:#fff;--ink:#182337;--muted:#63718a;--line:#dbe3ee;--deep:#f0f4fa;--accent:#1769e0}
+   body{background:#f5f7fb!important;color:#182337!important}
+   .topbar,header.topbar,.nav,.site-header{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   .card,.panel,.surface,.modal,.dropdown,.community-card,.post-card,.message-panel,.conversation-list,.chat-panel,.settings-card{background:#fff!important;color:#182337!important;border-color:#dbe3ee!important}
+   input,textarea,select{background:#fff!important;color:#182337!important;border-color:#cbd5e1!important}
+   p,small,.muted,.muted-small,.subtitle,.description{color:#63718a}
+   a{color:#1769e0}
+  `;
+ }
+ let initial=localStorage.getItem(key)||'system';
+ try{const raw=localStorage.getItem('supabase.auth.token');if(raw){const parsed=JSON.parse(raw);const token=parsed?.currentSession?.user?.id;if(token){}}}catch(e){}
+ apply(initial);
+ window.addEventListener('storage',e=>{if(e.key===key)apply(e.newValue||'system')});
+ const media=window.matchMedia('(prefers-color-scheme: dark)');
+ if(media.addEventListener)media.addEventListener('change',()=>{if((localStorage.getItem(key)||'system')==='system')apply('system')});
+ window.venturifyApplyTheme=apply;
+})();
+</script>
 </head>
-<body>
+<body data-view="community">
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <header class="topbar wrap">
- <a class="brand" href="index.html"><span class="brand-mark">v.</span> venturify</a>
- <nav class="nav" aria-label="Main navigation">
-  <a href="principles.html">Our Principles</a>
-  <a href="feed.html">Feed</a>
-  <a href="discover.html">Discover</a>
-  <a class="communities" href="communities.html" aria-current="page">Communities</a>
-  <a href="collaborations.html" data-auth-only>Collaborations</a>
-  <a href="profile.html" data-auth-only>Profile</a>
-  <a href="messages.html" data-auth-only aria-label="Messages" title="Messages">💬 <span class="nav-label">Messages</span></a>
-  <a href="notifications.html" data-auth-only aria-label="Notifications" title="Notifications">🔔 <span class="nav-label">Notifications</span></a>
-  <a class="gear" href="settings.html" data-auth-only aria-label="Settings" title="Settings">⚙ <span class="nav-label">Settings</span></a>
-  <a href="index.html#login" data-guest-only>Log in</a>
-  <a href="index.html#signup" data-guest-only>Sign up</a>
- </nav>
+  <a class="brand" href="index.html" aria-label="Venturify home"><span class="brand-mark">v.</span> venturify</a>
+  <nav class="nav" aria-label="Main navigation">
+    <a href="principles.html" >Our Principles</a>
+    <a href="feed.html" data-app-view="feed">Feed</a>
+    <a href="discover.html" data-app-view="discover">Discover</a>
+    <a href="communities.html" data-app-view="communities">Communities</a>
+    <a href="collaborations.html" data-auth-only>Collaborations</a>
+    <a href="profile.html" data-auth-only class="nav-profile">Profile</a>
+    <a href="messages.html" data-auth-only class="nav-icon-link message-nav-emoji" aria-label="Messages" title="Messages"><span aria-hidden="true">💬</span><span id="messageNavCount" class="message-nav-count" hidden>0</span></a>
+    <div class="notification-wrap" data-auth-only>
+      <button type="button" id="notificationButton" class="notification-button nav-icon-button" aria-label="Announcements and notifications" title="Announcements and notifications" aria-expanded="false" aria-controls="notificationPanel">🔔<span id="notificationCount" class="notification-count" hidden>0</span></button>
+      <div id="notificationPanel" class="notification-panel" hidden>
+        <div class="notification-panel-head"><strong>Announcements &amp; notifications</strong><button type="button" id="markAllNotifications" class="mark-all">Mark all read</button></div>
+        <div id="notificationList"><div class="notification-empty">No notifications yet.</div></div>
+        <a class="notification-view-all" href="notifications.html">View all notifications →</a>
+      </div>
+    </div>
+    <a href="settings.html" data-auth-only class="nav-icon-link settings-gear-link" aria-label="Settings" title="Settings"><span aria-hidden="true">⚙</span></a>
+    
+    <a href="#" id="navAccount" data-guest-only>Log in</a>
+    <a href="#" id="navSignup" data-guest-only class="nav-signup">Sign up</a>
+  </nav>
 </header>
-<main class="wrap">
+<main id="main-content" class="wrap">
  <a class="back" href="communities.html">← All communities</a>
  <section class="community-hero" aria-labelledby="communityName">
   <div class="hero-copy"><div class="eyebrow" id="communityTopic">VENTURIFY COMMUNITY</div><h1 id="communityName">Loading community…</h1><p id="communityDescription">Finding the right people and conversations.</p><div class="stats"><span><strong id="memberCount">—</strong> members</span><span><strong id="postCount">—</strong> posts</span><span id="createdLabel">Community</span></div></div>
@@ -57,7 +101,6 @@ main{padding:24px 0 60px}.back{display:inline-flex;align-items:center;gap:7px;fo
    <div class="feed-head"><h2>Community discussions</h2><div class="sorts" role="group" aria-label="Sort community posts"><button class="sort-btn active" data-sort="recommended">Recommended</button><button class="sort-btn" data-sort="new">New</button><button class="sort-btn" data-sort="top">Top</button><button class="sort-btn" data-sort="discussed">Most discussed</button></div></div>
    <div style="display:flex;justify-content:flex-end;margin:-3px 0 12px"><select class="time-filter" id="timeFilter" aria-label="Filter top posts by time"><option value="all">Any time</option><option value="day">Today</option><option value="week">This week</option><option value="month">This month</option><option value="year">This year</option></select></div>
    <div id="postFeed" aria-live="polite"><div class="empty">Loading community discussions…</div></div>
-   <nav class="feed-pagination" id="feedPagination" aria-label="Community discussion pages" hidden><span id="feedPageStatus" aria-live="polite"></span><div><button type="button" id="feedPrev" class="action">← Previous</button><button type="button" id="feedNext" class="action">Next →</button></div></nav>
   </section>
   <aside class="side">
    <section class="side-card"><h3>About this community</h3><p id="aboutText">A space for founders to exchange ideas, resources, and hard-earned lessons.</p><p class="subtle" id="communitySlug"></p></section>
@@ -72,7 +115,7 @@ main{padding:24px 0 60px}.back{display:inline-flex;align-items:center;gap:7px;fo
 (()=> {
  const client=window.venturifySupabaseClient||window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
  const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),communityId=params.get('id')||params.get('community');
- let user=null,community=null,membership=false,posts=[],profiles=new Map(),likes=new Set(),members=[],memberProfiles=[],showAllMembers=false,sort='recommended',feedPage=1;
+ let user=null,community=null,membership=false,posts=[],profiles=new Map(),likes=new Set(),members=[],memberProfiles=[],showAllMembers=false,sort='recommended';
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const display=p=>p?.display_name||('@'+(p?.username||'founder'));
  const initials=s=>(String(s||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
@@ -103,8 +146,8 @@ main{padding:24px 0 60px}.back{display:inline-flex;align-items:center;gap:7px;fo
  }
  function visiblePosts(){let rows=[...posts],period=$('timeFilter').value,cutoff=period==='day'?86400000:period==='week'?7*86400000:period==='month'?30*86400000:period==='year'?365*86400000:Infinity;if(cutoff!==Infinity)rows=rows.filter(p=>Date.now()-new Date(p.created_at).getTime()<=cutoff);
   rows.sort((a,b)=>{if(sort==='new')return new Date(b.created_at)-new Date(a.created_at);if(sort==='top')return (b.likeCount+2*b.commentCount)-(a.likeCount+2*a.commentCount)||new Date(b.created_at)-new Date(a.created_at);if(sort==='discussed')return b.commentCount-a.commentCount||new Date(b.created_at)-new Date(a.created_at);const score=p=>p.likeCount*.8+p.commentCount*1.8+Math.max(0,24-(Date.now()-new Date(p.created_at).getTime())/3600000)*.5;return score(b)-score(a)||new Date(b.created_at)-new Date(a.created_at)});return rows}
- function renderFeed(){const rows=visiblePosts(),pageSize=10,pageCount=Math.max(1,Math.ceil(rows.length/pageSize));feedPage=Math.min(Math.max(1,feedPage),pageCount);$('postCount').textContent=posts.length;const pager=$('feedPagination');if(!rows.length){$('postFeed').innerHTML='<div class="empty">No discussions yet for this time range.<br>Start the first conversation in this community.</div>';pager.hidden=true;return}pager.hidden=rows.length<=pageSize;$('feedPageStatus').textContent='Showing '+((feedPage-1)*pageSize+1)+'–'+Math.min(feedPage*pageSize,rows.length)+' of '+rows.length+' discussions · Page '+feedPage+' of '+pageCount;$('feedPrev').disabled=feedPage===1;$('feedNext').disabled=feedPage===pageCount;const visible=rows.slice((feedPage-1)*pageSize,feedPage*pageSize);
-  $('postFeed').innerHTML=visible.map(p=>{const author=profiles.get(p.user_id)||{},avatar=author.avatar_url?'<img src="'+esc(author.avatar_url)+'" alt="">':esc(initials(display(author)));const comments=p.comments||[];let image='';try{const u=new URL(p.image_url||'');if(['https:','http:'].includes(u.protocol))image='<img class="post-image" src="'+esc(u.href)+'" alt="Post attachment" loading="lazy">'}catch{}
+ function renderFeed(){const rows=visiblePosts();$('postCount').textContent=posts.length;if(!rows.length){$('postFeed').innerHTML='<div class="empty">No discussions yet for this time range.<br>Start the first conversation in this community.</div>';return}
+  $('postFeed').innerHTML=rows.map(p=>{const author=profiles.get(p.user_id)||{},avatar=author.avatar_url?'<img src="'+esc(author.avatar_url)+'" alt="">':esc(initials(display(author)));const comments=p.comments||[];let image='';try{const u=new URL(p.image_url||'');if(['https:','http:'].includes(u.protocol))image='<img class="post-image" src="'+esc(u.href)+'" alt="Post attachment" loading="lazy">'}catch{}
    return '<article class="post" id="post-'+esc(p.id)+'"><div class="post-top"><div class="avatar">'+avatar+'</div><div class="author"><button type="button" data-profile="'+esc(p.user_id)+'">'+esc(display(author))+'</button><small>@'+esc(author.username||'founder')+' · '+esc(ago(p.created_at))+(p.pinned_at?' · 📌 Pinned':'')+'</small></div></div><div class="post-body">'+esc(p.content)+'</div>'+image+'<div class="post-actions"><button type="button" class="action '+(likes.has(p.id)?'active':'')+'" data-like="'+esc(p.id)+'">'+(likes.has(p.id)?'♥ Liked':'♡ Like')+' · '+p.likeCount+'</button><button type="button" class="action" data-focus-comment="'+esc(p.id)+'">Comment · '+p.commentCount+'</button><button type="button" class="action" data-share="'+esc(p.id)+'">↗ Share</button></div><div class="comments">'+comments.filter(c=>!c.parent_id).map(c=>'<div class="comment"><strong>'+esc(display(profiles.get(c.user_id)))+' · '+esc(ago(c.created_at))+'</strong>'+esc(c.content)+'</div>').join('')+'</div><div class="comment-row"><input class="comment-input" data-comment-input="'+esc(p.id)+'" maxlength="500" placeholder="'+(user?'Add to the discussion…':'Log in to comment')+'"><button type="button" class="action" data-comment="'+esc(p.id)+'">Reply</button></div></article>'
   }).join('');
  }
@@ -116,7 +159,7 @@ main{padding:24px 0 60px}.back{display:inline-flex;align-items:center;gap:7px;fo
   const profile=e.target.closest('[data-profile]');if(profile){location.href='profile.html?id='+encodeURIComponent(profile.dataset.profile);return}
   const share=e.target.closest('[data-share]');if(share){const url=location.origin+location.pathname+location.search+'#post-'+share.dataset.share;if(navigator.share){try{await navigator.share({title:community.name,url})}catch{}}else{await navigator.clipboard?.writeText(url);toast('Post link copied.');}}
  });
- document.querySelectorAll('[data-sort]').forEach(b=>b.addEventListener('click',()=>{sort=b.dataset.sort;feedPage=1;document.querySelectorAll('[data-sort]').forEach(x=>x.classList.toggle('active',x===b));renderFeed()}));$('timeFilter').addEventListener('change',()=>{feedPage=1;renderFeed()});$('feedPrev').addEventListener('click',()=>{feedPage=Math.max(1,feedPage-1);renderFeed();$('postFeed').scrollIntoView({behavior:'smooth',block:'start'})});$('feedNext').addEventListener('click',()=>{feedPage+=1;renderFeed();$('postFeed').scrollIntoView({behavior:'smooth',block:'start'})});
+ document.querySelectorAll('[data-sort]').forEach(b=>b.addEventListener('click',()=>{sort=b.dataset.sort;document.querySelectorAll('[data-sort]').forEach(x=>x.classList.toggle('active',x===b));renderFeed()}));$('timeFilter').addEventListener('change',renderFeed);
  $('memberToggle').addEventListener('click',()=>{showAllMembers=!showAllMembers;renderMembers()});
  $('shareButton').addEventListener('click',async()=>{const url=location.href;if(navigator.share){try{await navigator.share({title:community?.name||'Venturify community',url})}catch{}}else{await navigator.clipboard?.writeText(url);toast('Community link copied.')}});
  function syncNavigation(){document.querySelectorAll('[data-auth-only]').forEach(el=>el.hidden=!user);document.querySelectorAll('[data-guest-only]').forEach(el=>el.hidden=!!user)}
