@@ -1,217 +1,68 @@
-const postMortemStories = [
-  {
-    id: 'northline-commerce',
-    name: 'Northline Commerce',
-    sector: 'Marketplace',
-    stage: 'Seed',
-    loss: 'Retention & activation',
-    amount: 'Was spending 40% more to acquire users than they were worth in month two',
-    tag: 'Growth mismatch',
-    lesson: 'growth',
-    founder: 'Marketplace founder',
-    consent: 'Anonymized with founder consent',
-    summary: 'A neighborhood commerce marketplace launched with strong acquisition and a fast-moving product roadmap, but the first cohort kept churning after the first purchase.',
-    whatFailed: 'They optimized for top-of-funnel demand without a clear activation plan. Support and fulfilment teams were under-resourced, and the product did not teach a buyer how to return for a second order.',
-    whatChanged: 'They simplified the initial experience, built a repeat-purchase playbook, and measured activation by the customer returning within 30 days—not just by new signups.',
-    numbers: 'CAC rose 2.3x during a paid social push; repeat-order conversion was below 12% after day 30.'
-  },
-  {
-    id: 'ledgerleaf',
-    name: 'LedgerLeaf',
-    sector: 'Fintech',
-    stage: 'Pre-seed',
-    loss: 'Trust & distribution',
-    amount: 'Pilot demand was high but conversion stalled in regulated workflows',
-    tag: 'Trust gap',
-    lesson: 'market',
-    founder: 'B2B fintech founder',
-    consent: 'Shared with consent and stripped of customer names',
-    summary: 'A small-business finance tool showed strong early demand from operators who wanted better cash visibility, but the sales motion did not match how buying committees actually evaluate software in regulated businesses.',
-    whatFailed: 'The product solved a real problem, but the company sold the product like a general SaaS tool instead of a specialized operating system. The compliance-heavy buying process added friction and delayed pilot wins.',
-    whatChanged: 'They narrowed to one vertical, added clearer security and compliance language, and reworked their sales narrative around tangible operational wins instead of feature breadth.',
-    numbers: 'Pilot-to-paid conversion stayed below 18% for four months, despite strong demo interest.'
-  },
-  {
-    id: 'pantryclub',
-    name: 'Pantry Club',
-    sector: 'Food & Retail',
-    stage: 'Seed',
-    loss: 'Unit economics',
-    amount: 'Gross margin collapsed under freight and refunds',
-    tag: 'Cost pressure',
-    lesson: 'operations',
-    founder: 'Consumer retail founder',
-    consent: 'Public story after anonymization',
-    summary: 'A subscription food brand launched quickly with high customer enthusiasm but a weak operating model. Demand was real, but fulfillment and return costs made the economics fragile.',
-    whatFailed: 'The team focused on inventory breadth before establishing its shipping, inventory turnover, and customer support model. Each miss caused compounding cost pressure.',
-    whatChanged: 'They reduced SKU count, tightened their replenishment model, and built a feedback loop between shipping performance and customer support before widening the catalog again.',
-    numbers: 'Contribution margin went negative within 90 days once shipping and refund costs were included.'
-  },
-  {
-    id: 'orbitdesk',
-    name: 'OrbitDesk',
-    sector: 'Software',
-    stage: 'Series A',
-    loss: 'Positioning',
-    amount: 'Too many buyer personas and no single wedge story',
-    tag: 'Too broad',
-    lesson: 'market',
-    founder: 'B2B SaaS founder',
-    consent: 'Community-reviewed post-mortem',
-    summary: 'A workflow software team built an all-in-one operational platform for remote teams, but sales and product language never settled on a clear, specific audience.',
-    whatFailed: 'They kept adding features for every customer type instead of narrowing to a single job to be done. Each new segment diluted the product message and made adoption slower.',
-    whatChanged: 'They chose one initial ICP, removed lower-value feature requests, and rebuilt the onboarding template around the most common operational pain point.',
-    numbers: 'Enterprise pipeline volume stayed high, but win rate fell because every decision was slowed by unclear messaging.'
-  },
-  {
-    id: 'voltforge',
-    name: 'VoltForge',
-    sector: 'Hardware',
-    stage: 'Pre-seed',
-    loss: 'Supply chain risk',
-    amount: 'Long lead times and high component volatility created a hidden cash squeeze',
-    tag: 'Timing risk',
-    lesson: 'operations',
-    founder: 'Hardware founder',
-    consent: 'Safety-checked example from the founder community',
-    summary: 'A hardware startup had a product that customers wanted, but critical supply chain assumptions unraveled after the first production run.',
-    whatFailed: 'The company made early design decisions that assumed stable electronics pricing and fast manufacturing cycles. Those assumptions broke under real-world delays and quality testing.',
-    whatChanged: 'They redesigned the first production version around a smaller BOM, built a lead-time buffer into the roadmap, and insisted on a staged pilot before scaling orders.',
-    numbers: 'The team burned through 75% of the first financing round before the first repeatable production cycle.'
-  },
-  {
-    id: 'looplocal',
-    name: 'LoopLocal',
-    sector: 'Consumer',
-    stage: 'Pre-seed',
-    loss: 'Acquisition & retention mismatch',
-    amount: 'Acquisition cost was acceptable, but retention never reached the necessary threshold',
-    tag: 'Growth mismatch',
-    lesson: 'growth',
-    founder: 'Consumer product founder',
-    consent: 'Anonymized founder lesson',
-    summary: 'A local discovery product won attention in a few cities but could not turn attention into repeat habits. The launch formula looked promising in social media screenshots but failed in daily behavior.',
-    whatFailed: 'They designed for social sharing and the first visit instead of the seven-day habit loop. Retention fell off after the novelty phase and growth became expensive to maintain.',
-    whatChanged: 'They cut acquisition channels that underperformed, reworked the core loop, and added outreach to real local communities before scaling again.',
-    numbers: 'The team reached a healthy 15% weekly activation rate in a pilot, but it collapsed to under 3% once expansion began.'
-  }
-];
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101a16">
+  <meta name="description" content="A founder-led library of startup post-mortems, shared with permission and focused on useful lessons.">
+  <title>Founder post-mortems — Venturify</title>
+  <link rel="stylesheet" href="venturify-a11y.css">
+  <link rel="stylesheet" href="venturify-ui.css">
+  <style>
+    :root{color-scheme:light;--ink:#15221c;--muted:#68766c;--paper:#f5f6ef;--card:#fffefa;--line:#dfe5d9;--green:#31583a;--lime:#c8f169}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+    a{color:inherit}.wrap{width:min(100% - 32px,1000px);margin:auto}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 0;border-bottom:1px solid var(--line)}
+    .brand{font-weight:850;font-size:20px;text-decoration:none}.nav{display:flex;gap:16px;flex-wrap:wrap}.nav a{font-size:14px;text-decoration:none}.nav a[aria-current=page]{font-weight:800;text-decoration:underline;text-underline-offset:5px}
+    main{padding:52px 0 76px}.kicker{text-transform:uppercase;letter-spacing:.1em;font-size:12px;font-weight:800;color:var(--green)}h1{font-size:clamp(34px,6vw,58px);line-height:1.08;letter-spacing:-.04em;margin:10px 0 16px}.lede{max-width:720px;color:#526052;font-size:18px}
+    .trust-note,.empty-state,.method{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:24px}.trust-note{border-left:5px solid var(--green)}.trust-note p,.method p{margin:5px 0;color:#526052}
+    .library-tools{display:grid;grid-template-columns:1fr 220px;gap:12px;margin:32px 0 14px}.library-tools input,.library-tools select{width:100%;min-height:44px;padding:10px 12px;border:1px solid #bdc9bc;border-radius:9px;background:white;color:var(--ink);font:inherit}
+    .empty-state h2{margin:0 0 8px;font-size:23px}.empty-state p{margin:0;color:#526052}.method h2{margin:0 0 8px;font-size:20px}.footer{border-top:1px solid var(--line);padding:20px 0;color:var(--muted);font-size:13px}
+    @media(max-width:620px){.topbar{align-items:flex-start;flex-direction:column}.nav{gap:12px}.library-tools{grid-template-columns:1fr}main{padding-top:36px}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="wrap topbar">
+    <a class="brand" href="index.html" aria-label="Venturify home">v. venturify</a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="case-studies.html" aria-current="page">Post-mortems</a>
+      <a href="feed.html">Feed</a>
+      <a href="discover.html">Discover</a>
+      <a href="communities.html">Communities</a>
+      <a href="principles.html">Our principles</a>
+    </nav>
+  </header>
+  <main id="main-content" class="wrap">
+    <div class="kicker">Founder lessons, with permission</div>
+    <h1>Learn from what didn’t work.</h1>
+    <p class="lede">A post-mortem library should help founders make better decisions—not turn someone else’s hardest chapter into a spectacle. Stories belong here only when they’re real, shared with permission, and useful to other founders.</p>
 
-const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    <section class="trust-note" aria-labelledby="trust-title">
+      <strong id="trust-title">No verified founder post-mortems are published yet.</strong>
+      <p>We’re building the consent and review process before publishing submissions. We won’t present fictional examples as real companies or imply a founder approved a story without their explicit permission.</p>
+    </section>
 
-function renderCases() {
-  const q = document.getElementById('search').value.trim().toLowerCase();
-  const sector = document.getElementById('sector').value;
-  const lesson = document.getElementById('lesson').value;
-
-  const list = postMortemStories.filter(story => {
-    const matchesSector = !sector || sector === 'all' || story.sector === sector;
-    const matchesLesson = !lesson || lesson === 'all' || story.lesson === lesson;
-    const hay = [story.name, story.sector, story.loss, story.summary, story.whatFailed, story.whatChanged, story.tag].join(' ').toLowerCase();
-    const matchesQuery = !q || hay.includes(q);
-    return matchesSector && matchesLesson && matchesQuery;
-  });
-
-  const box = document.getElementById('cases');
-  box.innerHTML = list.map(story => `
-    <article class="case-card" data-case="${story.id}" tabindex="0" aria-label="Open ${esc(story.name)} story">
-      <div class="case-topline">
-        <span class="pill">${esc(story.sector)}</span>
-        <span class="case-stage">${esc(story.stage)}</span>
-      </div>
-      <h3>${esc(story.name)}</h3>
-      <p class="case-loss">${esc(story.loss)}</p>
-      <p>${esc(story.summary)}</p>
-      <div class="case-meta">
-        <span>${esc(story.tag)}</span>
-        <span>${esc(story.consent)}</span>
-      </div>
-    </article>
-  `).join('') || '<div class="community-empty" style="grid-column:1/-1">No founder post-mortems match those filters yet.</div>';
-}
-
-function openDetail(id) {
-  const c = postMortemStories.find(x => x.id === id);
-  if (!c) return;
-  document.getElementById('detailContent').innerHTML = `
-    <div class="kicker">${esc(c.sector)} · ${esc(c.consent)}</div>
-    <h2>${esc(c.name)}</h2>
-    <div class="case-detail-grid">
-      <div>
-        <div class="mini-label">What was the signal?</div>
-        <p>${esc(c.summary)}</p>
-      </div>
-      <div>
-        <div class="mini-label">What failed?</div>
-        <p>${esc(c.whatFailed)}</p>
-      </div>
-      <div>
-        <div class="mini-label">What changed?</div>
-        <p>${esc(c.whatChanged)}</p>
-      </div>
-      <div>
-        <div class="mini-label">Why it mattered</div>
-        <p>${esc(c.numbers)}</p>
-      </div>
+    <div class="library-tools" aria-label="Post-mortem search and filters">
+      <label>
+        <span class="skip-link">Search post-mortems</span>
+        <input type="search" disabled placeholder="Search stories (available when stories are published)" aria-label="Search post-mortems" title="The library is not populated yet">
+      </label>
+      <label>
+        <span class="skip-link">Filter by topic</span>
+        <select disabled aria-label="Filter post-mortems by topic"><option>All topics</option></select>
+      </label>
     </div>
-    <div class="detail-footer">
-      <span class="pill">${esc(c.lesson)}</span>
-      <span class="pill muted-pill">${esc(c.loss)}</span>
-      <span class="pill muted-pill">${esc(c.founder)}</span>
-    </div>
-  `;
-  document.getElementById('detailBackdrop').classList.add('open');
-}
 
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3200);
-}
+    <section class="empty-state" aria-labelledby="empty-title">
+      <h2 id="empty-title">The library is being prepared</h2>
+      <p>We’ll publish stories after founders choose how they want to be identified, approve the final version, and can request edits or removal. Any figures will be shared only at the level of detail the founder agrees to.</p>
+    </section>
 
-document.getElementById('search').addEventListener('input', renderCases);
-document.getElementById('sector').addEventListener('change', renderCases);
-document.getElementById('lesson').addEventListener('change', renderCases);
-document.getElementById('cases').addEventListener('click', e => {
-  const card = e.target.closest('[data-case]');
-  if (card) openDetail(card.dataset.case);
-});
-document.getElementById('cases').addEventListener('keydown', e => {
-  const card = e.target.closest('[data-case]');
-  if ((e.key === 'Enter' || e.key === ' ') && card) {
-    e.preventDefault();
-    openDetail(card.dataset.case);
-  }
-});
-document.querySelectorAll('[data-submit]').forEach(a => a.addEventListener('click', e => {
-  e.preventDefault();
-  openSubmit();
-}));
-document.getElementById('openSubmit').addEventListener('click', openSubmit);
-document.getElementById('closeSubmit').addEventListener('click', closeModals);
-document.getElementById('submissionForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const form = e.currentTarget;
-  if (!form.reportValidity()) return;
-  const button = document.getElementById('submitStoryButton');
-  button.disabled = true;
-  button.textContent = 'Publishing…';
-  const d = new FormData(form);
-  const result = await window.venturifyPublishStory({
-    company: String(d.get('company') || '').trim(),
-    industry: String(d.get('industry') || '').trim(),
-    stage: String(d.get('stage') || '').trim(),
-    lessonType: String(d.get('lessonType') || '').trim(),
-    summary: String(d.get('summary') || '').trim(),
-    numbers: String(d.get('numbers') || '').trim()
-  });
-  button.disabled = false;
-  button.textContent = 'Publish story ↗';
-  if (result?.error) { toast(result.error); return; }
-  form.reset();
-  closeModals();
-  toast('Story published to the community feed.');
-  document.getElementById('community').scrollIntoView({ behavior: 'smooth' });
-});
-renderCases();
+    <section class="method" aria-labelledby="method-title">
+      <h2 id="method-title">What a useful post-mortem will include</h2>
+      <p>The context and stage, the assumptions that didn’t hold, the signals the team noticed (or missed), what they would do differently, and practical lessons. Financial details will be optional and can use broad ranges. Private materials and identifying details about other people won’t be published without permission.</p>
+    </section>
+  </main>
+  <footer class="wrap footer">Venturify · Learn from what didn’t work. Build what comes next.</footer>
+</body>
+</html>
