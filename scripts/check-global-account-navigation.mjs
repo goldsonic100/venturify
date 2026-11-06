@@ -63,6 +63,14 @@ for (const path of pages) {
     path + ' must expose the Announcements and notifications control.');
 }
 
+const activeNavigation = readFileSync(new URL('../assets/active-navigation.js', import.meta.url), 'utf8');
+assert.match(activeNavigation,/aria-current/,'The current navigation destination must be announced accessibly.');
+assert.match(activeNavigation,/founderDiscovery/,'The People directory deep link must receive its own active state.');
+assert.match(activeNavigation,/workspace\.html/,'Workspace should highlight the Collaborations destination.');
+for (const path of pages) {
+  const html = readFileSync(new URL('../' + path, import.meta.url), 'utf8');
+  assert.match(html,/assets\/active-navigation\.js/,'The shared active navigation script must load on ' + path + '.');
+}
 const css = readFileSync(new URL('../assets/venturify-design-system.css', import.meta.url), 'utf8');
 assert.ok(css.includes('.nav.venturify-primary-nav'), 'Shared navigation styles must exist.');
 assert.ok(css.includes('min-height:40px'), 'All navigation tabs must share a consistent minimum height.');
