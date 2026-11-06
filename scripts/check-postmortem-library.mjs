@@ -121,4 +121,4 @@ for (const contract of [
   'grant execute on function public.moderator_list_founder_postmortems_page(text, integer, integer) to authenticated',
 ]) assert.ok(paginationMigration.includes(contract), 'Pagination migration is missing safeguard: ' + contract);
 
-assert.match(reviewHistoryIndexMigration, /create index if not exists founder_postmortem_reviews_reviewer_id_idx\s+on public\.founder_postmortem_reviews \(reviewer_id\) where reviewer_id is not null/i, 'Review-history reviewer foreign key must have a partial supporting index');
+assert.match(reviewHistoryIndexMigration, /create index if not exists founder_postmortem_reviews_reviewer_id_idx\s+on public\.founder_postmortem_reviews \(reviewer_id\)\s+where reviewer_id is not null/i, 'Review-history reviewer foreign key must have a partial supporting index');
