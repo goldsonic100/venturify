@@ -3,7 +3,7 @@
   if (!nav) return;
 
   const normalizePath = (path) => {
-    const normalized = path.replace(/\\/+$/, '');
+    const normalized = path.replace(/\/+$/, '');
     return normalized || '/';
   };
   const currentPath = normalizePath(window.location.pathname);
