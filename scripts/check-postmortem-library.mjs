@@ -7,6 +7,7 @@ const migration = read('supabase/migrations/20261105090000_create_founder_postmo
 const revisionMigration = read('supabase/migrations/20261106120000_allow_founder_postmortem_revisions.sql');
 const indexMigration = read('supabase/migrations/20261106121500_index_founder_postmortem_reviewed_by.sql');
 const reviewHistoryMigration = read('supabase/migrations/20261106220000_founder_postmortem_review_history.sql');
+const reviewHistoryIndexMigration = read('supabase/migrations/20261107110000_index_postmortem_reviewers.sql');
 const moderator = read('moderator-postmortems.html');
 const paginationMigration = read('supabase/migrations/20261107100000_paginate_moderator_postmortem_queue.sql');
 const reviewNotificationMigration = read('supabase/migrations/20261106210000_notify_founder_postmortem_review.sql');
@@ -119,3 +120,5 @@ for (const contract of [
   'revoke all on function public.moderator_list_founder_postmortems_page(text, integer, integer) from public, anon',
   'grant execute on function public.moderator_list_founder_postmortems_page(text, integer, integer) to authenticated',
 ]) assert.ok(paginationMigration.includes(contract), 'Pagination migration is missing safeguard: ' + contract);
+
+assert.match(reviewHistoryIndexMigration, /create index if not exists founder_postmortem_reviews_reviewer_id_idx\s+on public\.founder_postmortem_reviews \(reviewer_id\)\s+where reviewer_id is not null/i, 'Review-history reviewer foreign key must have a partial supporting index');

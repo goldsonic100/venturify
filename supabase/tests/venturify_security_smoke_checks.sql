@@ -622,6 +622,18 @@ checks AS (
       AND position('least' in lower(pg_get_functiondef('public.moderator_list_founder_postmortems_page(text,integer,integer)'::regprocedure))) > 0
     ),
     'Paged moderator queue RPC is allowlisted, uses the authenticated user, and bounds pagination'
+  UNION ALL
+  SELECT
+    'postmortem_review_history_reviewer_fk_is_indexed',
+    EXISTS (
+      SELECT 1 FROM pg_catalog.pg_index i
+      JOIN pg_catalog.pg_class t ON t.oid=i.indrelid
+      JOIN pg_catalog.pg_class x ON x.oid=i.indexrelid
+      WHERE t.oid='public.founder_postmortem_reviews'::regclass
+        AND x.relname='founder_postmortem_reviews_reviewer_id_idx'
+        AND i.indisvalid
+    ),
+    'Review-history reviewer foreign key has a valid supporting index'
 )
 SELECT check_name, passed, detail
 FROM checks
