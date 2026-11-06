@@ -84,4 +84,14 @@ assert.match(navigationPolish, /\.topbar \.nav>a\[data-auth-only\]\[hidden\]\{di
 assert.match(navigationPolish, /\.topbar \.nav>\.notification-wrap\[data-auth-only\]\[hidden\]\{display:flex!important/,
   'The Announcements control must stay visible for guests as well as signed-in users.');
 
-console.log('Consistent global navigation checks passed for ' + pages.length + ' pages.');
+
+const publicHandlePages = ['index.html','feed.html','discover.html','profile.html','communities.html','messages.html','notifications.html'];
+for (const path of publicHandlePages) {
+  const html = readFileSync(new URL('../' + path, import.meta.url), 'utf8');
+  assert.ok(!html.includes("username||'founder'") && !html.includes("username||'founder'"),
+    path + ' must not display the generic @founder handle when a profile has a stable user ID.');
+  assert.ok(html.includes("replace(/-/g,'').slice(0,8).toLowerCase()"),
+    path + ' must derive a deterministic public fallback handle from the profile ID.');
+}
+
+console.log('Consistent global navigation and public handle checks passed for ' + pages.length + ' pages.');
