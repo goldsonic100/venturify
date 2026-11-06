@@ -34,32 +34,64 @@ begin
     'restrictions_restored', (select count(*) from private.account_moderation_audit a where a.created_at >= v_start::timestamptz and a.action in ('restore','appeal_accepted'))
   ) into v_summary;
 
+  with days as (
+    select generate_series(v_start,current_date,interval '1 day')::date as day
+  ),
+  report_received as (
+    select created_at::date as day,count(*) as total
+    from public.content_reports
+    where created_at >= v_start::timestamptz and created_at < (current_date+1)::timestamptz
+    group by created_at::date
+  ),
+  report_reviewed as (
+    select reviewed_at::date as day,count(*) as total
+    from public.content_reports
+    where reviewed_at >= v_start::timestamptz and reviewed_at < (current_date+1)::timestamptz
+    group by reviewed_at::date
+  ),
+  appeal_submitted as (
+    select created_at::date as day,count(*) as total
+    from private.account_moderation_appeals
+    where created_at >= v_start::timestamptz and created_at < (current_date+1)::timestamptz
+    group by created_at::date
+  ),
+  appeal_decided as (
+    select reviewed_at::date as day,count(*) as total
+    from private.account_moderation_appeals
+    where reviewed_at >= v_start::timestamptz and reviewed_at < (current_date+1)::timestamptz
+    group by reviewed_at::date
+  ),
+  restriction_issued as (
+    select created_at::date as day,count(*) as total
+    from private.account_moderation_audit
+    where created_at >= v_start::timestamptz and created_at < (current_date+1)::timestamptz
+      and action='posting_restricted'
+    group by created_at::date
+  ),
+  restriction_restored as (
+    select created_at::date as day,count(*) as total
+    from private.account_moderation_audit
+    where created_at >= v_start::timestamptz and created_at < (current_date+1)::timestamptz
+      and action in ('restore','appeal_accepted')
+    group by created_at::date
+  )
   select coalesce(jsonb_agg(jsonb_build_object(
     'day',d.day,
-    'reports_received',coalesce(r.received,0),
-    'reports_reviewed',coalesce(r.reviewed,0),
-    'appeals_submitted',coalesce(a.submitted,0),
-    'appeals_decided',coalesce(a.decided,0),
-    'restrictions_issued',coalesce(m.issued,0),
-    'restrictions_restored',coalesce(m.restored,0)
+    'reports_received',coalesce(rr.total,0),
+    'reports_reviewed',coalesce(rv.total,0),
+    'appeals_submitted',coalesce(asub.total,0),
+    'appeals_decided',coalesce(adec.total,0),
+    'restrictions_issued',coalesce(ri.total,0),
+    'restrictions_restored',coalesce(rres.total,0)
   ) order by d.day),'[]'::jsonb)
   into v_daily
-  from generate_series(v_start::timestamp,current_date::timestamp,interval '1 day') as d(day)
-  left join lateral (
-    select count(*) filter(where created_at >= d.day and created_at < d.day+interval '1 day') as received,
-           count(*) filter(where reviewed_at >= d.day and reviewed_at < d.day+interval '1 day') as reviewed
-    from public.content_reports
-  ) r on true
-  left join lateral (
-    select count(*) filter(where created_at >= d.day and created_at < d.day+interval '1 day') as submitted,
-           count(*) filter(where reviewed_at >= d.day and reviewed_at < d.day+interval '1 day') as decided
-    from private.account_moderation_appeals
-  ) a on true
-  left join lateral (
-    select count(*) filter(where created_at >= d.day and created_at < d.day+interval '1 day' and action='posting_restricted') as issued,
-           count(*) filter(where created_at >= d.day and created_at < d.day+interval '1 day' and action in ('restore','appeal_accepted')) as restored
-    from private.account_moderation_audit
-  ) m on true;
+  from days d
+  left join report_received rr on rr.day=d.day
+  left join report_reviewed rv on rv.day=d.day
+  left join appeal_submitted asub on asub.day=d.day
+  left join appeal_decided adec on adec.day=d.day
+  left join restriction_issued ri on ri.day=d.day
+  left join restriction_restored rres on rres.day=d.day;
 
   return jsonb_build_object('days',v_days,'summary',v_summary,'daily',v_daily,'generated_at',now());
 end;
