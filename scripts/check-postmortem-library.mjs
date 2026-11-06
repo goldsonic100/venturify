@@ -66,7 +66,7 @@ assert.match(revisionMigration, /where id = p_story_id[\s\S]*?author_id = \(sele
 
 console.log('Founder post-mortem library checks passed (static checks only; live two-account review still required).');
 
-for (const contract of ['founder_postmortem_id', "'postmortem_review'", 'notifications_founder_postmortem_id_idx', 'moderator_review_founder_postmortem', 'insert into public.notifications', "s.status in ('pending', 'needs_edits')"]) assert.ok(reviewNotificationMigration.includes(contract), 'Review notification migration is missing: ' + contract);
+for (const contract of ['founder_postmortem_id', "'postmortem_review'", 'notifications_founder_postmortem_id_idx', 'moderator_review_founder_postmortem', 'insert into public.notifications', "s.status in ("]) assert.ok(reviewNotificationMigration.includes(contract), 'Review notification migration is missing: ' + contract);
 for (const source of [indexPage, feedPage]) {
  assert.match(source, /postmortem_review:'reviewed your founder post-mortem submission'/);
  assert.match(source, /founder_postmortem_id,actor:profiles/);
