@@ -43,6 +43,30 @@ checks AS (
     'Message reactions table has row-level security enabled'
   UNION ALL
   SELECT
+    'workspace_presence_policies_require_accepted_members',
+    (
+      SELECT count(*) = 2
+        AND count(*) FILTER (WHERE cmd = 'SELECT') = 1
+        AND count(*) FILTER (WHERE cmd = 'INSERT') = 1
+        AND bool_and(
+          cardinality(roles) = 1
+          AND roles @> ARRAY['authenticated']::name[]
+          AND coalesce(qual, with_check, '') ILIKE '%extension = ''presence''%'
+          AND coalesce(qual, with_check, '') ILIKE '%venturify-workspace-presence:%'
+          AND coalesce(qual, with_check, '') ILIKE '%accepted%'
+          AND coalesce(qual, with_check, '') ILIKE '%auth.uid()%'
+        )
+      FROM pg_catalog.pg_policies
+      WHERE schemaname = 'realtime'
+        AND tablename = 'messages'
+        AND policyname IN (
+          'Accepted collaborators can read workspace presence',
+          'Accepted collaborators can publish workspace presence'
+        )
+    ),
+    'Only authenticated participants in an accepted collaboration can read or publish Venturify workspace presence'
+  UNION ALL
+  SELECT
     'block_guards_for_messages',
     (
       SELECT count(*) = 2
