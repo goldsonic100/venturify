@@ -87,3 +87,17 @@ for (const contract of [
 assert.match(page, /from\('founder_postmortem_reviews'\)/, 'Authors must load their private review timeline');
 assert.match(page, /reviewHistory/, 'Author submissions must render review history');
 assert.match(page, /Review history/, 'Review history must be clearly labeled');
+
+for (const contract of [
+  'id="queueStatus"',
+  'id="queueSearch"',
+  "p_status: null, p_limit: 100",
+  "from('founder_postmortem_reviews')",
+  'Review history',
+  "['pending', 'needs_edits'].includes(story.status)",
+  "queueStatus').addEventListener('change', renderQueue)",
+  "queueSearch').addEventListener('input', renderQueue)",
+]) assert.ok(moderator.includes(contract), 'Moderator queue is missing: ' + contract);
+assert.match(moderator, /\.filter\(story =>[\s\S]*story\.status === status/, 'Moderator status filters must apply to loaded submissions');
+assert.match(moderator, /\.join\(' '\)\.toLowerCase\(\)\.includes\(term\)/, 'Moderator search must filter story and author text');
+assert.match(moderator, /reviewHistory\.get\(story\.id\)/, 'Moderator cards must show prior review decisions');
