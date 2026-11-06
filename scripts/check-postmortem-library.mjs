@@ -8,6 +8,7 @@ const revisionMigration = read('supabase/migrations/20261106120000_allow_founder
 const indexMigration = read('supabase/migrations/20261106121500_index_founder_postmortem_reviewed_by.sql');
 const reviewHistoryMigration = read('supabase/migrations/20261106220000_founder_postmortem_review_history.sql');
 const moderator = read('moderator-postmortems.html');
+const paginationMigration = read('supabase/migrations/20261107100000_paginate_moderator_postmortem_queue.sql');
 const reviewNotificationMigration = read('supabase/migrations/20261106210000_notify_founder_postmortem_review.sql');
 const indexPage = read('index.html');
 const feedPage = read('feed.html');
@@ -101,3 +102,20 @@ for (const contract of [
 assert.match(moderator, /\.filter\(story =>[\s\S]*story\.status === status/, 'Moderator status filters must apply to loaded submissions');
 assert.match(moderator, /\.join\(' '\)\.toLowerCase\(\)\.includes\(term\)/, 'Moderator search must filter story and author text');
 assert.match(moderator, /reviewHistory\.get\(story\.id\)/, 'Moderator cards must show prior review decisions');
+
+for (const contract of [
+  'moderator_list_founder_postmortems_page',
+  "p_status: status, p_limit: pageSize, p_offset: pageOffset",
+  'Load 100 more submissions',
+  'pageOffset += stories.length',
+  'hasMore = stories.length === pageSize',
+  "queueStatus').addEventListener('change', () => loadQueuePage(true))",
+]) assert.ok(moderator.includes(contract), 'Paginated moderator queue is missing: ' + contract);
+for (const contract of [
+  'private.moderators',
+  "set search_path = ''",
+  'greatest(1, least(coalesce(p_limit, 50), 100))',
+  'greatest(0, least(coalesce(p_offset, 0), 100000))',
+  'revoke all on function public.moderator_list_founder_postmortems_page(text, integer, integer) from public, anon',
+  'grant execute on function public.moderator_list_founder_postmortems_page(text, integer, integer) to authenticated',
+]) assert.ok(paginationMigration.includes(contract), 'Pagination migration is missing safeguard: ' + contract);
