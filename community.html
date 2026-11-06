@@ -167,5 +167,6 @@ main{padding:24px 0 60px}.back{display:inline-flex;align-items:center;gap:7px;fo
  client.auth.onAuthStateChange(()=>setTimeout(async()=>{const a=await client.auth.getUser();user=a.data?.user||null;syncNavigation();await loadCommunity()},0));init().catch(e=>{$('postFeed').innerHTML='<div class="empty">Something went wrong loading this community. Refresh to try again.</div>';console.error(e)});
 })();
 </script>
+  <script src="assets/active-navigation.js" defer></script>
 </body>
 </html>

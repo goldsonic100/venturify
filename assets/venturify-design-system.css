@@ -300,3 +300,22 @@ body[data-view="messages"] .messages-composer .comment-input:focus { border-colo
 @media(max-width:480px) {
   .nav.venturify-primary-nav > a[data-app-view="people"] { padding-inline:10px; font-size:12px; }
 }
+
+/* Active navigation state for both text tabs and icon destinations. */
+.nav.venturify-primary-nav > a[data-app-view="people"][aria-current="page"] {
+  border-color:#438fe6;
+  background:linear-gradient(135deg,#1768c8,#174d91);
+  color:#fff;
+  box-shadow:0 3px 12px rgba(22,119,255,.2);
+}
+.nav.venturify-primary-nav > .nav-icon-slot .nav-icon-button[aria-current="page"] {
+  border-color:#438fe6;
+  background:#174d91;
+  color:#fff;
+  box-shadow:0 3px 12px rgba(22,119,255,.2);
+}
+.nav.venturify-primary-nav a:focus-visible,
+.nav.venturify-primary-nav button:focus-visible {
+  outline:3px solid #8fc3ff;
+  outline-offset:2px;
+}

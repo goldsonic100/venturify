@@ -955,5 +955,6 @@ document.addEventListener('click',function(e){
 <script id="profile-tab-behavior">
 (function(){const tabs=[...document.querySelectorAll('[data-profile-tab]')];if(!tabs.length)return;window.venturifyProfileTab='posts';window.venturifyRefreshProfileFeed=()=>feed();function setTab(name){window.venturifyProfileTab=name;tabs.forEach(b=>{const active=b.dataset.profileTab===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});const about=document.getElementById('profileAbout'),activity=document.getElementById('profileActivity'),feed=document.getElementById('feed'),stories=document.getElementById('profileStories');if(about)about.hidden=name!=='about';if(activity)activity.hidden=name==='about'||name==='stories';if(feed)feed.hidden=name==='about'||name==='stories';if(stories)stories.hidden=name!=='stories';if(name==='about'&&window.venturifyCurrentProfile)window.venturifyRenderPublicProfile(window.venturifyCurrentProfile);if(typeof window.venturifyRefreshProfileFeed==='function')window.venturifyRefreshProfileFeed()}tabs.forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.profileTab)));window.venturifySetProfileTab=setTab;})();
 </script>
+  <script src="assets/active-navigation.js" defer></script>
 </body>
 </html>
