@@ -7,6 +7,9 @@ const migration = read('supabase/migrations/20261105090000_create_founder_postmo
 const revisionMigration = read('supabase/migrations/20261106120000_allow_founder_postmortem_revisions.sql');
 const indexMigration = read('supabase/migrations/20261106121500_index_founder_postmortem_reviewed_by.sql');
 const moderator = read('moderator-postmortems.html');
+const reviewNotificationMigration = read('supabase/migrations/20261106210000_notify_founder_postmortem_review.sql');
+const indexPage = read('index.html');
+const feedPage = read('feed.html');
 
 for (const [index, match] of [...page.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].entries()) {
   const source = match[1].trim();
@@ -62,3 +65,10 @@ assert.match(indexMigration, /create index if not exists founder_postmortems_rev
 assert.match(revisionMigration, /where id = p_story_id[\s\S]*?author_id = \(select auth\.uid\(\)\)[\s\S]*?status = 'needs_edits'/, 'Revision RPC must update only the caller\'s needs_edits submission');
 
 console.log('Founder post-mortem library checks passed (static checks only; live two-account review still required).');
+
+for (const contract of ['founder_postmortem_id', "'postmortem_review'", 'notifications_founder_postmortem_id_idx', 'moderator_review_founder_postmortem', 'insert into public.notifications', "status in ('pending', 'needs_edits')"]) assert.ok(reviewNotificationMigration.includes(contract), 'Review notification migration is missing: ' + contract);
+for (const source of [indexPage, feedPage]) {
+ assert.match(source, /postmortem_review:'reviewed your founder post-mortem submission'/);
+ assert.match(source, /founder_postmortem_id,actor:profiles/);
+ assert.match(source, /postmortems\\.html#mySubmissions/);
+}
