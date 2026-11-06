@@ -5,6 +5,7 @@ const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8'
 const page = read('postmortems.html');
 const migration = read('supabase/migrations/20261105090000_create_founder_postmortems.sql');
 const revisionMigration = read('supabase/migrations/20261106120000_allow_founder_postmortem_revisions.sql');
+const indexMigration = read('supabase/migrations/20261106121500_index_founder_postmortem_reviewed_by.sql');
 const moderator = read('moderator-postmortems.html');
 
 for (const [index, match] of [...page.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].entries()) {
@@ -57,6 +58,7 @@ assert.match(moderator, /moderator_review_founder_postmortem/, 'Moderator review
 assert.match(page, /client\.rpc\('revise_my_founder_postmortem'/, 'Authors must be able to resubmit edit-requested stories');
 assert.match(page, /publishConsent'\)\.checked=false/, 'Revisions must require the author to confirm publication consent again');
 for (const contract of ['auth.uid()', "status = 'needs_edits'", "status = 'pending'", 'consent_at = now()', "revoke all on function public.revise_my_founder_postmortem", 'to authenticated']) assert.ok(revisionMigration.includes(contract), 'Revision RPC is missing author/consent boundary: ' + contract);
+assert.match(indexMigration, /create index if not exists founder_postmortems_reviewed_by_idx/i, 'Reviewer foreign key must have a supporting index');
 assert.match(revisionMigration, /where id = p_story_id[\s\S]*?author_id = \(select auth\.uid\(\)\)[\s\S]*?status = 'needs_edits'/, 'Revision RPC must update only the caller\'s needs_edits submission');
 
 console.log('Founder post-mortem library checks passed (static checks only; live two-account review still required).');
