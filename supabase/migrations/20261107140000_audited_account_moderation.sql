@@ -179,7 +179,7 @@ begin
     raise exception 'Moderator accounts cannot be actioned from this workflow' using errcode = '42501';
   end if;
 
-  if p_action not in ('warning', 'posting_restricted', 'restore') then
+  if p_action is null or p_action not in ('warning', 'posting_restricted', 'restore') then
     raise exception 'Invalid account action' using errcode = '22023';
   end if;
 
@@ -188,7 +188,7 @@ begin
   end if;
 
   if p_action = 'posting_restricted' then
-    if p_duration_hours not in (0, 24, 168) then
+    if p_duration_hours is null or p_duration_hours not in (0, 24, 168) then
       raise exception 'Restriction duration must be 24 hours, 7 days, or until manually restored' using errcode = '22023';
     end if;
     if p_duration_hours = 0 then
@@ -205,8 +205,9 @@ begin
 
   select case
            when s.status = 'posting_restricted'
-                and (s.expires_at is null or s.expires_at > now())
-             then 'posting_restricted'
+                and s.expires_at is not null
+                and s.expires_at <= now()
+             then 'clear'
            else coalesce(s.status, 'clear')
          end
     into v_previous_status
