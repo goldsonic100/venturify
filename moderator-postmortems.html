@@ -19,6 +19,7 @@
   const label = value => String(value || '').replace(/[-_]/g, ' ');
   let allStories = [];
   let reviewHistory = new Map();
+  let historyLoadError = false;
   const statusLabel = value => { const text = String(value || '').replace(/[-_]/g, ' '); return text ? text.charAt(0).toUpperCase() + text.slice(1) : text; };
   function renderQueue() {
     const status = $('queueStatus').value;
@@ -27,7 +28,7 @@
       (!status || story.status === status) &&
       (!term || [story.company_name, story.author_display_name, story.author_username, story.industry, story.summary, story.what_happened, story.lessons_learned].join(' ').toLowerCase().includes(term))
     );
-    $('status').textContent = visible.length + ' matching submission' + (visible.length === 1 ? '' : 's') + ' · ' + allStories.length + ' loaded across all statuses.';
+    $('status').textContent = visible.length + ' matching submission' + (visible.length === 1 ? '' : 's') + ' · ' + allStories.length + ' loaded across all statuses.' + (historyLoadError ? ' Review history is temporarily unavailable.' : '');
     $('queue').innerHTML = visible.map(story => {
       const history = (reviewHistory.get(story.id) || []).map(event =>
         '<div class="history-event"><strong>' + esc(statusLabel(event.status)) + '</strong><time>' + esc(new Date(event.created_at).toLocaleString()) + '</time>' +
@@ -53,11 +54,12 @@
     if (error) { $('status').textContent = 'Moderator access denied or review migration not applied. Ask an administrator to verify your allowlist and migrations.'; $('status').classList.add('error'); return; }
     allStories = data || [];
     reviewHistory = new Map();
+    historyLoadError = false;
     const ids = allStories.map(story => story.id);
     if (ids.length) {
       const result = await client.from('founder_postmortem_reviews').select('story_id,status,moderator_notes,created_at').in('story_id', ids).order('created_at', { ascending: false });
       if (result.error) {
-        $('status').textContent = 'Submissions loaded, but review history could not be retrieved. Check moderator table access.';
+        historyLoadError = true;
         $('status').classList.add('error');
       } else {
         (result.data || []).forEach(event => {
