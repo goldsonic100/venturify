@@ -101,7 +101,14 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
 </section>
 <section class="panel" role="tabpanel" tabindex="0" aria-labelledby="settings-tab-appearance" id="section-appearance" hidden aria-hidden="true"><h2>Appearance</h2><p class="panel-intro">Choose light or dark mode for every Venturify page. Your choice applies immediately and is saved to your account.</p><div class="setting"><div class="setting-copy"><strong>Theme</strong><small>Use the system default or choose a light or dark appearance.</small></div><select class="select" id="appearance" aria-label="Appearance"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></div></section>
 <section class="panel" role="tabpanel" tabindex="0" aria-labelledby="settings-tab-account" id="section-account" hidden aria-hidden="true"><h2>Account</h2><p class="panel-intro">Manage your founder identity and account access.</p><a class="textlink" href="profile.html">Edit founder profile ↗</a><div class="setting" style="margin-top:18px"><div class="setting-copy"><strong>Log out</strong><small>Sign out of Venturify on this device. Your account and saved data will remain intact.</small></div><button type="button" class="textlink" id="settingsLogout">Log out</button></div><p id="logoutStatus" class="status" role="status" aria-live="polite"></p></section>
-<section class="panel" role="tabpanel" tabindex="0" aria-labelledby="settings-tab-security" id="section-security" hidden aria-hidden="true"><h2>Safety</h2><p class="panel-intro">Keep control of your experience. Blocking and reporting remain available across Venturify.</p><a class="textlink" href="messages.html">Manage conversations ↗</a></section>
+<section class="panel" role="tabpanel" tabindex="0" aria-labelledby="settings-tab-security" id="section-security" hidden aria-hidden="true">
+<h2>Safety &amp; account review</h2><p class="panel-intro">Review any posting restriction on your account and submit an appeal for moderator review. Appeals are private to you and the moderation team.</p>
+<div id="accountModerationStatus" class="surface" style="padding:14px;border:1px solid var(--line);border-radius:10px;margin:14px 0">Checking your account status…</div>
+<div id="accountAppealForm" hidden>
+<label for="accountAppealStatement"><strong>Why should this restriction be reviewed?</strong></label><p class="panel-intro">Explain the context and what you believe was misunderstood. Keep it respectful and specific (30–2000 characters).</p>
+<textarea id="accountAppealStatement" maxlength="2000" rows="5" style="width:100%;border:1px solid var(--line);border-radius:9px;padding:12px;background:var(--card);color:var(--ink);resize:vertical" placeholder="Write your appeal…"></textarea>
+<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px"><button type="button" class="save" id="submitAccountAppeal">Submit appeal</button><span id="accountAppealMessage" class="status" role="status" aria-live="polite"></span></div></div>
+<div id="accountAppealHistory" style="margin-top:16px"></div><a class="textlink" href="messages.html">Manage conversations ↗</a></section>
 <div class="savebar"><span>Changes are not live until you save.</span><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="save" id="discardSettings" disabled style="background:transparent;color:white;border:1px solid #809084">Discard changes</button><button class="save" id="saveSettings">Save settings</button></div></div><p class="status" id="status" role="status" aria-live="polite"></p><button type="button" id="retrySettingsLoad" class="textlink" hidden style="margin-top:8px">Retry loading settings</button>
 </div>
 </div>
@@ -167,6 +174,33 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
  discard.addEventListener('click',()=>{if(!dirty)return;apply(savedValues);setStatus('Unsaved changes discarded. Your last saved settings have been restored.')});
  document.querySelectorAll('[data-setting]').forEach(button=>button.addEventListener('click',()=>{button.setAttribute('aria-checked',String(button.getAttribute('aria-checked')!=='true'));markDirty()}));
  document.getElementById('appearance').addEventListener('change',()=>{const value=document.getElementById('appearance').value;localStorage.setItem('venturify-theme',value);window.venturifyApplyTheme?.(value);markDirty()});
+ async function loadAccountAppeal(){
+  const host=document.getElementById('accountModerationStatus'),form=document.getElementById('accountAppealForm'),history=document.getElementById('accountAppealHistory');
+  if(!user||!client)return;host.textContent='Checking your account status…';form.hidden=true;history.replaceChildren();
+  try{
+   const {data,error}=await client.rpc('get_my_account_moderation_status');if(error)throw error;
+   const state=Array.isArray(data)?data[0]:data;
+   if(!state||state.status!=='posting_restricted')host.textContent=state?.status==='warning'?'A warning has been recorded on your account. You can continue using Venturify.':'There is no active posting restriction on your account.';
+   else{
+    host.textContent='Posting is currently restricted'+(state.expires_at?' · Expected to end '+new Date(state.expires_at).toLocaleString():' · Until manually restored')+(state.reason?' · Reason: '+state.reason:'');
+    if(!['submitted','under_review'].includes(state.appeal_status))form.hidden=false;
+    else{const pending=document.createElement('p');pending.className='status';pending.textContent=state.appeal_status==='under_review'?'Your appeal is being reviewed by the moderation team.':'Your appeal has been submitted and is awaiting review.';host.append(pending)}
+   }
+   if(state?.appeal_id){const card=document.createElement('div');card.className='surface';card.style.cssText='padding:14px;border:1px solid var(--line);border-radius:10px';
+    const h=document.createElement('strong');h.textContent='Your latest appeal · '+state.appeal_status.replaceAll('_',' ');
+    const p=document.createElement('p');p.textContent=state.appeal_statement||'';
+    const d=document.createElement('small');d.textContent='Submitted '+new Date(state.appeal_submitted_at).toLocaleString();card.append(h,p,d);
+    if(state.appeal_decision_message){const response=document.createElement('p');response.textContent='Moderator response: '+state.appeal_decision_message;card.append(response)}history.append(card)}
+  }catch(error){host.textContent='Could not load account review status. Please refresh and try again.';console.warn('Account moderation status unavailable',error)}
+ }
+ document.getElementById('submitAccountAppeal').addEventListener('click',async()=>{
+  const button=document.getElementById('submitAccountAppeal'),statement=document.getElementById('accountAppealStatement'),message=document.getElementById('accountAppealMessage'),value=statement.value.trim();
+  if(value.length<30){message.textContent='Please provide at least 30 characters so moderators have enough context.';statement.focus();return}
+  button.disabled=true;message.textContent='Submitting…';
+  try{const {error}=await client.rpc('submit_account_moderation_appeal',{p_statement:value});if(error)throw error;message.textContent='Appeal submitted. You can check its status here.';await loadAccountAppeal()}
+  catch(error){message.textContent=error.message?.includes('already have an open appeal')?'You already have an appeal awaiting review.':'Could not submit your appeal. Please check your connection and try again.';console.warn('Appeal submission failed',error)}
+  finally{button.disabled=false}
+ });
  async function load(){
   const generation=++loadGeneration,retry=document.getElementById('retrySettingsLoad');
   retry.hidden=true;
@@ -179,6 +213,7 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
    if(!user){document.getElementById('loginNotice').hidden=false;document.getElementById('settingsLayout').hidden=true;return}
    document.getElementById('loginNotice').hidden=true;
    document.getElementById('settingsLayout').hidden=false;
+   await loadAccountAppeal();
    const response=await client.from('account_settings').select('*').eq('user_id',user.id).maybeSingle();
    if(generation!==loadGeneration)return;
    if(response.error){console.error('Account settings read failed',response.error);setStatus('Could not load your saved settings. Your current choices have not been overwritten. You can retry or save again.');retry.hidden=false;return}
