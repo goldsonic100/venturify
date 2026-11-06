@@ -539,6 +539,18 @@ checks AS (
     'Withdraw is author-scoped; moderator list and review RPCs require the private moderator allowlist'
   UNION ALL
   SELECT
+    'postmortem_revision_rpc_is_author_scoped_and_not_public',
+    (
+      NOT has_function_privilege('anon','public.revise_my_founder_postmortem(uuid,text,text,text,text,text,text,text,text,text,text,boolean)','EXECUTE')
+      AND NOT has_function_privilege('public','public.revise_my_founder_postmortem(uuid,text,text,text,text,text,text,text,text,text,text,boolean)','EXECUTE')
+      AND has_function_privilege('authenticated','public.revise_my_founder_postmortem(uuid,text,text,text,text,text,text,text,text,text,text,boolean)','EXECUTE')
+      AND position('auth.uid()' in pg_get_functiondef('public.revise_my_founder_postmortem(uuid,text,text,text,text,text,text,text,text,text,text,boolean)'::regprocedure)) > 0
+      AND position('needs_edits' in pg_get_functiondef('public.revise_my_founder_postmortem(uuid,text,text,text,text,text,text,text,text,text,text,boolean)'::regprocedure)) > 0
+      AND position('consent_to_publish' in pg_get_functiondef('public.revise_my_founder_postmortem(uuid,text,text,text,text,text,text,text,text,text,text,boolean)'::regprocedure)) > 0
+    ),
+    'Only authenticated authors can call the revision RPC; it rechecks ownership, needs_edits status, and explicit publication consent'
+  UNION ALL
+  SELECT
     'postmortem_security_definer_functions_pin_search_path',
     NOT EXISTS (
       SELECT 1
