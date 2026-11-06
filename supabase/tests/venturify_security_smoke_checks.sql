@@ -585,7 +585,6 @@ checks AS (
         )
     ),
     'Every post-mortem SECURITY DEFINER RPC pins an empty search_path'
-)
   UNION ALL
   SELECT
     'postmortem_review_history_is_author_scoped_and_read_only',
@@ -608,7 +607,7 @@ checks AS (
       AND EXISTS (SELECT 1 FROM pg_catalog.pg_indexes WHERE schemaname='public' AND indexname='founder_postmortem_reviews_author_created_idx')
     ),
     'Review history supports per-story and per-author timelines'
-  
+)
 SELECT check_name, passed, detail
 FROM checks
 ORDER BY check_name;
