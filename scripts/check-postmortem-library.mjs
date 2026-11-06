@@ -70,5 +70,5 @@ for (const contract of ['founder_postmortem_id', "'postmortem_review'", 'notific
 for (const source of [indexPage, feedPage]) {
  assert.match(source, /postmortem_review:'reviewed your founder post-mortem submission'/);
  assert.match(source, /founder_postmortem_id,actor:profiles/);
- assert.match(source, /postmortems\\.html#mySubmissions/);
+  assert.ok(source.includes('postmortems.html#mySubmissions'), 'Review notification must link to My submissions');
 }
