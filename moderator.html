@@ -72,7 +72,7 @@ h1{font:500 clamp(32px,5vw,48px) Georgia,serif;letter-spacing:-1.5px;margin:8px 
 </nav>
 <section class="panel" id="panel-overview"><div class="cards" id="metrics"></div><div class="surface"><h2>Queue health</h2><p class="muted">A live age check of the oldest pending reports. Aging is calculated from report creation time and refreshed with the dashboard.</p><div class="cards" id="queueHealth"><div class="metric"><span>Pending report age</span><strong>Loading…</strong></div></div><p class="footer-note" id="queueHealthNote">Loading pending report details…</p></div><div class="surface"><h2>Moderator quick notes</h2><p class="muted">Start with pending reports, then inspect the related profile or post. Decisions and private notes are saved through protected database functions.</p><div class="actions"><button class="btn primary" data-go="reports">Review reports</button><button class="btn" data-go="accounts">Search accounts</button><button class="btn" data-go="content">Inspect recent posts</button></div></div></section>
 <section class="panel" id="panel-reports" hidden><div class="surface"><h2>Report queue</h2><p class="muted">Review user-submitted reports and save a decision with private moderator notes.</p><div class="toolbar"><select id="reportFilter" aria-label="Filter report status"><option value="pending">Pending</option><option value="reviewing">Reviewing</option><option value="resolved">Resolved</option><option value="dismissed">Dismissed</option><option value="">All statuses</option></select><select id="reportAgeFilter" aria-label="Filter report age"><option value="all">All ages</option><option value="over24">Pending · over 24 hours</option><option value="over7">Pending · over 7 days</option></select><select id="reportSort" aria-label="Sort reports"><option value="oldest">Oldest first</option><option value="newest">Newest first</option><option value="priority">Priority first</option></select><button class="btn" id="loadReports">Load reports</button></div><p class="footer-note" id="reportScopeNote">Age filters and sorting apply to the reports currently loaded on this page.</p><div id="reportsList"><div class="empty">Loading reports…</div></div><div class="actions"><button class="btn" id="prevReports" type="button">← Previous</button><button class="btn" id="nextReports" type="button">Next →</button><span id="reportPageLabel" class="muted">Page 1</span></div></div></section>
-<section class="panel" id="panel-accounts" hidden><div class="surface"><h2>Account directory</h2><p class="muted">Search profile records by username, display name, or exact profile ID. For privacy, this view does not expose emails, credentials, sessions, or private messages.</p><div class="toolbar"><input id="userQuery" type="search" maxlength="120" placeholder="Search username, name, or profile UUID"><button class="btn primary" id="searchUsers">Search accounts</button></div><div id="usersList"><div class="empty">Search to view accounts.</div></div><div class="actions"><button class="btn" id="prevUsers">← Previous</button><button class="btn" id="nextUsers">Next →</button></div></div></section>
+<section class="panel" id="panel-accounts" hidden><div class="surface"><h2>Account directory</h2><p class="muted">Search profile records by username, display name, or exact profile ID. For privacy, this view does not expose emails, credentials, sessions, or private messages.</p><p class="footer-note">Account actions are audited. Warnings are recorded for review; posting restrictions block new posts and comments until restored or expired. These controls do not delete accounts or access private messages.</p><div class="toolbar"><input id="userQuery" type="search" maxlength="120" placeholder="Search username, name, or profile UUID"><button class="btn primary" id="searchUsers">Search accounts</button></div><div id="usersList"><div class="empty">Search to view accounts.</div></div><div class="actions"><button class="btn" id="prevUsers">← Previous</button><button class="btn" id="nextUsers">Next →</button></div></div></section>
 <section class="panel" id="panel-content" hidden><div class="surface"><h2>Recent posts</h2><p class="muted">Search publicly shared posts to review content that may need moderation.</p><div class="toolbar"><input id="postQuery" type="search" maxlength="120" placeholder="Search post text, author, or post UUID"><button class="btn primary" id="searchPosts">Search content</button></div><div id="postsList"><div class="empty">Loading recent posts…</div></div><div class="actions"><button class="btn" id="prevPosts" type="button">← Previous</button><button class="btn" id="nextPosts" type="button">Next →</button><span id="postPageLabel" class="muted">Page 1</span></div></div></section>
 <section class="panel" id="panel-systems" hidden><div class="surface"><h2>System checks</h2><p class="muted">These are live database counters and authorization checks—not uptime, hosting, billing, or email-delivery monitoring.</p><div id="systemChecks"></div><div class="actions"><button class="btn primary" id="checkSystems">Run checks</button></div></div><div class="surface"><h2>Security boundaries</h2><p>✓ Moderator RPCs check the private moderator allowlist.</p><p>✓ Account directory returns profile-level fields only.</p><p>✓ No service-role key is shipped to this browser page.</p><p>✓ Private messages and authentication credentials are not shown in this dashboard.</p></div></section>
 </div>
@@ -141,6 +141,8 @@ async function loadUsers(){
  try{
   const data=await rpc('moderator_list_users',{p_query:$('userQuery').value.trim(),p_limit:51,p_offset:userOffset});
   host.replaceChildren();userHasNext=data.length>50;updateUserPagination();if(!data.length){if(userOffset>0){userOffset=Math.max(0,userOffset-50);updateUserPagination();await loadUsers();return;}host.innerHTML='<div class="empty">No matching accounts.</div>';return;}
+  const moderationRows=await rpc('moderator_list_account_moderation',{p_user_ids:data.slice(0,50).map(u=>u.id)});
+  const moderationByUser=new Map((moderationRows||[]).map(row=>[row.user_id,row]));
   data.slice(0,50).forEach(u=>{
    const card=document.createElement('article');card.className='item';
    const title=document.createElement('h3');title.textContent=(u.display_name||u.username||'Unnamed account')+' (@'+u.username+')';
@@ -148,7 +150,49 @@ async function loadUsers(){
    const meta=document.createElement('small');meta.textContent='Joined '+new Date(u.created_at).toLocaleDateString()+' · Profile ID: '+u.id;
    const details=document.createElement('div');details.className='detail-grid';
    [['Posts',u.post_count],['Followers',u.follower_count],['Following',u.following_count],['Company',u.company||'—'],['Headline',u.headline||'—'],['Location',u.location||'—']].forEach(([k,v])=>{const cell=document.createElement('div');const b=document.createElement('b');b.textContent=k;const span=document.createElement('span');span.textContent=safe(v);cell.append(b,span);details.append(cell)});
-   card.append(title,bio,meta,details);host.append(card);
+   const current=moderationByUser.get(u.id)||{status:'clear'};
+   const moderation=document.createElement('div');moderation.className='surface';moderation.style.marginTop='12px';
+   const state=document.createElement('p');state.className='muted';state.textContent='Moderation status: '+(current.status==='posting_restricted'?'Posting restricted':current.status==='warning'?'Warning recorded':'No active action');
+   if(current.expires_at&&current.status==='posting_restricted')state.textContent+=' · Ends '+new Date(current.expires_at).toLocaleString();
+   if(current.reason)state.textContent+=' · Latest reason: '+current.reason;
+   const actionLabel=document.createElement('label');actionLabel.textContent='Action';
+   const action=document.createElement('select');[['warning','Issue warning'],['posting_restricted','Restrict posts and comments'],['restore','Restore posting access']].forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;action.append(o)});
+   const durationLabel=document.createElement('label');durationLabel.textContent='Restriction duration';
+   const duration=document.createElement('select');[['24','24 hours'],['168','7 days'],['0','Until manually restored']].forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;duration.append(o)});
+   const reasonLabel=document.createElement('label');reasonLabel.textContent='Required reason (visible only to moderators)';
+   const reason=document.createElement('textarea');reason.maxLength=1000;reason.placeholder='Document the policy concern and context (at least 8 characters).';
+   const actionButtons=document.createElement('div');actionButtons.className='actions';
+   const apply=document.createElement('button');apply.type='button';apply.className='btn primary';apply.textContent='Save audited action';
+   const historyButton=document.createElement('button');historyButton.type='button';historyButton.className='btn';historyButton.textContent='View action history';
+   const history=document.createElement('div');history.hidden=true;history.className='footer-note';
+   action.addEventListener('change',()=>{durationLabel.hidden=duration.hidden=action.value!=='posting_restricted'});
+   action.dispatchEvent(new Event('change'));
+   apply.addEventListener('click',async()=>{
+    const why=reason.value.trim();if(why.length<8){status('Please enter a reason of at least 8 characters.',true);reason.focus();return;}
+    if(action.value==='posting_restricted'&&!window.confirm('Restrict this account from creating posts and comments?'))return;
+    if(action.value==='restore'&&!window.confirm('Restore posting access for this account?'))return;
+    apply.disabled=true;
+    try{
+     await rpc('moderator_set_account_action',{p_target_user_id:u.id,p_action:action.value,p_reason:why,p_duration_hours:action.value==='posting_restricted'?Number(duration.value):null});
+     status('Account action saved and added to the audit history.');
+     await loadUsers();
+    }catch(e){status('Could not save account action: '+safe(e.message),true)}
+    finally{apply.disabled=false}
+   });
+   historyButton.addEventListener('click',async()=>{
+    historyButton.disabled=true;
+    try{
+     const events=await rpc('moderator_get_account_moderation_history',{p_target_user_id:u.id});
+     history.replaceChildren();
+     if(!events?.length){history.textContent='No previous moderation actions.';}
+     else events.forEach(event=>{const row=document.createElement('p');row.textContent=new Date(event.created_at).toLocaleString()+' · '+event.action.replaceAll('_',' ')+' · '+event.previous_status+' → '+event.new_status+' · '+event.reason+' · Moderator '+event.moderator_id;history.append(row)});
+     history.hidden=!history.hidden;
+    }catch(e){status('Could not load account history: '+safe(e.message),true)}
+    finally{historyButton.disabled=false}
+   });
+   actionButtons.append(apply,historyButton);
+   moderation.append(state,actionLabel,action,durationLabel,duration,reasonLabel,reason,actionButtons,history);
+   card.append(title,bio,meta,details,moderation);host.append(card);
   });
  }catch(e){userHasNext=false;updateUserPagination();host.innerHTML='<div class="empty">Unable to load accounts: '+escapeHtml(e.message)+'</div>'}
 }
