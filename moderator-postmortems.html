@@ -20,6 +20,10 @@
   let allStories = [];
   let reviewHistory = new Map();
   let historyLoadError = false;
+  let pageOffset = 0;
+  let hasMore = false;
+  let isLoadingPage = false;
+  const pageSize = 100;
   const statusLabel = value => { const text = String(value || '').replace(/[-_]/g, ' '); return text ? text.charAt(0).toUpperCase() + text.slice(1) : text; };
   function renderQueue() {
     const status = $('queueStatus').value;
@@ -28,7 +32,7 @@
       (!status || story.status === status) &&
       (!term || [story.company_name, story.author_display_name, story.author_username, story.industry, story.summary, story.what_happened, story.lessons_learned].join(' ').toLowerCase().includes(term))
     );
-    $('status').textContent = visible.length + ' matching submission' + (visible.length === 1 ? '' : 's') + ' · ' + allStories.length + ' loaded across all statuses.' + (historyLoadError ? ' Review history is temporarily unavailable.' : '');
+    $('status').textContent = visible.length + ' matching submission' + (visible.length === 1 ? '' : 's') + ' · ' + allStories.length + ' loaded for this status.' + (historyLoadError ? ' Review history is temporarily unavailable.' : '');
     $('queue').innerHTML = visible.map(story => {
       const history = (reviewHistory.get(story.id) || []).map(event =>
         '<div class="history-event"><strong>' + esc(statusLabel(event.status)) + '</strong><time>' + esc(new Date(event.created_at).toLocaleString()) + '</time>' +
@@ -45,33 +49,57 @@
         ${canReview ? `<form class="review-form"><label>Decision<select name="decision"><option value="needs_edits">Request edits</option><option value="approved">Approve for library</option><option value="rejected">Reject</option></select></label><label>Private moderator notes<textarea name="notes" maxlength="2000" placeholder="Never shown publicly"></textarea></label><button type="submit">Save review</button></form>` : ''}
       </article>`;
     }).join('') || '<div class="empty">No submissions match these filters.</div>';
+    if (hasMore || isLoadingPage) $('queue').insertAdjacentHTML('beforeend', '<div class="load-more"><button id="loadMore" type="button" ' + (isLoadingPage ? 'disabled' : '') + '>' + (isLoadingPage ? 'Loading…' : 'Load 100 more submissions') + '</button></div>');
   }
-  async function load() {
-    $('status').textContent = 'Loading private review queue…';
-    const { data: auth, error: authError } = await client.auth.getUser();
-    if (authError || !auth.user) { $('status').textContent = 'Sign in with an authorized moderator account to review submissions.'; return; }
-    const { data, error } = await client.rpc('moderator_list_founder_postmortems', { p_status: null, p_limit: 100 });
-    if (error) { $('status').textContent = 'Moderator access denied or review migration not applied. Ask an administrator to verify your allowlist and migrations.'; $('status').classList.add('error'); return; }
-    allStories = data || [];
-    reviewHistory = new Map();
-    historyLoadError = false;
-    const ids = allStories.map(story => story.id);
+  async function loadQueuePage(reset = false) {
+    if (isLoadingPage) return;
+    if (reset) {
+      allStories = [];
+      reviewHistory = new Map();
+      pageOffset = 0;
+      hasMore = true;
+      historyLoadError = false;
+    }
+    isLoadingPage = true;
+    renderQueue();
+    const status = $('queueStatus').value || null;
+    const { data, error } = await client.rpc('moderator_list_founder_postmortems_page', {
+      p_status: status, p_limit: pageSize, p_offset: pageOffset
+    });
+    if (error) {
+      isLoadingPage = false;
+      $('status').textContent = 'Could not load this page of submissions. Refresh and try again.';
+      $('status').classList.add('error');
+      renderQueue();
+      return;
+    }
+    const stories = data || [];
+    allStories = allStories.concat(stories);
+    pageOffset += stories.length;
+    hasMore = stories.length === pageSize;
+    const ids = stories.map(story => story.id);
     if (ids.length) {
       const result = await client.from('founder_postmortem_reviews').select('story_id,status,moderator_notes,created_at').in('story_id', ids).order('created_at', { ascending: false });
-      if (result.error) {
-        historyLoadError = true;
-        $('status').classList.add('error');
-      } else {
-        (result.data || []).forEach(event => {
-          if (!reviewHistory.has(event.story_id)) reviewHistory.set(event.story_id, []);
-          reviewHistory.get(event.story_id).push(event);
-        });
-      }
+      if (result.error) historyLoadError = true;
+      else (result.data || []).forEach(event => {
+        if (!reviewHistory.has(event.story_id)) reviewHistory.set(event.story_id, []);
+        reviewHistory.get(event.story_id).push(event);
+      });
     }
+    isLoadingPage = false;
     renderQueue();
   }
-  $('queueStatus').addEventListener('change', renderQueue);
+  async function load() {
+    $('status').textContent = 'Checking moderator access…';
+    const { data: auth, error: authError } = await client.auth.getUser();
+    if (authError || !auth.user) { $('status').textContent = 'Sign in with an authorized moderator account to review submissions.'; return; }
+    await loadQueuePage(true);
+  }
+  $('queueStatus').addEventListener('change', () => loadQueuePage(true));
   $('queueSearch').addEventListener('input', renderQueue);
+  $('queue').addEventListener('click', event => {
+    if (event.target.id === 'loadMore') loadQueuePage(false);
+  });
   $('queue').addEventListener('submit', async event => {
     if (!event.target.matches('.review-form')) return;
     event.preventDefault();
@@ -84,7 +112,7 @@
     });
     button.disabled = false;
     if (error) { $('status').textContent = 'Could not save this decision. Refresh the queue and try again.'; $('status').classList.add('error'); return; }
-    await load();
+    await loadQueuePage(true);
   });
   load().catch(error => { console.error('Post-mortem review queue failed', error); $('status').textContent = 'Could not load the review queue. Refresh and try again.'; });
 })();
