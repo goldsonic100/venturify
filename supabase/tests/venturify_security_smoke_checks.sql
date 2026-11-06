@@ -574,7 +574,8 @@ checks AS (
           'revise_my_founder_postmortem',
           'list_published_founder_postmortems',
           'moderator_list_founder_postmortems',
-          'moderator_review_founder_postmortem'
+          'moderator_review_founder_postmortem',
+          'moderator_list_founder_postmortems_page'
         ])
         AND (
           NOT p.prosecdef
