@@ -6,6 +6,7 @@ const page = read('postmortems.html');
 const migration = read('supabase/migrations/20261105090000_create_founder_postmortems.sql');
 const revisionMigration = read('supabase/migrations/20261106120000_allow_founder_postmortem_revisions.sql');
 const indexMigration = read('supabase/migrations/20261106121500_index_founder_postmortem_reviewed_by.sql');
+const reviewHistoryMigration = read('supabase/migrations/20261106220000_founder_postmortem_review_history.sql');
 const moderator = read('moderator-postmortems.html');
 const reviewNotificationMigration = read('supabase/migrations/20261106210000_notify_founder_postmortem_review.sql');
 const indexPage = read('index.html');
@@ -72,3 +73,17 @@ for (const source of [indexPage, feedPage]) {
  assert.match(source, /founder_postmortem_id,actor:profiles/);
   assert.ok(source.includes('postmortems.html#mySubmissions'), 'Review notification must link to My submissions');
 }
+
+for (const contract of [
+  'founder_postmortem_reviews',
+  'enable row level security',
+  'Authors and moderators can view post-mortem review history',
+  'grant select on table public.founder_postmortem_reviews to authenticated',
+  'revoke all on table public.founder_postmortem_reviews from public, anon, authenticated',
+  'insert into public.founder_postmortem_reviews',
+  'private.moderators',
+  'set search_path = \'\'',
+]) assert.ok(reviewHistoryMigration.includes(contract), 'Review history migration is missing: ' + contract);
+assert.match(page, /from\('founder_postmortem_reviews'\)/, 'Authors must load their private review timeline');
+assert.match(page, /reviewHistory/, 'Author submissions must render review history');
+assert.match(page, /Review history/, 'Review history must be clearly labeled');
