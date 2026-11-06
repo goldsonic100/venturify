@@ -6,7 +6,7 @@ const page = read('postmortems.html');
 const migration = read('supabase/migrations/20261105090000_create_founder_postmortems.sql');
 const moderator = read('moderator-postmortems.html');
 
-for (const [index, match] of [...page.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/gi)].entries()) {
+for (const [index, match] of [...page.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].entries()) {
   const source = match[1].trim();
   if (source) assert.doesNotThrow(() => new Function(source), 'Post-mortem page inline script ' + (index + 1) + ' must parse');
 }
