@@ -492,6 +492,74 @@ checks AS (
       )
     ),
     'Group creation, direct conversations, poll results, and workspace deadline sync retain signed-in-user guards'
+  UNION ALL
+  SELECT
+    'founder_postmortems_table_is_private_and_rls_protected',
+    (
+      coalesce((SELECT c.relrowsecurity FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='founder_postmortems'), false)
+      AND NOT has_table_privilege('anon','public.founder_postmortems','SELECT')
+      AND NOT has_table_privilege('anon','public.founder_postmortems','INSERT')
+      AND has_table_privilege('authenticated','public.founder_postmortems','SELECT')
+      AND has_table_privilege('authenticated','public.founder_postmortems','INSERT')
+      AND NOT has_table_privilege('authenticated','public.founder_postmortems','UPDATE')
+      AND NOT has_table_privilege('authenticated','public.founder_postmortems','DELETE')
+    ),
+    'Authors can read their own submissions and insert consented stories; browser roles cannot directly update or delete'
+  UNION ALL
+  SELECT
+    'postmortem_public_rpc_exposes_only_approved_consented_projection',
+    (
+      has_function_privilege('anon','public.list_published_founder_postmortems(integer)','EXECUTE')
+      AND NOT has_function_privilege('public','public.list_published_founder_postmortems(integer)','EXECUTE')
+      AND position('status' in pg_get_functiondef('public.list_published_founder_postmortems(integer)'::regprocedure)) > 0
+      AND position('approved' in pg_get_functiondef('public.list_published_founder_postmortems(integer)'::regprocedure)) > 0
+      AND position('consent_to_publish' in pg_get_functiondef('public.list_published_founder_postmortems(integer)'::regprocedure)) > 0
+      AND position('author_id' in pg_get_function_result('public.list_published_founder_postmortems(integer)'::regprocedure)) = 0
+      AND position('moderator_notes' in pg_get_function_result('public.list_published_founder_postmortems(integer)'::regprocedure)) = 0
+    ),
+    'Anonymous library reads are limited to approved, consented story fields and omit author IDs and private notes'
+  UNION ALL
+  SELECT
+    'postmortem_private_rpcs_enforce_author_and_moderator_boundaries',
+    (
+      NOT has_function_privilege('anon','public.withdraw_my_founder_postmortem(uuid)','EXECUTE')
+      AND NOT has_function_privilege('public','public.withdraw_my_founder_postmortem(uuid)','EXECUTE')
+      AND has_function_privilege('authenticated','public.withdraw_my_founder_postmortem(uuid)','EXECUTE')
+      AND NOT has_function_privilege('anon','public.moderator_list_founder_postmortems(text,integer)','EXECUTE')
+      AND NOT has_function_privilege('public','public.moderator_list_founder_postmortems(text,integer)','EXECUTE')
+      AND has_function_privilege('authenticated','public.moderator_list_founder_postmortems(text,integer)','EXECUTE')
+      AND NOT has_function_privilege('anon','public.moderator_review_founder_postmortem(uuid,text,text)','EXECUTE')
+      AND NOT has_function_privilege('public','public.moderator_review_founder_postmortem(uuid,text,text)','EXECUTE')
+      AND has_function_privilege('authenticated','public.moderator_review_founder_postmortem(uuid,text,text)','EXECUTE')
+      AND position('auth.uid()' in pg_get_functiondef('public.moderator_list_founder_postmortems(text,integer)'::regprocedure)) > 0
+      AND position('private.moderators' in pg_get_functiondef('public.moderator_list_founder_postmortems(text,integer)'::regprocedure)) > 0
+      AND position('auth.uid()' in pg_get_functiondef('public.moderator_review_founder_postmortem(uuid,text,text)'::regprocedure)) > 0
+      AND position('private.moderators' in pg_get_functiondef('public.moderator_review_founder_postmortem(uuid,text,text)'::regprocedure)) > 0
+    ),
+    'Withdraw is author-scoped; moderator list and review RPCs require the private moderator allowlist'
+  UNION ALL
+  SELECT
+    'postmortem_security_definer_functions_pin_search_path',
+    NOT EXISTS (
+      SELECT 1
+      FROM pg_catalog.pg_proc p
+      JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+      WHERE n.nspname='public'
+        AND p.proname = ANY (ARRAY[
+          'withdraw_my_founder_postmortem',
+          'list_published_founder_postmortems',
+          'moderator_list_founder_postmortems',
+          'moderator_review_founder_postmortem'
+        ])
+        AND (
+          NOT p.prosecdef
+          OR NOT EXISTS (
+            SELECT 1 FROM unnest(coalesce(p.proconfig, ARRAY[]::text[])) cfg
+            WHERE cfg LIKE 'search_path=%'
+          )
+        )
+    ),
+    'Every post-mortem SECURITY DEFINER RPC pins an empty search_path';
 )
 SELECT check_name, passed, detail
 FROM checks
