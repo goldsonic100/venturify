@@ -548,7 +548,7 @@ checks AS (
         AND x.relname='founder_postmortems_reviewed_by_idx'
         AND i.indisvalid
     ),
-    'Reviewer foreign key has a valid supporting index';
+    'Reviewer foreign key has a valid supporting index'
   UNION ALL
   SELECT
     'postmortem_revision_rpc_is_author_scoped_and_not_public',
