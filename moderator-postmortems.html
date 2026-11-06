@@ -5,34 +5,71 @@
   <title>Post-mortem review — Venturify moderator</title>
   <link rel="stylesheet" href="venturify-a11y.css"><link rel="stylesheet" href="venturify-ui.css">
   <style>
-    :root{--ink:#15221c;--muted:#68766c;--paper:#f5f6ef;--card:#fffefa;--line:#dfe5d9;--green:#31583a}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{width:min(100% - 28px,1000px);margin:auto}.topbar{display:flex;justify-content:space-between;gap:12px;padding:16px 0;border-bottom:1px solid var(--line)}.brand{font-size:20px;font-weight:850;text-decoration:none}main{padding:32px 0}.notice,.story{padding:18px;margin:14px 0;background:var(--card);border:1px solid var(--line);border-radius:12px}.story h2{margin:4px 0}.meta,.muted{color:var(--muted);font-size:13px}.story-body{white-space:pre-wrap;overflow-wrap:anywhere}.review-form{display:grid;grid-template-columns:1fr 2fr auto;gap:9px;margin-top:14px}select,textarea,button{font:inherit}select,textarea{padding:9px;border:1px solid #bdc9bc;border-radius:7px;background:white;color:var(--ink)}textarea{min-height:50px}button{padding:9px 13px;border:0;border-radius:7px;background:var(--green);color:white;font-weight:750;cursor:pointer}button:disabled{opacity:.6}.error{color:#8b2013}.status{min-height:1.5em}@media(max-width:700px){.review-form{grid-template-columns:1fr}.topbar{flex-direction:column}}
+    :root{--ink:#15221c;--muted:#68766c;--paper:#f5f6ef;--card:#fffefa;--line:#dfe5d9;--green:#31583a}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}.wrap{width:min(100% - 28px,1000px);margin:auto}.topbar{display:flex;justify-content:space-between;gap:12px;padding:16px 0;border-bottom:1px solid var(--line)}.brand{font-size:20px;font-weight:850;text-decoration:none}main{padding:32px 0}.notice,.story{padding:18px;margin:14px 0;background:var(--card);border:1px solid var(--line);border-radius:12px}.story h2{margin:4px 0}.meta,.muted{color:var(--muted);font-size:13px}.story-body{white-space:pre-wrap;overflow-wrap:anywhere}.toolbar{display:grid;grid-template-columns:minmax(180px,.7fr) minmax(240px,1.3fr);gap:10px;margin:16px 0}.toolbar label{display:grid;gap:5px;font-size:12px;font-weight:750}.toolbar input,.review-form select,.review-form textarea,.toolbar select{width:100%;padding:10px;border:1px solid #bdc9bc;border-radius:8px;background:white;color:var(--ink)}.review-form{display:grid;grid-template-columns:1fr 2fr auto;gap:9px;margin-top:14px}.review-form label{display:grid;gap:5px;font-size:12px;font-weight:750}select,textarea,button{font:inherit}textarea{min-height:50px}.history{margin-top:14px;padding-top:10px;border-top:1px solid var(--line)}.history-event{padding:8px 10px;margin:7px 0;background:#f0f4ec;border-radius:8px;font-size:12px}.history-event time{display:block;color:var(--muted);font-size:11px}.empty{padding:24px;text-align:center;color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:12px}button{padding:9px 13px;border:0;border-radius:7px;background:var(--green);color:white;font-weight:750;cursor:pointer}button:disabled{opacity:.6}.error{color:#8b2013}.status{min-height:1.5em}@media(max-width:700px){.review-form,.toolbar{grid-template-columns:1fr}.topbar{flex-direction:column}}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body><a class="skip-link" href="#main-content">Skip to main content</a><header class="wrap topbar"><a class="brand" href="moderator.html">Venturify moderator</a><a href="moderator.html">Back to dashboard</a></header>
-<main id="main-content" class="wrap"><h1>Founder post-mortem review</h1><p class="muted">This queue contains private submissions and is available only to accounts provisioned in <code>private.moderators</code>. Check consent and remove sensitive third-party information before approval.</p><div id="status" class="notice status" role="status" aria-live="polite">Checking moderator access…</div><div id="queue"></div></main>
+<main id="main-content" class="wrap"><h1>Founder post-mortem review</h1><p class="muted">This queue contains private submissions and is available only to accounts provisioned in <code>private.moderators</code>. Check consent and remove sensitive third-party information before approval.</p><div id="status" class="notice status" role="status" aria-live="polite">Checking moderator access…</div><section class="toolbar" aria-label="Review queue filters"><label>Status <select id="queueStatus"><option value="pending">Pending</option><option value="needs_edits">Needs edits</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="withdrawn">Withdrawn</option><option value="">All statuses</option></select></label><label>Search <input id="queueSearch" type="search" maxlength="120" placeholder="Company, founder, industry, or lesson"></label></section><div id="queue"></div></main>
 <script>
 (() => {
   const client = window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co', 'sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');
   const $ = id => document.getElementById(id);
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const label = value => String(value || '').replace(/[-_]/g, ' ');
+  let allStories = [];
+  let reviewHistory = new Map();
+  const statusLabel = value => String(value || '').replace(/[-_]/g, ' ').replace(/\\b\\w/g, char => char.toUpperCase());
+  function renderQueue() {
+    const status = $('queueStatus').value;
+    const term = $('queueSearch').value.trim().toLowerCase();
+    const visible = allStories.filter(story =>
+      (!status || story.status === status) &&
+      (!term || [story.company_name, story.author_display_name, story.author_username, story.industry, story.summary, story.what_happened, story.lessons_learned].join(' ').toLowerCase().includes(term))
+    );
+    $('status').textContent = visible.length + ' matching submission' + (visible.length === 1 ? '' : 's') + ' · ' + allStories.length + ' loaded across all statuses.';
+    $('queue').innerHTML = visible.map(story => {
+      const history = (reviewHistory.get(story.id) || []).map(event =>
+        '<div class="history-event"><strong>' + esc(statusLabel(event.status)) + '</strong><time>' + esc(new Date(event.created_at).toLocaleString()) + '</time>' +
+        (event.moderator_notes ? '<p>' + esc(event.moderator_notes) + '</p>' : '') + '</div>'
+      ).join('');
+      const canReview = ['pending', 'needs_edits'].includes(story.status);
+      return `<article class="story" data-story="${esc(story.id)}">
+        <div class="meta">${esc(story.industry)} · ${esc(label(story.company_stage))} · ${esc(label(story.primary_lesson))} · ${esc(statusLabel(story.status))} · Submitted ${esc(new Date(story.created_at).toLocaleString())}</div>
+        <h2>${esc(story.company_name || 'Company name not provided')} — ${esc(story.author_display_name || story.author_username || 'Founder')}</h2>
+        <p><strong>Requested attribution:</strong> ${esc(story.author_display_mode)} · company ${esc(story.company_visibility)}. Consent: ${esc(story.consent_to_publish ? story.consent_version : 'MISSING')} at ${esc(new Date(story.consent_at).toLocaleString())}.</p>
+        <h3>Summary</h3><p class="story-body">${esc(story.summary)}</p><h3>What happened</h3><p class="story-body">${esc(story.what_happened)}</p><h3>Lessons learned</h3><p class="story-body">${esc(story.lessons_learned)}</p>
+        ${story.financial_context ? `<h3>Financial context (optional)</h3><p class="story-body">${esc(story.financial_context)}</p>` : ''}
+        ${history ? '<section class="history"><h3>Review history</h3>' + history + '</section>' : ''}
+        ${canReview ? `<form class="review-form"><label>Decision<select name="decision"><option value="needs_edits">Request edits</option><option value="approved">Approve for library</option><option value="rejected">Reject</option></select></label><label>Private moderator notes<textarea name="notes" maxlength="2000" placeholder="Never shown publicly"></textarea></label><button type="submit">Save review</button></form>` : ''}
+      </article>`;
+    }).join('') || '<div class="empty">No submissions match these filters.</div>';
+  }
   async function load() {
     $('status').textContent = 'Loading private review queue…';
     const { data: auth, error: authError } = await client.auth.getUser();
     if (authError || !auth.user) { $('status').textContent = 'Sign in with an authorized moderator account to review submissions.'; return; }
-    const { data, error } = await client.rpc('moderator_list_founder_postmortems', { p_status: 'pending', p_limit: 50 });
+    const { data, error } = await client.rpc('moderator_list_founder_postmortems', { p_status: null, p_limit: 100 });
     if (error) { $('status').textContent = 'Moderator access denied or review migration not applied. Ask an administrator to verify your allowlist and migrations.'; $('status').classList.add('error'); return; }
-    $('status').textContent = data.length ? `${data.length} pending submission${data.length === 1 ? '' : 's'}.` : 'No pending submissions.';
-    $('queue').innerHTML = data.map(story => `<article class="story" data-story="${esc(story.id)}">
-      <div class="meta">${esc(story.industry)} · ${esc(label(story.company_stage))} · ${esc(label(story.primary_lesson))} · Submitted ${esc(new Date(story.created_at).toLocaleString())}</div>
-      <h2>${esc(story.company_name || 'Company name not provided')} — ${esc(story.author_display_name || story.author_username || 'Founder')}</h2>
-      <p><strong>Requested attribution:</strong> ${esc(story.author_display_mode)} · company ${esc(story.company_visibility)}. Consent: ${esc(story.consent_to_publish ? story.consent_version : 'MISSING')} at ${esc(new Date(story.consent_at).toLocaleString())}.</p>
-      <h3>Summary</h3><p class="story-body">${esc(story.summary)}</p><h3>What happened</h3><p class="story-body">${esc(story.what_happened)}</p><h3>Lessons learned</h3><p class="story-body">${esc(story.lessons_learned)}</p>
-      ${story.financial_context ? `<h3>Financial context (optional)</h3><p class="story-body">${esc(story.financial_context)}</p>` : ''}
-      <form class="review-form"><label>Decision<select name="decision"><option value="needs_edits">Request edits</option><option value="approved">Approve for library</option><option value="rejected">Reject</option></select></label><label>Private moderator notes<textarea name="notes" maxlength="2000" placeholder="Never shown publicly"></textarea></label><button type="submit">Save review</button></form>
-    </article>`).join('');
+    allStories = data || [];
+    reviewHistory = new Map();
+    const ids = allStories.map(story => story.id);
+    if (ids.length) {
+      const result = await client.from('founder_postmortem_reviews').select('story_id,status,moderator_notes,created_at').in('story_id', ids).order('created_at', { ascending: false });
+      if (result.error) {
+        $('status').textContent = 'Submissions loaded, but review history could not be retrieved. Check moderator table access.';
+        $('status').classList.add('error');
+      } else {
+        (result.data || []).forEach(event => {
+          if (!reviewHistory.has(event.story_id)) reviewHistory.set(event.story_id, []);
+          reviewHistory.get(event.story_id).push(event);
+        });
+      }
+    }
+    renderQueue();
   }
+  $('queueStatus').addEventListener('change', renderQueue);
+  $('queueSearch').addEventListener('input', renderQueue);
   $('queue').addEventListener('submit', async event => {
     if (!event.target.matches('.review-form')) return;
     event.preventDefault();
