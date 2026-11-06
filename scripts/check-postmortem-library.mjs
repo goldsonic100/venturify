@@ -92,11 +92,11 @@ assert.match(page, /Review history/, 'Review history must be clearly labeled');
 for (const contract of [
   'id="queueStatus"',
   'id="queueSearch"',
-  "p_status: null, p_limit: 100",
+  "p_status: status, p_limit: pageSize, p_offset: pageOffset",
   "from('founder_postmortem_reviews')",
   'Review history',
   "['pending', 'needs_edits'].includes(story.status)",
-  "queueStatus').addEventListener('change', renderQueue)",
+  "queueStatus').addEventListener('change', () => loadQueuePage(true))",
   "queueSearch').addEventListener('input', renderQueue)",
 ]) assert.ok(moderator.includes(contract), 'Moderator queue is missing: ' + contract);
 assert.match(moderator, /\.filter\(story =>[\s\S]*story\.status === status/, 'Moderator status filters must apply to loaded submissions');
