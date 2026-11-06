@@ -586,6 +586,29 @@ checks AS (
     ),
     'Every post-mortem SECURITY DEFINER RPC pins an empty search_path'
 )
+  UNION ALL
+  SELECT
+    'postmortem_review_history_is_author_scoped_and_read_only',
+    (
+      coalesce((SELECT c.relrowsecurity FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='founder_postmortem_reviews'), false)
+      AND has_table_privilege('authenticated','public.founder_postmortem_reviews','SELECT')
+      AND NOT has_table_privilege('anon','public.founder_postmortem_reviews','SELECT')
+      AND NOT has_table_privilege('authenticated','public.founder_postmortem_reviews','INSERT')
+      AND NOT has_table_privilege('authenticated','public.founder_postmortem_reviews','UPDATE')
+      AND NOT has_table_privilege('authenticated','public.founder_postmortem_reviews','DELETE')
+      AND EXISTS (SELECT 1 FROM pg_catalog.pg_policies WHERE schemaname='public' AND tablename='founder_postmortem_reviews' AND policyname='Authors and moderators can view post-mortem review history')
+      AND position('insert into public.founder_postmortem_reviews' in lower(pg_get_functiondef('public.moderator_review_founder_postmortem(uuid,text,text)'::regprocedure))) > 0
+    ),
+    'Review history is RLS-protected, read-only to signed-in authors/moderators, and appended by the protected review RPC'
+  UNION ALL
+  SELECT
+    'postmortem_review_history_indexes_exist',
+    (
+      EXISTS (SELECT 1 FROM pg_catalog.pg_indexes WHERE schemaname='public' AND indexname='founder_postmortem_reviews_story_created_idx')
+      AND EXISTS (SELECT 1 FROM pg_catalog.pg_indexes WHERE schemaname='public' AND indexname='founder_postmortem_reviews_author_created_idx')
+    ),
+    'Review history supports per-story and per-author timelines'
+  
 SELECT check_name, passed, detail
 FROM checks
 ORDER BY check_name;
