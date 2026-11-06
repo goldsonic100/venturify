@@ -30,6 +30,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <section class="panel" aria-labelledby="submitTitle"><h2 id="submitTitle">Share what your venture taught you</h2><p class="muted">Submissions stay private while pending. A moderator reviews each story before it can enter the public library. You can withdraw your submission later.</p>
 <div id="authNotice" class="notice" role="status" aria-live="polite">Checking sign-in…</div>
 <form id="storyForm" hidden>
+<input id="editingStoryId" type="hidden" value="">
 <div class="form-grid">
 <div class="field"><label for="companyName">Company name (optional)</label><input id="companyName" maxlength="120" autocomplete="organization" placeholder="Leave blank if you prefer"></div>
 <div class="field"><label for="industry">Industry</label><input id="industry" maxlength="100" required placeholder="e.g. education technology"></div>
@@ -43,7 +44,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <div class="field"><label for="companyVisibility">Company name visibility</label><select id="companyVisibility"><option value="hidden">Keep company name hidden</option><option value="public">Show company name</option></select></div>
 </div>
 <label class="consent"><input id="publishConsent" type="checkbox" required><span>I confirm I have the right to share this story and explicitly consent to publication if a moderator approves it. I understand that the selected attribution and company visibility settings control what readers see. I will not include another person's private information, passwords, or confidential material I am not authorized to share.</span></label>
-<button id="submitStory" class="btn primary" type="submit">Submit for private review</button>
+<button id="submitStory" class="btn primary" type="submit">Submit for private review</button> <button id="cancelRevision" class="btn" type="button" hidden>Cancel revision</button>
 </form>
 <div id="mySubmissions" class="panel" hidden><h3 style="margin:0;font-size:15px">My submissions</h3><p class="muted">Only you can see these statuses and any private moderator feedback.</p><div id="myStories" class="mine-list"></div></div>
 </section>
@@ -73,11 +74,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   renderStories();
  }
  function renderMine(){
-  $('myStories').innerHTML=mine.map(s=>'<article class="mine-item" data-mine="'+esc(s.id)+'"><strong>'+esc(s.company_name||'Unnamed venture')+' · '+esc(label(s.status))+'</strong><p>Submitted '+esc(new Date(s.created_at).toLocaleString())+(s.moderator_notes?' · Private note: '+esc(s.moderator_notes):'')+'</p>'+(['pending','needs_edits','approved'].includes(s.status)?'<button class="btn" type="button" data-withdraw="'+esc(s.id)+'">Withdraw submission</button>':'')+'</article>').join('')||'<div class="empty">You have not submitted a post-mortem yet.</div>';
+  $('myStories').innerHTML=mine.map(s=>'<article class="mine-item" data-mine="'+esc(s.id)+'"><strong>'+esc(s.company_name||'Unnamed venture')+' · '+esc(label(s.status))+'</strong><p>Submitted '+esc(new Date(s.created_at).toLocaleString())+(s.moderator_notes?' · Private note: '+esc(s.moderator_notes):'')+'</p>'+(s.status==='needs_edits'?'<button class="btn" type="button" data-revise="'+esc(s.id)+'">Revise and resubmit</button> ':'')+(['pending','needs_edits','approved'].includes(s.status)?'<button class="btn" type="button" data-withdraw="'+esc(s.id)+'">Withdraw submission</button>':'')+'</article>').join('')||'<div class="empty">You have not submitted a post-mortem yet.</div>';
  }
  async function loadMine(){
   if(!user)return;
-  const {data,error}=await client.from('founder_postmortems').select('id,company_name,status,moderator_notes,created_at').eq('author_id',user.id).order('created_at',{ascending:false}).limit(50);
+  const {data,error}=await client.from('founder_postmortems').select('id,company_name,industry,company_stage,primary_lesson,summary,what_happened,lessons_learned,financial_context,author_display_mode,company_visibility,consent_to_publish,status,moderator_notes,created_at').eq('author_id',user.id).order('created_at',{ascending:false}).limit(50);
   if(error){$('myStories').textContent='Could not load your submissions right now.';return}
   mine=data||[];renderMine();$('mySubmissions').hidden=false;
  }
@@ -86,17 +87,52 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   if(user){$('storyForm').hidden=false;notice('Signed in. Your submission will remain private until an authorized moderator approves it.');await loadMine()}
   else{$('storyForm').hidden=true;$('mySubmissions').hidden=true;notice('Sign in to submit a story and track your submissions. You can still read the public library. Use the Log in link on the home page.')}
  }
+ function clearRevision(){
+  $('editingStoryId').value='';
+  $('storyForm').reset();
+  $('submitStory').textContent='Submit for private review';
+  $('cancelRevision').hidden=true;
+ }
+ $('cancelRevision').addEventListener('click',()=>{clearRevision();notice('Revision cancelled. Your existing submission is unchanged.')});
  $('storyForm').addEventListener('submit',async event=>{
   event.preventDefault();if(!user){notice('Please sign in again before submitting.',true);return}
-  const button=$('submitStory');button.disabled=true;button.textContent='Submitting…';
-  const payload={author_id:user.id,company_name:$('companyName').value.trim(),industry:$('industry').value.trim(),company_stage:$('companyStage').value,primary_lesson:$('primaryLesson').value,summary:$('summary').value.trim(),what_happened:$('whatHappened').value.trim(),lessons_learned:$('lessonsLearned').value.trim(),financial_context:$('financialContext').value.trim(),author_display_mode:$('authorMode').value,company_visibility:$('companyVisibility').value,consent_to_publish:$('publishConsent').checked,consent_version:'postmortem-consent-v1'};
-  const {error}=await client.from('founder_postmortems').insert(payload);
-  button.disabled=false;button.textContent='Submit for private review';
-  if(error){notice('Submission could not be saved. Check the required fields and try again.',true);return}
-  $('storyForm').reset();notice('Your story was submitted privately. It will appear in the public library only if approved.');
+  const button=$('submitStory'), storyId=$('editingStoryId').value;
+  button.disabled=true;button.textContent=storyId?'Resubmitting…':'Submitting…';
+  const values={p_company_name:$('companyName').value.trim(),p_industry:$('industry').value.trim(),p_company_stage:$('companyStage').value,p_primary_lesson:$('primaryLesson').value,p_summary:$('summary').value.trim(),p_what_happened:$('whatHappened').value.trim(),p_lessons_learned:$('lessonsLearned').value.trim(),p_financial_context:$('financialContext').value.trim(),p_author_display_mode:$('authorMode').value,p_company_visibility:$('companyVisibility').value,p_consent_to_publish:$('publishConsent').checked};
+  let error=null;
+  if(storyId){
+   ({error}=await client.rpc('revise_my_founder_postmortem',{p_story_id:storyId,...values}));
+  }else{
+   ({error}=await client.from('founder_postmortems').insert({author_id:user.id,company_name:values.p_company_name,industry:values.p_industry,company_stage:values.p_company_stage,primary_lesson:values.p_primary_lesson,summary:values.p_summary,what_happened:values.p_what_happened,lessons_learned:values.p_lessons_learned,financial_context:values.p_financial_context,author_display_mode:values.p_author_display_mode,company_visibility:values.p_company_visibility,consent_to_publish:values.p_consent_to_publish,consent_version:'postmortem-consent-v1'}));
+  }
+  button.disabled=false;button.textContent=storyId?'Resubmit for review':'Submit for private review';
+  if(error){notice('Submission could not be saved. Check the required fields and publication consent, then try again.',true);return}
+  clearRevision();notice(storyId?'Your revised story is back in the private moderator queue.':'Your story was submitted privately. It will appear in the public library only if approved.');
   await loadMine();
  });
  $('myStories').addEventListener('click',async event=>{
+  const revise=event.target.closest('[data-revise]');
+  if(revise&&user){
+   const story=mine.find(item=>item.id===revise.dataset.revise);
+   if(!story||story.status!=='needs_edits')return;
+   $('editingStoryId').value=story.id;
+   $('companyName').value=story.company_name||'';
+   $('industry').value=story.industry||'';
+   $('companyStage').value=story.company_stage||'';
+   $('primaryLesson').value=story.primary_lesson||'';
+   $('summary').value=story.summary||'';
+   $('whatHappened').value=story.what_happened||'';
+   $('lessonsLearned').value=story.lessons_learned||'';
+   $('financialContext').value=story.financial_context||'';
+   $('authorMode').value=story.author_display_mode||'anonymous';
+   $('companyVisibility').value=story.company_visibility||'hidden';
+   $('publishConsent').checked=false;
+   $('submitStory').textContent='Resubmit for review';
+   $('cancelRevision').hidden=false;
+   $('storyForm').scrollIntoView({behavior:'smooth',block:'start'});
+   notice('Update the requested sections and confirm publication consent again before resubmitting.');
+   return;
+  }
   const button=event.target.closest('[data-withdraw]');if(!button||!user)return;
   if(!confirm('Withdraw this post-mortem? It will no longer appear in the public library.'))return;
   button.disabled=true;const {error}=await client.rpc('withdraw_my_founder_postmortem',{p_story_id:button.dataset.withdraw});
