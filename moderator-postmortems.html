@@ -19,7 +19,7 @@
   const label = value => String(value || '').replace(/[-_]/g, ' ');
   let allStories = [];
   let reviewHistory = new Map();
-  const statusLabel = value => String(value || '').replace(/[-_]/g, ' ').replace(/\\b\\w/g, char => char.toUpperCase());
+  const statusLabel = value => { const text = String(value || '').replace(/[-_]/g, ' '); return text ? text.charAt(0).toUpperCase() + text.slice(1) : text; };
   function renderQueue() {
     const status = $('queueStatus').value;
     const term = $('queueSearch').value.trim().toLowerCase();
