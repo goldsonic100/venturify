@@ -607,6 +607,18 @@ checks AS (
       AND EXISTS (SELECT 1 FROM pg_catalog.pg_indexes WHERE schemaname='public' AND indexname='founder_postmortem_reviews_author_created_idx')
     ),
     'Review history supports per-story and per-author timelines'
+  UNION ALL
+  SELECT
+    'postmortem_moderator_pagination_rpc_is_allowlisted_and_bounded',
+    (
+      NOT has_function_privilege('anon','public.moderator_list_founder_postmortems_page(text,integer,integer)','EXECUTE')
+      AND NOT has_function_privilege('public','public.moderator_list_founder_postmortems_page(text,integer,integer)','EXECUTE')
+      AND has_function_privilege('authenticated','public.moderator_list_founder_postmortems_page(text,integer,integer)','EXECUTE')
+      AND position('private.moderators' in pg_get_functiondef('public.moderator_list_founder_postmortems_page(text,integer,integer)'::regprocedure)) > 0
+      AND position('auth.uid()' in pg_get_functiondef('public.moderator_list_founder_postmortems_page(text,integer,integer)'::regprocedure)) > 0
+      AND position('offset' in lower(pg_get_functiondef('public.moderator_list_founder_postmortems_page(text,integer,integer)'::regprocedure))) > 0
+    ),
+    'Paged moderator queue RPC is allowlisted, uses the authenticated user, and bounds pagination';
 )
 SELECT check_name, passed, detail
 FROM checks
