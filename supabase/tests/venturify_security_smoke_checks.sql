@@ -618,8 +618,10 @@ checks AS (
       AND position('private.moderators' in pg_get_functiondef('public.moderator_list_founder_postmortems_page(text,integer,integer)'::regprocedure)) > 0
       AND position('auth.uid()' in pg_get_functiondef('public.moderator_list_founder_postmortems_page(text,integer,integer)'::regprocedure)) > 0
       AND position('offset' in lower(pg_get_functiondef('public.moderator_list_founder_postmortems_page(text,integer,integer)'::regprocedure))) > 0
+      AND position('100000' in pg_get_functiondef('public.moderator_list_founder_postmortems_page(text,integer,integer)'::regprocedure)) > 0
+      AND position('least' in lower(pg_get_functiondef('public.moderator_list_founder_postmortems_page(text,integer,integer)'::regprocedure))) > 0
     ),
-    'Paged moderator queue RPC is allowlisted, uses the authenticated user, and bounds pagination';
+    'Paged moderator queue RPC is allowlisted, uses the authenticated user, and bounds pagination'
 )
 SELECT check_name, passed, detail
 FROM checks
