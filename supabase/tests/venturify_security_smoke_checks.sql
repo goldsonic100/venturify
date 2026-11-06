@@ -571,6 +571,7 @@ checks AS (
       WHERE n.nspname='public'
         AND p.proname = ANY (ARRAY[
           'withdraw_my_founder_postmortem',
+          'revise_my_founder_postmortem',
           'list_published_founder_postmortems',
           'moderator_list_founder_postmortems',
           'moderator_review_founder_postmortem'
