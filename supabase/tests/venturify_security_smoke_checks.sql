@@ -559,7 +559,7 @@ checks AS (
           )
         )
     ),
-    'Every post-mortem SECURITY DEFINER RPC pins an empty search_path';
+    'Every post-mortem SECURITY DEFINER RPC pins an empty search_path'
 )
 SELECT check_name, passed, detail
 FROM checks
