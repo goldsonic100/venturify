@@ -539,6 +539,18 @@ checks AS (
     'Withdraw is author-scoped; moderator list and review RPCs require the private moderator allowlist'
   UNION ALL
   SELECT
+    'postmortem_reviewed_by_foreign_key_is_indexed',
+    EXISTS (
+      SELECT 1 FROM pg_catalog.pg_index i
+      JOIN pg_catalog.pg_class t ON t.oid=i.indrelid
+      JOIN pg_catalog.pg_class x ON x.oid=i.indexrelid
+      WHERE t.oid='public.founder_postmortems'::regclass
+        AND x.relname='founder_postmortems_reviewed_by_idx'
+        AND i.indisvalid
+    ),
+    'Reviewer foreign key has a valid supporting index';
+  UNION ALL
+  SELECT
     'postmortem_revision_rpc_is_author_scoped_and_not_public',
     (
       NOT has_function_privilege('anon','public.revise_my_founder_postmortem(uuid,text,text,text,text,text,text,text,text,text,text,boolean)','EXECUTE')
