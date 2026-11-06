@@ -113,16 +113,13 @@ async function loadOverview(){
 async function loadReports(){
  const host=$('reportsList');host.replaceChildren();host.innerHTML='<div class="empty">Loading reports…</div>';
  try{
-  const data=await rpc('moderator_list_reports_page',{p_status:$('reportFilter').value||null,p_limit:51,p_offset:reportOffset});
+  const data=await rpc('moderator_list_reports_filtered_page',{p_status:$('reportFilter').value||null,p_age_filter:$('reportAgeFilter').value,p_sort:$('reportSort').value,p_limit:51,p_offset:reportOffset});
   reportHasNext=data.length>50;updateReportPagination();
   const visibleReports=data.slice(0,50);
   const now=Date.now(), ageMs=report=>Math.max(0,now-new Date(report.created_at).getTime());
-  const ageFilter=$('reportAgeFilter').value, sort=$('reportSort').value;
-  let displayed=visibleReports.filter(report=>{if(ageFilter==='all')return true;if(report.status!=='pending')return false;const age=ageMs(report);return ageFilter==='over24'?age>=86400000:age>=604800000;});
-  displayed.sort((a,b)=>{const ageDiff=ageMs(b)-ageMs(a);if(sort==='newest')return -ageDiff;if(sort==='priority'){const score=r=>r.status==='pending'?(ageMs(r)>=604800000?3:ageMs(r)>=86400000?2:1):0;return score(b)-score(a)||ageDiff;}return ageDiff;});
-  $('reportScopeNote').textContent='Showing '+displayed.length+' of '+visibleReports.length+' reports on page '+(Math.floor(reportOffset/50)+1)+'. Age filters and sorting apply to this page only; use Next to inspect other pages.';
-  host.replaceChildren();if(!visibleReports.length){if(reportOffset>0){reportOffset=Math.max(0,reportOffset-50);updateReportPagination();await loadReports();return;}host.innerHTML='<div class="empty">No reports on this page.</div>';return;}if(!displayed.length){host.innerHTML='<div class="empty">No reports match this age filter on the current page.</div>';return;}
-  displayed.forEach(report=>{
+  $('reportScopeNote').textContent='Server-side filters and sorting cover the entire report queue. Showing '+visibleReports.length+' report(s) on page '+(Math.floor(reportOffset/50)+1)+'.';
+  host.replaceChildren();if(!visibleReports.length){if(reportOffset>0){reportOffset=Math.max(0,reportOffset-50);updateReportPagination();await loadReports();return;}host.innerHTML='<div class="empty">No reports match these filters.</div>';return;}
+  visibleReports.forEach(report=>{
    const card=document.createElement('article');card.className='item';
    const title=document.createElement('h3');title.textContent=report.reason+' · '+report.status;
    const age=ageMs(report), ageLabel=formatAge(age), priority=report.status==='pending'?(age>=604800000?' · Critical overdue':age>=86400000?' · Overdue':' · Within 24h'):'';
