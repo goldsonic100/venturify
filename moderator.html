@@ -65,6 +65,7 @@ h1{font:500 clamp(32px,5vw,48px) Georgia,serif;letter-spacing:-1.5px;margin:8px 
 <div id="dashboard" hidden>
 <nav class="tabs" aria-label="Moderator sections">
 <button type="button" data-tab="overview" aria-selected="true">Overview</button>
+<button type="button" data-tab="growth" aria-selected="false">Growth</button>
 <button type="button" data-tab="reports" aria-selected="false">Reports</button>
 <button type="button" data-tab="accounts" aria-selected="false">Accounts</button>
 <button type="button" data-tab="appeals" aria-selected="false">Appeals</button>
@@ -76,6 +77,11 @@ h1{font:500 clamp(32px,5vw,48px) Georgia,serif;letter-spacing:-1.5px;margin:8px 
 <div class="cards" id="analyticsMetrics"><div class="metric"><span>Loading analytics</span><strong>…</strong></div></div>
 <div style="margin-top:20px"><h3 style="font-size:13px">Daily activity</h3><div class="actions" aria-label="Chart legend"><span class="pill">Reports received</span><span class="pill" style="background:#e6eefb;color:#2456a6">Reports reviewed</span><span class="pill" style="background:#f5eadb;color:#85521c">Appeals submitted</span></div><div id="analyticsChart" role="img" aria-label="Daily moderation activity chart" style="display:flex;align-items:flex-end;gap:3px;min-height:150px;overflow-x:auto;padding:12px 4px 4px;border-bottom:1px solid var(--line)"><span class="muted">Loading trend…</span></div><div id="analyticsChartLabels" class="muted" style="display:flex;justify-content:space-between;font-size:10px;margin-top:5px"></div><p id="analyticsFootnote" class="footer-note">Analytics are based on stored report, appeal, and account moderation timestamps.</p></div></div>
 <div class="surface"><h2>Queue health</h2><p class="muted">A live age check of the oldest pending reports. Aging is calculated from report creation time and refreshed with the dashboard.</p><div class="cards" id="queueHealth"><div class="metric"><span>Pending report age</span><strong>Loading…</strong></div></div><p class="footer-note" id="queueHealthNote">Loading pending report details…</p></div><div class="surface"><h2>Moderator quick notes</h2><p class="muted">Start with pending reports, then inspect the related profile or post. Decisions and private notes are saved through protected database functions.</p><div class="actions"><button class="btn primary" data-go="reports">Review reports</button><button class="btn" data-go="accounts">Search accounts</button><button class="btn" data-go="content">Inspect recent posts</button></div></div></section>
+<section class="panel" id="panel-growth" hidden>
+<div class="surface"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h2>Founder &amp; community growth</h2><p class="muted">Aggregate ecosystem activity: verified profiles, communities, collaboration, and engagement. No member identities or content are returned.</p></div><label for="growthPeriod">Time range <select id="growthPeriod"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select></label></div>
+<div class="cards" id="growthMetrics"><div class="metric"><span>Loading growth data</span><strong>…</strong></div></div>
+<div class="surface"><h3>Daily ecosystem activity</h3><div class="actions"><span class="pill">New accounts</span><span class="pill" style="background:#e6eefb;color:#2456a6">Community joins</span><span class="pill" style="background:#f5eadb;color:#85521c">Collaboration requests</span><span class="pill" style="background:#f0e8f7;color:#69418b">Posts</span></div><div id="growthChart" role="img" aria-label="Daily ecosystem activity chart" style="display:flex;align-items:flex-end;gap:3px;min-height:150px;overflow-x:auto;padding:12px 4px 4px;border-bottom:1px solid var(--line)"><span class="muted">Loading trend…</span></div><div id="growthChartLabels" class="muted" style="display:flex;justify-content:space-between;font-size:10px;margin-top:5px"></div>
+<p class="footer-note">Verified status is stored as a current profile flag, not a historical verification timestamp. “New accounts currently verified” counts profiles created during the selected period that are verified now; it is not a count of verification events. Accepted/declined collaboration totals are current status snapshots.</p></div></div></section>
 <section class="panel" id="panel-reports" hidden><div class="surface"><h2>Report queue</h2><p class="muted">Review user-submitted reports and save a decision with private moderator notes.</p><div class="toolbar"><select id="reportFilter" aria-label="Filter report status"><option value="pending">Pending</option><option value="reviewing">Reviewing</option><option value="resolved">Resolved</option><option value="dismissed">Dismissed</option><option value="">All statuses</option></select><select id="reportAgeFilter" aria-label="Filter report age"><option value="all">All ages</option><option value="over24">Pending · over 24 hours</option><option value="over7">Pending · over 7 days</option></select><select id="reportSort" aria-label="Sort reports"><option value="oldest">Oldest first</option><option value="newest">Newest first</option><option value="priority">Priority first</option></select><button class="btn" id="loadReports">Load reports</button></div><p class="footer-note" id="reportScopeNote">Age filters and sorting apply to the reports currently loaded on this page.</p><div id="reportsList"><div class="empty">Loading reports…</div></div><div class="actions"><button class="btn" id="prevReports" type="button">← Previous</button><button class="btn" id="nextReports" type="button">Next →</button><span id="reportPageLabel" class="muted">Page 1</span></div></div></section>
 <section class="panel" id="panel-accounts" hidden><div class="surface"><h2>Account directory</h2><p class="muted">Search profile records by username, display name, or exact profile ID. For privacy, this view does not expose emails, credentials, sessions, or private messages.</p><p class="footer-note">Account actions are audited. Warnings are recorded for review; posting restrictions block new posts and comments until restored or expired. These controls do not delete accounts or access private messages.</p><div class="toolbar"><input id="userQuery" type="search" maxlength="120" placeholder="Search username, name, or profile UUID"><button class="btn primary" id="searchUsers">Search accounts</button></div><div id="usersList"><div class="empty">Search to view accounts.</div></div><div class="actions"><button class="btn" id="prevUsers">← Previous</button><button class="btn" id="nextUsers">Next →</button></div></div></section>
 <section class="panel" id="panel-appeals" hidden><div class="surface"><h2>Account restriction appeals</h2><p class="muted">Review explanations submitted by users with active posting restrictions. Accepting an appeal restores posting access and records that decision in the account audit history. Denying an appeal leaves the restriction unchanged.</p><div class="toolbar"><select id="appealFilter" aria-label="Filter appeals"><option value="submitted">Awaiting review</option><option value="under_review">In review</option><option value="all">All appeals</option><option value="accepted">Accepted</option><option value="denied">Denied</option></select><button class="btn" id="loadAppeals">Refresh appeals</button></div><div id="appealsList"><div class="empty">Open Appeals to load submissions.</div></div></div></section>
@@ -98,7 +104,7 @@ const safe = value => String(value ?? '');
 function formatAge(ms){const hours=Math.floor(ms/3600000);if(hours<24)return hours+'h';const days=Math.floor(hours/24);const rem=hours%24;return days+'d '+rem+'h';}
 const escapeHtml = value => safe(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function rpc(name,args={}) { const result=await client.rpc(name,args); if(result.error) throw result.error; return result.data; }
-function switchTab(name){document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===name)));document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!=='panel-'+name);if(name==='reports')loadReports();if(name==='accounts')loadUsers();if(name==='appeals')loadAppeals();if(name==='content')loadPosts();if(name==='systems')loadSystems();}
+function switchTab(name){document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===name)));document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!=='panel-'+name);if(name==='growth')loadGrowthAnalytics().catch(e=>status('Could not load growth analytics: '+safe(e.message),true));if(name==='reports')loadReports();if(name==='accounts')loadUsers();if(name==='appeals')loadAppeals();if(name==='content')loadPosts();if(name==='systems')loadSystems();}
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.go)));
 async function loadAnalytics(){
@@ -172,6 +178,36 @@ async function loadReports(){
    card.append(title,meta,target,details,label,select,noteLabel,notes,save);host.append(card);
   });
  }catch(e){reportHasNext=false;updateReportPagination();host.innerHTML='<div class="empty">Unable to load reports: '+escapeHtml(e.message)+'</div>'}
+}
+async function loadGrowthAnalytics(){
+ const days=Number($('growthPeriod').value||30);
+ const d=await rpc('moderator_growth_analytics',{p_days:days});
+ const s=d.summary||{};
+ const metrics=[
+  ['Verified profiles · current',s.verified_profiles_current],
+  ['New accounts',s.new_accounts],
+  ['New accounts currently verified',s.new_accounts_currently_verified],
+  ['Communities · current',s.communities_current],
+  ['Communities created',s.communities_created],
+  ['Community joins',s.community_joins],
+  ['Collaboration requests',s.collaboration_requests_created],
+  ['Accepted · current status',s.collaboration_accepted_current],
+  ['Declined · current status',s.collaboration_declined_current],
+  ['Posts published',s.posts_created],
+  ['Comments added',s.comments_created],
+  ['Likes added',s.likes_created],
+  ['New follows',s.follows_created]
+ ];
+ $('growthMetrics').replaceChildren();
+ metrics.forEach(([label,value])=>{const card=document.createElement('div');card.className='metric';const name=document.createElement('span');name.textContent=label;const amount=document.createElement('strong');amount.textContent=Number(value||0).toLocaleString();card.append(name,amount);$('growthMetrics').append(card)});
+ const rows=d.daily||[],keys=[['accounts_created','#426b4b'],['community_joins','#7ea8e8'],['collaboration_requests','#d6a35d'],['posts_created','#9b78bd']];
+ const max=Math.max(1,...rows.flatMap(x=>keys.map(([k])=>Number(x[k]||0))));
+ const chart=$('growthChart');chart.replaceChildren();
+ rows.forEach(day=>{const group=document.createElement('div');group.style.cssText='flex:1 0 7px;min-width:7px;max-width:22px;height:126px;display:flex;align-items:flex-end;justify-content:center;gap:1px';
+  keys.forEach(([key,color])=>{const bar=document.createElement('span'),value=Number(day[key]||0),height=value?Math.max(3,(value/max)*112):1;bar.style.cssText='display:block;flex:1;min-width:1px;height:'+height+'px;background:'+color+';border-radius:3px 3px 0 0;opacity:'+(value?1:.12);bar.title=new Date(day.day+'T12:00:00').toLocaleDateString()+': '+key.replaceAll('_',' ')+' '+value;group.append(bar)});
+  group.setAttribute('aria-label',new Date(day.day+'T12:00:00').toLocaleDateString()+': '+keys.map(([k])=>k.replaceAll('_',' ')+': '+Number(day[k]||0)).join(', '));chart.append(group);
+ });
+ const labels=$('growthChartLabels');labels.replaceChildren();if(rows.length){const first=document.createElement('span'),last=document.createElement('span');first.textContent=new Date(rows[0].day+'T12:00:00').toLocaleDateString();last.textContent=new Date(rows[rows.length-1].day+'T12:00:00').toLocaleDateString();labels.append(first,last)}
 }
 async function loadUsers(){
  const host=$('usersList');host.replaceChildren();host.innerHTML='<div class="empty">Loading accounts…</div>';userHasNext=false;updateUserPagination();
@@ -276,6 +312,7 @@ async function init(){
  }catch(e){status(e.code==='42501'?'Access denied: this account is not on the moderator allowlist.':'Could not verify moderator access. The dashboard SQL migration may not be applied yet. '+safe(e.message),true)}
 }
 $('analyticsPeriod').addEventListener('change',()=>loadAnalytics().catch(e=>status('Could not load analytics: '+safe(e.message),true)));
+$('growthPeriod').addEventListener('change',()=>loadGrowthAnalytics().catch(e=>status('Could not load growth analytics: '+safe(e.message),true)));
 $('refreshButton').addEventListener('click',async()=>{if(!authorized)return;try{await loadOverview();const active=document.querySelector('[data-tab][aria-selected="true"]')?.dataset.tab;if(active==='reports')await loadReports();if(active==='accounts')await loadUsers();if(active==='appeals')await loadAppeals();if(active==='content')await loadPosts();if(active==='systems')await loadSystems();status('Dashboard refreshed.')}catch(e){status(safe(e.message),true)}});
 $('loadReports').addEventListener('click',loadReports);$('loadAppeals').addEventListener('click',loadAppeals);$('appealFilter').addEventListener('change',loadAppeals);$('reportFilter').addEventListener('change',()=>{reportOffset=0;loadReports()});$('reportAgeFilter').addEventListener('change',loadReports);$('reportSort').addEventListener('change',loadReports);
 $('prevReports').addEventListener('click',()=>{if(reportOffset===0)return;reportOffset=Math.max(0,reportOffset-50);loadReports()});$('nextReports').addEventListener('click',()=>{if(!reportHasNext)return;reportOffset+=50;loadReports()});updateReportPagination();
