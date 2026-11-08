@@ -158,3 +158,5 @@ assert.equal((presenceMigration.match(/realtime\.messages\.extension = 'presence
 assert.ok(workspace.includes("presencePaused=document.visibilityState!=='visible'"), 'Workspace presence should initialize as paused for hidden tabs');
 assert.ok(workspace.includes("if(presencePaused){el.dataset.state='away';label.textContent='You are away — presence paused.';return}"), 'Presence sync events must not overwrite the away state while the tab is hidden');
 assert.ok(workspace.includes('presencePaused=true;renderWorkspacePresence()') && workspace.includes('presencePaused=false;renderWorkspacePresence(presenceChannel?.presenceState?.()||{})'), 'Visibility changes must pause and resume presence rendering explicitly');
+
+assert.ok(collaborations.includes("esc(r.message||'No message was included with this request.')"), 'Collaboration inbox must display the escaped request message, including structured proposals, without a schema change');
