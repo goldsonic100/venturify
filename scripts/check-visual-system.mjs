@@ -39,5 +39,5 @@ console.log(`Visual-system smoke check passed for ${pages.length} pages.`);
 
 assert.match(css, /:where\(a,button,input,select,textarea,\[role="button"\],\[role="tab"\],\[role="switch"\],\[tabindex\]\):focus-visible/, "shared design system should provide visible keyboard focus for native and custom controls");
 assert.match(css, /outline-offset:\s*3px/, "keyboard focus outline should be offset from controls");
-assert.match(css, /scroll-padding-inline:\\s*12px/, "mobile navigation should keep keyboard-focused tabs clear of the scroll viewport edges");
-assert.match(css, /scroll-padding-block:\\s*8px/, "mobile navigation should reserve vertical room for focus outlines");
+assert.match(css, /scroll-padding-inline:\s*12px/, "mobile navigation should keep keyboard-focused tabs clear of the scroll viewport edges");
+assert.match(css, /scroll-padding-block:\s*8px/, "mobile navigation should reserve vertical room for focus outlines");
