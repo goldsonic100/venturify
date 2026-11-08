@@ -103,3 +103,11 @@ for (const path of publicHandlePages) {
 }
 
 console.log('Consistent global navigation and public handle checks passed for ' + pages.length + ' pages.');
+
+assert.ok(css.includes('flex:0 0 104px!important'), 'Every primary text tab must use one shared fixed width.');
+assert.ok(css.includes('height:38px!important') && css.includes('min-height:38px!important'), 'Every primary text tab must use one shared height.');
+assert.ok(css.includes('border-radius:20px!important'), 'Every primary text tab must use the same pill shape.');
+assert.ok(css.includes('background:#536174!important') && css.includes('color:#f2f6fc!important'), 'Inactive primary tabs must share the same slate palette and readable text contrast.');
+assert.ok(css.includes('background:#e5efff!important') && css.includes('color:#315d9d!important'), 'The active tab must use one consistent pale-blue selected state.');
+assert.ok(css.includes('max-width:104px!important'), 'Primary tab widths must not expand differently based on label length.');
+assert.ok(css.includes('flex-wrap:nowrap!important') && css.includes('overflow-x:auto!important'), 'Narrow screens must preserve equal tabs and allow horizontal scrolling.');
