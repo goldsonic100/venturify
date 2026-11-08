@@ -32,6 +32,12 @@ assert.match(page,/function syncNavigation\(\)/,'Community navigation must respo
 const scripts=[...page.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=>x[1].trim()).filter(Boolean);
 assert.ok(scripts.length,'Community page must have an application script.');
 scripts.forEach((source,index)=>{try{new Function(source)}catch(error){throw new Error('community.html inline script '+(index+1)+' failed to parse: '+error.message)}});
+
+assert.match(directory,/personal_score:\(topicInterest\.get\(c\.topic\)\|\|0\)\+\(directInterest\.get\(c\.id\)\|\|0\)/,'Community recommendations must be grounded in the viewer’s existing community activity.');
+assert.match(directory,/community-recommendation-reason/,'Personalized community cards must explain why they were recommended.');
+assert.match(directory,/Recommended because you have activity in /,'Recommendation explanations must identify the topic behind the match.');
+assert.match(directory,/featured\.map\(c=>renderCommunityTile\(c,true,\(c\.personal_score\|\|0\)>0\?'Picked for you':'Popular community'\)\)/,'Popular fallback cards must not be mislabeled as personalized recommendations.');
+
 console.log('Dedicated community page regression checks passed (static checks only).');
 
 const sortGroup = page.match(/<div class="sorts"[^>]*>/);
