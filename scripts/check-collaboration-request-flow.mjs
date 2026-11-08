@@ -160,3 +160,10 @@ assert.ok(workspace.includes("if(presencePaused){el.dataset.state='away';label.t
 assert.ok(workspace.includes('presencePaused=true;renderWorkspacePresence()') && workspace.includes('presencePaused=false;renderWorkspacePresence(presenceChannel?.presenceState?.()||{})'), 'Visibility changes must pause and resume presence rendering explicitly');
 
 assert.ok(collaborations.includes("esc(r.message||'No message was included with this request.')"), 'Collaboration inbox must display the escaped request message, including structured proposals, without a schema change');
+
+assert.ok(collaborations.includes('data-negotiation-form=') && collaborations.includes('collaboration_request_messages'), 'Pending collaboration requests should include a private proposal discussion thread');
+assert.ok(collaborations.includes(".from('collaboration_request_messages').select('id,request_id,sender_id,message,created_at')"), 'Negotiation history should load from the dedicated participant-only message table');
+assert.ok(collaborations.includes(".from('collaboration_request_messages').insert({request_id:requestId,sender_id:user.id,message})"), 'Both participants should be able to send negotiation messages while the request is pending');
+assert.ok(collaborations.includes("table:'collaboration_request_messages',filter:'request_id=eq.'+requestId"), 'Open proposal discussions should receive realtime updates');
+assert.ok(collaborations.includes("request.status!=='pending'"), 'Negotiation messages must only be sent while the proposal is pending');
+assert.ok(collaborations.includes('maxlength="500"'), 'Negotiation messages should respect the 500-character limit');
