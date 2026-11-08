@@ -538,6 +538,19 @@ checks AS (
 
   UNION ALL
   SELECT
+    'all_public_security_definer_functions_use_empty_search_path',
+    NOT EXISTS (
+      SELECT 1
+      FROM pg_catalog.pg_proc p
+      JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+      WHERE n.nspname='public'
+        AND p.prosecdef
+        AND NOT (COALESCE(p.proconfig, ARRAY[]::text[]) @> ARRAY['search_path=""']::text[])
+    ),
+    'Every public SECURITY DEFINER function explicitly pins an empty search_path; merely setting a non-empty path is insufficient'
+
+  UNION ALL
+  SELECT
     'founder_postmortems_table_is_private_and_rls_protected',
     (
       coalesce((SELECT c.relrowsecurity FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='founder_postmortems'), false)
