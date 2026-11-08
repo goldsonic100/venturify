@@ -23,7 +23,7 @@ const requiredChecks = [
   'poll_results_rpc_respects_post_visibility_and_blocks',
   'postmortem_public_rpc_exposes_only_approved_consented_projection',
   'postmortem_private_rpcs_enforce_author_and_moderator_boundaries',
-  'postmortem_pagination_rpc_is_allowlisted_and_bounded',
+  'postmortem_moderator_pagination_rpc_is_allowlisted_and_bounded',
   'postmortem_revision_rpc_is_author_scoped_and_not_public'
 ];
 
