@@ -21,3 +21,17 @@ Before approving, verify consent, check the selected identity/company visibility
 ## Limitations
 
 The first version has no author-facing edit screen or notification when a moderator requests edits. Contributors may contact a moderator to withdraw submissions; the withdrawal RPC is available for a future account submissions screen. Only pending items appear in the initial review page; `needs_edits` items can be queried through the guarded RPC but are not yet shown by that page.
+
+
+## Supabase security-advisor note
+
+Supabase may report `list_published_founder_postmortems(integer)` as an anonymously executable SECURITY DEFINER function. That warning is expected for this feature: the public post-mortem library must load for visitors who are not signed in. Do **not** revoke its `anon` EXECUTE grant unless the product intentionally changes to a sign-in-only library.
+
+This is a narrow public projection, not public table access. The function:
+- returns only stories with `status = 'approved'` and explicit `consent_to_publish = true`;
+- reveals a company name only when `company_visibility = 'public'`;
+- shows profile attribution only when `author_display_mode = 'profile'`, otherwise it uses “Anonymous founder”;
+- does not return author IDs or private moderator notes;
+- pins an empty `search_path` and caps the requested result count at 100.
+
+The security smoke check `postmortem_public_rpc_exposes_only_approved_consented_projection` verifies the public grant and the projection's privacy boundaries. Treat the advisor entry as a reviewed, intentional exception—not as a reason to expose the underlying table or remove the consent/approval filters.
