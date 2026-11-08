@@ -68,14 +68,14 @@ begin
       ('Submit account appeal','public.submit_account_moderation_appeal(text)'),
       ('Founder post-mortem review queue','public.moderator_list_founder_postmortems_page(text,integer,integer)')
   )
-  select v_checks || pg_catalog.coalesce(
+  select v_checks || coalesce(
     pg_catalog.jsonb_agg(
       pg_catalog.jsonb_build_object(
         'name', e.function_name,
         'status', case
           when p.oid is null then 'error'
           when not p.prosecdef then 'error'
-          when not (pg_catalog.coalesce(p.proconfig, array[]::text[]) @> array['search_path=""']::text[]) then 'error'
+          when not (coalesce(p.proconfig, array[]::text[]) @> array['search_path=""']::text[]) then 'error'
           when pg_catalog.has_function_privilege('anon',p.oid,'EXECUTE') then 'error'
           when not pg_catalog.has_function_privilege('authenticated',p.oid,'EXECUTE') then 'error'
           else 'ok'
@@ -83,7 +83,7 @@ begin
         'detail', case
           when p.oid is null then 'Expected function signature is missing'
           when not p.prosecdef then 'Function is not SECURITY DEFINER as expected by this moderator-only endpoint'
-          when not (pg_catalog.coalesce(p.proconfig, array[]::text[]) @> array['search_path=""']::text[]) then 'Function does not pin an empty search_path'
+          when not (coalesce(p.proconfig, array[]::text[]) @> array['search_path=""']::text[]) then 'Function does not pin an empty search_path'
           when pg_catalog.has_function_privilege('anon',p.oid,'EXECUTE') then 'Anonymous EXECUTE is granted; review function permissions'
           when not pg_catalog.has_function_privilege('authenticated',p.oid,'EXECUTE') then 'Authenticated EXECUTE is missing'
           else 'SECURITY DEFINER, empty search_path, authenticated EXECUTE, and no anon EXECUTE verified'
@@ -101,7 +101,7 @@ begin
       ('account_moderation_audit_moderator_id_idx','account_moderation_audit'),
       ('account_moderation_state_updated_by_idx','account_moderation_state')
   )
-  select v_checks || pg_catalog.coalesce(
+  select v_checks || coalesce(
     pg_catalog.jsonb_agg(
       pg_catalog.jsonb_build_object(
         'name','Moderation index: ' || e.index_name,
@@ -116,7 +116,7 @@ begin
 
   return pg_catalog.jsonb_build_object(
     'generated_at', pg_catalog.now(),
-    'checks', pg_catalog.coalesce(v_checks,'[]'::jsonb),
+    'checks', coalesce(v_checks,'[]'::jsonb),
     'scope_note','Read-only checks of selected tables, moderator RPC permissions, and moderation indexes. This is not a complete security audit or hosting/uptime check.'
   );
 end;
