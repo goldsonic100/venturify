@@ -755,7 +755,7 @@ renderCases();
  function notificationDateGroup(value){const d=new Date(value);if(!Number.isFinite(d.getTime()))return 'Earlier';const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate()),day=new Date(d.getFullYear(),d.getMonth(),d.getDate()),delta=Math.round((today-day)/86400000);if(delta===0)return 'Today';if(delta===1)return 'Yesterday';return d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}
  function renderGroupedNotificationRows(items){const groups=new Map();items.forEach(n=>{const label=notificationDateGroup(n.created_at);if(!groups.has(label))groups.set(label,[]);groups.get(label).push(n)});return [...groups.entries()].map(([label,items])=>'<section class="notification-date-group" aria-label="'+safe(label)+'"><h3>'+safe(label)+'</h3>'+items.map(notificationRow).join('')+'</section>').join('')}
  const notificationTaskTypes=['task_assigned','task_updated','task_completed','task_comment','checklist_completed','task_due_soon','task_overdue'];
- const notificationCollaborationTypes=['collaboration_request','collaboration_accepted','collaboration_declined','workspace_created','workspace_updated','project_message'];
+ const notificationCollaborationTypes=['collaboration_request','collaboration_accepted','collaboration_declined','collaboration_message','workspace_created','workspace_updated','project_message'];
  function notificationMatchesCategory(n,key){
   if(key==='all')return true;
   if(key==='unread')return !n.read_at;
