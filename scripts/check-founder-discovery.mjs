@@ -25,7 +25,7 @@ assert.ok(discoverHtml.includes("p.looking_for,p.headline,p.bio,p.skills,p.inter
 assert.ok(discoverHtml.includes('Try a shorter keyword, clear your search, or switch from “Open to co-founders / collaborators” to “Everyone.”'), 'Empty searches should help users broaden the collaborator filter');
 assert.ok(discoverHtml.includes("created_at,email_verified"), 'Guest discovery must select the trusted profile email_verified field before filtering unregistered guests');
 assert.ok(discoverHtml.includes('data-clear-discover-search'), 'Empty discovery searches should offer a clear-search recovery action');
-assert.ok(discoverHtml.includes("$('founderSearch').value='';$('founderIntent').value='all';$('founderSkill').value='all';render()"), 'Clear-search recovery should reset keyword, collaborator, and skill filters');
+assert.ok(discoverHtml.includes("$('founderSearch').value='';$('founderIntent').value='all';$('founderSkill').value='all';$('founderFit').value='all';render()"), 'Clear-search recovery should reset keyword, collaborator, skill, and collaboration-fit filters');
 assert.ok(discoverHtml.includes('Learn topic preferences from founders the viewer explicitly rated'),
   'Discover should learn topic preferences from explicit feedback');
 assert.ok(discoverHtml.includes('learnedTopicWeights.get(word)||0'),
@@ -325,3 +325,10 @@ assert.ok(discoverHtml.includes("const selectedSkill=$('founderSkill')?.value||'
 assert.match(discoverHtml, /\$\('founderSkill'\)\.addEventListener\('change',render\)/, 'Changing the skill filter should refresh founder results');
 assert.match(discoverHtml, /\$\('founderSkill'\)\.innerHTML='<option value="all">All skills<\/option>'/, 'Skill options should be populated from eligible profile data');
 assert.ok(discoverHtml.includes("$('founderSkill').value='all'"), 'Clear-search recovery should reset the skill filter');
+
+assert.match(discoverHtml, /id="founderFit"[^>]*aria-label="Filter founders by collaboration fit"/, 'Founder discovery should provide a dedicated collaboration-fit filter');
+for (const value of ['need_from_them','offer_to_them','two_way','open_collab']) assert.ok(discoverHtml.includes('value="'+value+'"'), 'Collaboration-fit filter is missing '+value);
+assert.match(discoverHtml, /skillFit:\{needFromThem:complement\.length>0,offerToThem:helps\.length>0,twoWay:complement\.length>0&&helps\.length>0,openCollab:collab\}/, 'Collaboration-fit filters must use the same complementary-skill and collaboration signals as match explanations');
+assert.match(discoverHtml, /const selectedFit=\$\('founderFit'\)\?\.value\|\|'all'/, 'Founder results must apply the selected collaboration-fit filter');
+assert.match(discoverHtml, /\$\('founderFit'\)\.addEventListener\('change',render\)/, 'Changing collaboration fit must refresh founder results');
+assert.ok(discoverHtml.includes("$('founderFit').value='all';render()"), 'Clear-search recovery should reset collaboration-fit filters');
