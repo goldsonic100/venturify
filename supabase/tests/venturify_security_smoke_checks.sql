@@ -302,6 +302,19 @@ checks AS (
 
   UNION ALL
   SELECT
+    'poll_results_rpc_respects_post_visibility_and_blocks',
+    (
+      pg_catalog.strpos(pg_catalog.lower(pg_catalog.pg_get_functiondef('public.get_poll_results(uuid[])'::regprocedure)), 'private.is_profile_public') > 0
+      AND pg_catalog.strpos(pg_catalog.lower(pg_catalog.pg_get_functiondef('public.get_poll_results(uuid[])'::regprocedure)), 'public.follows') > 0
+      AND pg_catalog.strpos(pg_catalog.lower(pg_catalog.pg_get_functiondef('public.get_poll_results(uuid[])'::regprocedure)), 'public.user_blocks') > 0
+      AND pg_catalog.strpos(pg_catalog.lower(pg_catalog.pg_get_functiondef('public.get_poll_results(uuid[])'::regprocedure)), 'auth.uid()') > 0
+      AND NOT pg_catalog.has_function_privilege('anon','public.get_poll_results(uuid[])','EXECUTE')
+      AND pg_catalog.has_function_privilege('authenticated','public.get_poll_results(uuid[])','EXECUTE')
+    ),
+    'Poll result aggregation mirrors post visibility, excludes either-direction blocks, and remains signed-in only'
+
+  UNION ALL
+  SELECT
     'message_notification_preference_enabled',
     EXISTS (
       SELECT 1 FROM pg_catalog.pg_trigger t
