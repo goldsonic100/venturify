@@ -322,32 +322,20 @@ async function loadPosts(){
 }
 async function loadSystems(){
  const host=$('systemChecks');host.replaceChildren();
- const loading=document.createElement('div');loading.className='empty';loading.textContent='Checking database configuration…';host.append(loading);
- const button=$('checkSystems');button.disabled=true;
- try{
-  const result=await rpc('moderator_system_diagnostics');
-  host.replaceChildren();
-  const checks=Array.isArray(result?.checks)?result.checks:[];
-  const counts=checks.reduce((a,c)=>{a[c.status]=(a[c.status]||0)+1;return a},{});
-  const summary=document.createElement('div');summary.className='item';
-  const heading=document.createElement('h3');heading.textContent='Diagnostic summary';
-  const summaryText=document.createElement('p');summaryText.textContent=(counts.ok||0)+' passed · '+(counts.warning||0)+' warnings · '+(counts.error||0)+' errors';
-  const timestamp=document.createElement('small');timestamp.textContent='Checked: '+new Date(result.generated_at).toLocaleString();
-  summary.append(heading,summaryText,timestamp);host.append(summary);
-  checks.forEach(check=>{
-   const el=document.createElement('div');el.className='item';
-   const pill=document.createElement('span');pill.className='pill';
-   pill.textContent=check.status==='ok'?'OK':check.status==='warning'?'Review':'Needs attention';
-   if(check.status==='warning'){pill.style.background='#fff4d8';pill.style.color='#79530b'}
-   if(check.status==='error'){pill.style.background='#ffe8e4';pill.style.color='#922d20'}
-   const h=document.createElement('h3');h.textContent=check.name||'System check';
-   const p=document.createElement('p');p.textContent=check.detail||'No diagnostic detail returned.';
-   el.append(pill,h,p);host.append(el);
-  });
-  const note=document.createElement('p');note.className='footer-note';note.textContent=result.scope_note||'Selected read-only diagnostics only; not a complete security audit.';host.append(note);
-  status(counts.error?'System diagnostics completed with '+counts.error+' item(s) needing attention.':counts.warning?'System diagnostics completed with warnings to review.':'System diagnostics completed; all selected checks passed.');
- }catch(e){host.replaceChildren();const error=document.createElement('div');error.className='item';error.textContent='Could not complete system diagnostics: '+safe(e.message);host.append(error);status('System check failed: '+safe(e.message),true)}
- finally{button.disabled=false}
+ const loading=document.createElement('div');loading.className='empty';loading.textContent='Running read-only database checks…';host.append(loading);
+ const checks=[
+  {name:'Moderator dashboard overview',run:async()=>{const d=await rpc('moderator_dashboard_overview');const keys=['accounts','posts','comments','communities','community_memberships','pending_reports','reviewing_reports','messages'];const missing=keys.filter(k=>!Number.isFinite(Number(d?.[k])));if(missing.length)throw new Error('Unexpected response: missing numeric '+missing.join(', '));if(keys.some(k=>Number(d[k])<0))throw new Error('Unexpected negative counter');return keys.length+' live counters returned'}},
+  {name:'Trust & safety analytics',run:async()=>{const d=await rpc('moderator_dashboard_analytics',{p_days:7});if(!d?.summary||!Array.isArray(d.daily)||d.daily.length!==7)throw new Error('Expected summary plus 7 daily buckets; received '+(d?.daily?.length??'no')+' buckets');return '7-day aggregate query returned '+d.daily.length+' daily buckets'}},
+  {name:'Founder & community analytics',run:async()=>{const d=await rpc('moderator_growth_analytics',{p_days:7});if(!d?.summary||!Array.isArray(d.daily)||d.daily.length!==7)throw new Error('Expected summary plus 7 daily buckets; received '+(d?.daily?.length??'no')+' buckets');return '7-day aggregate query returned '+d.daily.length+' daily buckets'}},
+  {name:'Filtered report queue',run:async()=>{const rows=await rpc('moderator_list_reports_filtered_page',{p_status:null,p_age_filter:'all',p_sort:'oldest',p_limit:1,p_offset:0});if(!Array.isArray(rows))throw new Error('Expected a report array');return 'Filtered, paginated query returned a valid array'}},
+  {name:'Account appeal queue',run:async()=>{const rows=await rpc('moderator_list_account_appeals',{p_status:'all',p_limit:1,p_offset:0});if(!Array.isArray(rows))throw new Error('Expected an appeals array');return 'Appeal queue returned a valid array'}},
+  {name:'Recent content queue',run:async()=>{const rows=await rpc('moderator_list_recent_posts_page',{p_query:'',p_limit:1,p_offset:0});if(!Array.isArray(rows))throw new Error('Expected a posts array');return 'Recent-content query returned a valid array'}}
+ ];
+ const results=await Promise.all(checks.map(async check=>{try{return {name:check.name,ok:true,detail:await check.run()}}catch(error){return {name:check.name,ok:false,detail:safe(error.message)}}}));
+ host.replaceChildren();
+ results.forEach(result=>{const card=document.createElement('article');card.className='item';const pill=document.createElement('span');pill.className='pill';pill.textContent=result.ok?'PASS':'Needs attention';const heading=document.createElement('h3');heading.textContent=result.name;const detail=document.createElement('p');detail.textContent=result.detail;card.append(pill,heading,detail);host.append(card)});
+ const passed=results.filter(x=>x.ok).length;const summary=document.createElement('p');summary.className='footer-note';summary.textContent=passed+'/'+results.length+' checks passed · Checked '+new Date().toLocaleString()+'. These are live functional probes using the current moderator session; they validate RPC access and response shapes, not overall security, hosting uptime, email delivery, or billing.';host.append(summary);
+ if(passed!==results.length)status((results.length-passed)+' system check(s) need attention. Open the failed item for the exact database response.',true);
 }
 async function init(){
  try{const {data,error}=await client.auth.getUser();if(error||!data?.user){status('Please sign in to Venturify first, then reopen the moderator dashboard.',true);return}
