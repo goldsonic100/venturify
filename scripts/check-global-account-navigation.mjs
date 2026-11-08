@@ -71,6 +71,10 @@ const activeNavigation = readFileSync(new URL('../assets/active-navigation.js', 
 assert.match(activeNavigation,/aria-current/,'The current navigation destination must be announced accessibly.');
 assert.match(activeNavigation,/founderDiscovery/,'The People directory deep link must receive its own active state.');
 assert.match(activeNavigation,/workspace\.html/,'Workspace should highlight the Collaborations destination.');
+assert.match(activeNavigation, /addEventListener\('hashchange', updateActiveNavigation\)/,
+  'The active navigation state must update when an in-page view changes its URL hash.');
+assert.match(activeNavigation, /addEventListener\('popstate', updateActiveNavigation\)/,
+  'The active navigation state must stay correct when users navigate browser history.');
 for (const path of pages) {
   const html = readFileSync(new URL('../' + path, import.meta.url), 'utf8');
   assert.match(html,/assets\/active-navigation\.js/,'The shared active navigation script must load on ' + path + '.');
