@@ -73,12 +73,12 @@ h1{font:500 clamp(32px,5vw,48px) Georgia,serif;letter-spacing:-1.5px;margin:8px 
 <button type="button" data-tab="systems" aria-selected="false">Systems</button>
 </nav>
 <section class="panel" id="panel-overview"><div class="cards" id="metrics"></div>
-<div class="surface" id="analyticsPanel"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h2>Trust &amp; safety analytics</h2><p class="muted">Activity trends and moderation response times. Aggregate counts only—no private message content or account credentials.</p></div><label for="analyticsPeriod">Time range <select id="analyticsPeriod"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select></label></div>
+<div class="surface" id="analyticsPanel"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h2>Trust &amp; safety analytics</h2><p class="muted">Activity trends and moderation response times. Aggregate counts only—no private message content or account credentials.</p></div><label for="analyticsPeriod">Time range <select id="analyticsPeriod"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select></label><button class="btn" id="exportAnalytics" type="button">Export CSV ↓</button></div></div>
 <div class="cards" id="analyticsMetrics"><div class="metric"><span>Loading analytics</span><strong>…</strong></div></div>
 <div style="margin-top:20px"><h3 style="font-size:13px">Daily activity</h3><div class="actions" aria-label="Chart legend"><span class="pill">Reports received</span><span class="pill" style="background:#e6eefb;color:#2456a6">Reports reviewed</span><span class="pill" style="background:#f5eadb;color:#85521c">Appeals submitted</span></div><div id="analyticsChart" role="img" aria-label="Daily moderation activity chart" style="display:flex;align-items:flex-end;gap:3px;min-height:150px;overflow-x:auto;padding:12px 4px 4px;border-bottom:1px solid var(--line)"><span class="muted">Loading trend…</span></div><div id="analyticsChartLabels" class="muted" style="display:flex;justify-content:space-between;font-size:10px;margin-top:5px"></div><p id="analyticsFootnote" class="footer-note">Analytics are based on stored report, appeal, and account moderation timestamps.</p></div></div>
 <div class="surface"><h2>Queue health</h2><p class="muted">A live age check of the oldest pending reports. Aging is calculated from report creation time and refreshed with the dashboard.</p><div class="cards" id="queueHealth"><div class="metric"><span>Pending report age</span><strong>Loading…</strong></div></div><p class="footer-note" id="queueHealthNote">Loading pending report details…</p></div><div class="surface"><h2>Moderator quick notes</h2><p class="muted">Start with pending reports, then inspect the related profile or post. Decisions and private notes are saved through protected database functions.</p><div class="actions"><button class="btn primary" data-go="reports">Review reports</button><button class="btn" data-go="accounts">Search accounts</button><button class="btn" data-go="content">Inspect recent posts</button></div></div></section>
 <section class="panel" id="panel-growth" hidden>
-<div class="surface"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h2>Founder &amp; community growth</h2><p class="muted">Aggregate ecosystem activity: verified profiles, communities, collaboration, and engagement. No member identities or content are returned.</p></div><label for="growthPeriod">Time range <select id="growthPeriod"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select></label></div>
+<div class="surface"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><h2>Founder &amp; community growth</h2><p class="muted">Aggregate ecosystem activity: verified profiles, communities, collaboration, and engagement. No member identities or content are returned.</p></div><label for="growthPeriod">Time range <select id="growthPeriod"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select></label><button class="btn" id="exportGrowth" type="button">Export CSV ↓</button></div></div>
 <div class="cards" id="growthMetrics"><div class="metric"><span>Loading growth data</span><strong>…</strong></div></div>
 <div class="surface"><h3>Daily ecosystem activity</h3><div class="actions"><span class="pill">New accounts</span><span class="pill" style="background:#e6eefb;color:#2456a6">Community joins</span><span class="pill" style="background:#f5eadb;color:#85521c">Collaboration requests</span><span class="pill" style="background:#f0e8f7;color:#69418b">Posts</span></div><div id="growthChart" role="img" aria-label="Daily ecosystem activity chart" style="display:flex;align-items:flex-end;gap:3px;min-height:150px;overflow-x:auto;padding:12px 4px 4px;border-bottom:1px solid var(--line)"><span class="muted">Loading trend…</span></div><div id="growthChartLabels" class="muted" style="display:flex;justify-content:space-between;font-size:10px;margin-top:5px"></div>
 <p class="footer-note">Verified status is stored as a current profile flag, not a historical verification timestamp. “New accounts currently verified” counts profiles created during the selected period that are verified now; it is not a count of verification events. Accepted/declined collaboration totals are current status snapshots.</p></div></div></section>
@@ -103,6 +103,24 @@ function updatePostPagination(){ $('prevPosts').disabled=postOffset===0; $('next
 const safe = value => String(value ?? '');
 function formatAge(ms){const hours=Math.floor(ms/3600000);if(hours<24)return hours+'h';const days=Math.floor(hours/24);const rem=hours%24;return days+'d '+rem+'h';}
 const escapeHtml = value => safe(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let analyticsExportData=null,growthExportData=null;
+function downloadAggregateCsv(kind){
+ const data=kind==='growth'?growthExportData:analyticsExportData;
+ if(!data){status('Load the '+(kind==='growth'?'growth':'trust & safety')+' analytics before exporting.',true);return}
+ const rows=[['section','metric','value','day']];
+ Object.entries(data.summary||{}).forEach(([key,value])=>rows.push(['summary',key,value??'','']));
+ (data.daily||[]).forEach(day=>Object.entries(day).filter(([key])=>key!=='day').forEach(([key,value])=>rows.push(['daily',key,value??'',day.day||''])));
+ const csv=rows.map(row=>row.map(value=>{
+  let cell=String(value??'');
+  if(/^[=+@\\-\\t\\r]/.test(cell))cell="'"+cell;
+  return '"'+cell.replace(/"/g,'""')+'"';
+ }).join(',')).join('\\r\\n');
+ const blob=new Blob(['\\ufeff',csv],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ link.href=url;link.download='venturify-'+kind+'-analytics-'+(data.period_days||'selected')+'-days.csv';
+ document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ status('Aggregate analytics CSV exported. No member identities or private content are included.');
+}
 async function rpc(name,args={}) { const result=await client.rpc(name,args); if(result.error) throw result.error; return result.data; }
 function switchTab(name){document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===name)));document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!=='panel-'+name);if(name==='growth')loadGrowthAnalytics().catch(e=>status('Could not load growth analytics: '+safe(e.message),true));if(name==='reports')loadReports();if(name==='accounts')loadUsers();if(name==='appeals')loadAppeals();if(name==='content')loadPosts();if(name==='systems')loadSystems();}
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
@@ -110,6 +128,7 @@ document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=
 async function loadAnalytics(){
  const days=Number($('analyticsPeriod').value||30);
  const d=await rpc('moderator_dashboard_analytics',{p_days:days});
+ analyticsExportData={...d,period_days:days};
  const metrics=[
   ['Reports received',d.summary.reports_received],
   ['Reports reviewed',d.summary.reports_reviewed],
@@ -182,6 +201,7 @@ async function loadReports(){
 async function loadGrowthAnalytics(){
  const days=Number($('growthPeriod').value||30);
  const d=await rpc('moderator_growth_analytics',{p_days:days});
+ growthExportData={...d,period_days:days};
  const s=d.summary||{};
  const metrics=[
   ['Verified profiles · current',s.verified_profiles_current],
@@ -312,7 +332,9 @@ async function init(){
  }catch(e){status(e.code==='42501'?'Access denied: this account is not on the moderator allowlist.':'Could not verify moderator access. The dashboard SQL migration may not be applied yet. '+safe(e.message),true)}
 }
 $('analyticsPeriod').addEventListener('change',()=>loadAnalytics().catch(e=>status('Could not load analytics: '+safe(e.message),true)));
+$('exportAnalytics').addEventListener('click',()=>downloadAggregateCsv('analytics'));
 $('growthPeriod').addEventListener('change',()=>loadGrowthAnalytics().catch(e=>status('Could not load growth analytics: '+safe(e.message),true)));
+$('exportGrowth').addEventListener('click',()=>downloadAggregateCsv('growth'));
 $('refreshButton').addEventListener('click',async()=>{if(!authorized)return;try{await loadOverview();const active=document.querySelector('[data-tab][aria-selected="true"]')?.dataset.tab;if(active==='growth')await loadGrowthAnalytics();if(active==='reports')await loadReports();if(active==='accounts')await loadUsers();if(active==='appeals')await loadAppeals();if(active==='content')await loadPosts();if(active==='systems')await loadSystems();status('Dashboard refreshed.')}catch(e){status(safe(e.message),true)}});
 $('loadReports').addEventListener('click',loadReports);$('loadAppeals').addEventListener('click',loadAppeals);$('appealFilter').addEventListener('change',loadAppeals);$('reportFilter').addEventListener('change',()=>{reportOffset=0;loadReports()});$('reportAgeFilter').addEventListener('change',loadReports);$('reportSort').addEventListener('change',loadReports);
 $('prevReports').addEventListener('click',()=>{if(reportOffset===0)return;reportOffset=Math.max(0,reportOffset-50);loadReports()});$('nextReports').addEventListener('click',()=>{if(!reportHasNext)return;reportOffset+=50;loadReports()});updateReportPagination();
