@@ -71,7 +71,7 @@ assert.match(html, /founderLevel\(p\)>=Math\.max\(5,minimumLevel\)/, 'People dir
 assert.match(html, /browseMode==='recommended'/, 'The six-per-day cap must apply only to personalized picks');
 assert.match(html, /browseMode==='recommended'&&!q\.length&&!skillQuery&&intent==='all'/, 'Explicit searches and filters must reach all eligible people instead of being limited to six daily picks');
 assert.match(html, />Level '\+founderLevel\(p\)/, 'People cards must display reputation level');
-assert.match(html, /href="#founderDiscovery" data-app-view="people">People<\/a>/, 'Main navigation must expose the People directory');
+assert.match(html, /href="discover\\.html#founderDiscovery" data-app-view="people" data-nav-key="founders">Founders<\\/a>/, 'Main navigation must expose the shared Founders directory.');
 
 assert.match(html, /data-profile=/,
   'Founder cards must retain the profile link');
