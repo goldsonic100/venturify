@@ -319,3 +319,83 @@ body[data-view="messages"] .messages-composer .comment-input:focus { border-colo
   outline:3px solid #8fc3ff;
   outline-offset:2px;
 }
+
+/* Final global tab contract: identical geometry and a single slate/blue palette
+   across legacy public pages and the signed-in application shell. */
+.topbar .nav.venturify-primary-nav{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end;
+  flex-wrap:nowrap;
+  gap:6px!important;
+}
+.topbar .nav.venturify-primary-nav>a.nav-item,
+.topbar .nav.venturify-primary-nav>a.nav-item[data-nav-key],
+.topbar .nav.venturify-primary-nav>a.nav-item.nav-signup{
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  flex:0 0 104px!important;
+  width:104px!important;
+  min-width:104px!important;
+  max-width:104px!important;
+  height:38px!important;
+  min-height:38px!important;
+  max-height:38px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0 7px!important;
+  border:1px solid #536174!important;
+  border-radius:20px!important;
+  background:#536174!important;
+  color:#f2f6fc!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  line-height:1!important;
+  text-align:center!important;
+  text-decoration:none!important;
+  white-space:nowrap!important;
+  box-shadow:none!important;
+}
+.topbar .nav.venturify-primary-nav>a.nav-item:hover,
+.topbar .nav.venturify-primary-nav>a.nav-item.nav-signup:hover{
+  background:#65758c!important;
+  border-color:#8293aa!important;
+  color:#fff!important;
+}
+.topbar .nav.venturify-primary-nav>a.nav-item[aria-current="page"],
+.topbar .nav.venturify-primary-nav>a.nav-item.active{
+  background:#e5efff!important;
+  border-color:#a7c5ff!important;
+  color:#315d9d!important;
+  box-shadow:0 2px 9px rgba(62,117,210,.12)!important;
+}
+@media(max-width:900px){
+  .topbar .nav.venturify-primary-nav{
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+  }
+  .topbar .nav.venturify-primary-nav>a.nav-item,
+  .topbar .nav.venturify-primary-nav>a.nav-item[data-nav-key],
+  .topbar .nav.venturify-primary-nav>a.nav-item.nav-signup{
+    flex:0 0 104px!important;
+    width:104px!important;
+    min-width:104px!important;
+    max-width:104px!important;
+  }
+}
+@media(max-width:480px){
+  .topbar .nav.venturify-primary-nav{gap:5px!important}
+  .topbar .nav.venturify-primary-nav>a.nav-item,
+  .topbar .nav.venturify-primary-nav>a.nav-item[data-nav-key],
+  .topbar .nav.venturify-primary-nav>a.nav-item.nav-signup{
+    flex-basis:100px!important;
+    width:100px!important;
+    min-width:100px!important;
+    max-width:100px!important;
+    height:36px!important;
+    min-height:36px!important;
+    max-height:36px!important;
+    font-size:11px!important;
+  }
+}
