@@ -88,7 +88,7 @@
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  const initials=v=>(String(v||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
- let user=null,requests=[],profiles=new Map(),filter='all',statusFilter='all',searchTerm='',requestSort='newest',busy=false,hasMoreRequests=false,loadingOlder=false;
+ let user=null,requests=[],profiles=new Map(),autoOpenedDiscussion=false,filter='all',statusFilter='all',searchTerm='',requestSort='newest',busy=false,hasMoreRequests=false,loadingOlder=false;
  const requestPageSize=100;
  function notice(message,error=false){$('notice').textContent=message;$('notice').setAttribute('role',error?'alert':'status');$('notice').setAttribute('aria-live',error?'assertive':'polite');$('notice').classList.toggle('error',error);$('notice').classList.remove('hidden')}
  function date(v){try{return new Date(v).toLocaleString(undefined,{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})}catch{return ''}}
@@ -116,7 +116,7 @@
    requests=result.data||[];hasMoreRequests=requests.length===requestPageSize;
    const ids=[...new Set(requests.flatMap(r=>[r.requester_id,r.recipient_id]).filter(id=>id!==user.id))];
    if(ids.length){const pr=await client.from('profiles').select('id,username,display_name,avatar_url').in('id',ids);if(!pr.error)profiles=new Map((pr.data||[]).map(p=>[p.id,p]))}
-   busy=false;$('app').classList.remove('hidden');$('notice').classList.add('hidden');$('retryRequests').classList.add('hidden');render();
+   busy=false;$('app').classList.remove('hidden');$('notice').classList.add('hidden');$('retryRequests').classList.add('hidden');render();if(!autoOpenedDiscussion){const requestedDiscussion=new URLSearchParams(window.location.search).get('request');if(requestedDiscussion){const discussionButton=[...document.querySelectorAll('[data-open-negotiation]')].find(button=>button.dataset.openNegotiation===requestedDiscussion);if(discussionButton){autoOpenedDiscussion=true;discussionButton.click()}}}
   }catch(error){
    busy=false;$('requests').setAttribute('aria-busy','false');notice('Could not load collaboration requests. Check your connection and try again.',true);$('retryRequests').classList.remove('hidden');
   }
