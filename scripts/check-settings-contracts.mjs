@@ -15,4 +15,9 @@ assert.ok(source0.includes('id="retrySettingsLoad"'), 'Settings loading failures
 assert.ok(source0.includes("addEventListener('click',()=>load())"), 'Settings retry control must call the load routine.');
 assert.ok(source0.includes("role=\"status\" aria-live=\"polite\""), 'Settings status feedback must remain accessible.');
 
+assert.match(source0, /--green:#1768c8/, 'Settings primary accent must match the shared Venturify blue palette.');
+assert.match(source0, /--accent:#1768c8/, 'Settings accent text must use the shared blue palette.');
+assert.match(source0, /background:#1768c8\}\.switch\[aria-checked="true"\]/, 'Enabled preference switches must use the shared blue active state.');
+assert.match(source0, /background:var\(--green\);color:#fff;font-weight:850/, 'Primary Settings actions must use high-contrast white text on blue.');
+
 console.log("Phase 1 settings-persistence contract checks passed.");
