@@ -33,7 +33,7 @@ create trigger guard_collaboration_request_message before insert on public.colla
 revoke all on function private.guard_collaboration_request_message() from public,anon,authenticated;
 -- Notify the other participant when a proposal discussion message is added.
 alter table public.notifications drop constraint if exists notifications_type_check;
-alter table public.notifications add constraint notifications_type_check check (type = any (array['follow','like','comment','message','mention','collaboration_request','collaboration_accepted','collaboration_declined','workspace_created','workspace_updated','task_assigned','task_updated','project_message','task_due_soon','task_overdue','collaboration_message']::text[]));
+alter table public.notifications add constraint notifications_type_check check (type = any (array['follow','like','comment','message','mention','collaboration_request','collaboration_accepted','collaboration_declined','workspace_created','workspace_updated','task_assigned','task_updated','project_message','task_due_soon','task_overdue','task_comment','task_completed','checklist_completed','postmortem_review','collaboration_message']::text[]));
 create or replace function private.notify_collaboration_request_message()
 returns trigger language plpgsql security definer set search_path=''
 as $function$
