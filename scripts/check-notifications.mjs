@@ -27,6 +27,8 @@ for (const [pattern, message] of [
   [/task_completed/, 'Task-completion notifications must remain supported'],
   [/checklist_completed/, 'Checklist-completion notifications must remain supported'],
   [/workspace\.html\?request=/, 'Collaboration/task notifications must deep-link to their workspace'],
+  [/collaboration_message:'sent you a message about a collaboration proposal'/, 'Proposal discussion notifications must have clear wording'],
+  [/collaborations\.html\?request=/, 'Proposal discussion notifications must deep-link to the matching discussion'],
   [/aria-live="polite"/, 'Notification updates must remain accessible to assistive technology'],
 ]) assert.match(page, pattern, message);
 
