@@ -481,6 +481,12 @@ checks AS (
            'get_poll_results',
            'sync_workspace_deadline_notifications'
          ]))
+      AND EXISTS (
+        SELECT 1 FROM pg_catalog.pg_proc p
+        JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+        WHERE n.nspname='public' AND p.proname='create_group_conversation'
+          AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'email_confirmed_at') > 0
+      )
       AND NOT EXISTS (
         SELECT 1
         FROM pg_catalog.pg_proc p
