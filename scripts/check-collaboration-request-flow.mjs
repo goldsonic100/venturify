@@ -167,3 +167,12 @@ assert.ok(collaborations.includes(".from('collaboration_request_messages').inser
 assert.ok(collaborations.includes("table:'collaboration_request_messages',filter:'request_id=eq.'+requestId"), 'Open proposal discussions should receive realtime updates');
 assert.ok(collaborations.includes("request.status!=='pending'"), 'Negotiation messages must only be sent while the proposal is pending');
 assert.ok(collaborations.includes('maxlength="500"'), 'Negotiation messages should respect the 500-character limit');
+
+assert.match(migration, /create table if not exists public\.collaboration_request_messages/, 'Negotiation messages must use a dedicated table');
+assert.match(migration, /enable row level security/, 'Negotiation messages must have RLS enabled');
+assert.match(migration, /sender_id=\(select auth\.uid\(\)\)/, 'Only the signed-in participant may send a negotiation message as themselves');
+assert.match(migration, /r\.status='pending'/, 'Negotiation writes must stop when a proposal is no longer pending');
+assert.match(migration, /revoke all on table public\.collaboration_request_messages from anon,authenticated/, 'Negotiation messages must use explicit least-privilege grants');
+assert.match(migration, /security definer set search_path=''/, 'Notification trigger must pin its SECURITY DEFINER search path');
+assert.match(migration, /alter publication supabase_realtime add table public\.collaboration_request_messages/, 'Negotiation threads should be eligible for realtime updates');
+assert.match(migration, /'task_comment','task_completed','checklist_completed','postmortem_review','collaboration_message'/, 'The new notification type must preserve all previously supported notification types');
