@@ -514,6 +514,30 @@ checks AS (
     'Group creation, direct conversations, poll results, and workspace deadline sync retain signed-in-user guards'
   UNION ALL
   SELECT
+    'all_moderator_rpcs_enforce_allowlist_and_safe_execution',
+    (
+      EXISTS (
+        SELECT 1 FROM pg_catalog.pg_proc p
+        JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+        WHERE n.nspname='public' AND p.proname LIKE 'moderator\\_%' ESCAPE '\\'
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM pg_catalog.pg_proc p
+        JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+        WHERE n.nspname='public' AND p.proname LIKE 'moderator\\_%' ESCAPE '\\'
+          AND (
+            NOT p.prosecdef
+            OR NOT (p.proconfig @> ARRAY['search_path=""']::text[])
+            OR pg_catalog.strpos(pg_catalog.lower(pg_catalog.pg_get_functiondef(p.oid)), 'auth.uid()') = 0
+            OR pg_catalog.strpos(pg_catalog.lower(pg_catalog.pg_get_functiondef(p.oid)), 'private.moderators') = 0
+            OR pg_catalog.has_function_privilege('anon', p.oid, 'EXECUTE')
+          )
+      )
+    ),
+    'Every public moderator RPC is SECURITY DEFINER with an empty search_path, authenticated moderator allowlist check, and no anon EXECUTE'
+
+  UNION ALL
+  SELECT
     'founder_postmortems_table_is_private_and_rls_protected',
     (
       coalesce((SELECT c.relrowsecurity FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname='founder_postmortems'), false)
