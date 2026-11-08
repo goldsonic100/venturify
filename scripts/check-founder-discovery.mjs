@@ -339,3 +339,11 @@ assert.match(discoverHtml, /Collaboration compatibility/, 'Founder cards should 
 assert.match(discoverHtml, /role="progressbar" aria-label="Profile-based collaboration compatibility"/, 'Compatibility score should expose an accessible progress indicator');
 assert.match(discoverHtml, /Estimate based on listed skills, interests, communities, and collaboration goals/, 'Compatibility UI should explain its limits and avoid promising collaboration success');
 assert.match(discoverHtml, /fit\.compatibility\.parts\.map\(part=>/, 'Compatibility score should show its component breakdown');
+
+assert.match(discoverHtml, /id="founderProposalDialog" class="founder-proposal-dialog"/, 'Founder discovery should include a dedicated collaboration proposal dialog');
+assert.match(discoverHtml, /data-founder-proposal="'\+safe\(p\.id\)/, 'Eligible founder cards should expose a proposal action tied to the correct founder');
+assert.match(discoverHtml, /Collaboration proposal: '\+kind\+'\\nGoal: '\+goal\+'\\nI can contribute: '\+offer\+'\\nSuggested first step: '\+next/, 'Proposals should include a structured collaboration type, goal, contribution, and first step');
+assert.match(discoverHtml, /from\('collaboration_requests'\)\.insert\(\{requester_id:currentUser\.id,recipient_id:proposalRecipientId,message,status:'pending'\}\)/, 'Proposal submission must create a normal pending collaboration request');
+assert.match(discoverHtml, /from\('user_blocks'\)[\s\S]{0,500}from\('user_blocks'\)/, 'Proposal submission must check blocks in both directions');
+assert.match(discoverHtml, /message\.length>500/, 'Structured proposals must respect the collaboration request 500-character database limit');
+assert.match(discoverHtml, /proposalDialog\.showModal\(\)/, 'Proposal dialog must open as an accessible modal');
