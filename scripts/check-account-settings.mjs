@@ -72,6 +72,36 @@ assert.match(privateDmFix, /c\.is_group = false/i,
   'The messageable-founder lookup must preserve access to existing direct conversations');
 
 
+// Every Settings tab must have a real, uniquely addressable panel. This guards
+// against tabs that appear clickable but render an empty or missing section.
+const tabButtons = [...page.matchAll(/<button\\b([^>]*data-section="([^"]+)"[^>]*)>([\\s\\S]*?)<\\/button>/gi)];
+assert.equal(tabButtons.length, 6, 'Settings must expose all six expected sections');
+const tabNames = new Set();
+for (const [, attributes, sectionName] of tabButtons) {
+  assert.ok(!tabNames.has(sectionName), 'Settings section tabs must not be duplicated: ' + sectionName);
+  tabNames.add(sectionName);
+  const panelId = 'section-' + sectionName;
+  assert.ok(page.includes('id="' + panelId + '"'), 'Settings tab has no matching panel: ' + sectionName);
+  assert.ok(attributes.includes('aria-controls="' + panelId + '"'),
+    'Settings tab must point to its matching panel with aria-controls: ' + sectionName);
+  assert.ok(attributes.includes('role="tab"'), 'Settings navigation controls must use tab semantics');
+}
+for (const sectionName of ['privacy', 'features', 'notifications', 'appearance', 'account', 'security']) {
+  assert.ok(tabNames.has(sectionName), 'Missing Settings section: ' + sectionName);
+}
+assert.match(page, /role="tablist"[^>]*aria-label="Settings sections"/,
+  'Settings tabs must be grouped in an accessible tablist');
+assert.match(page, /item\\.setAttribute\\('aria-selected',String\\(active\\)\\)/,
+  'Selecting a settings tab must update its accessible selected state');
+assert.match(page, /section\\.hidden=!active/,
+  'Selecting a settings tab must show its panel and hide the other panels');
+assert.match(page, /event\\.key==='ArrowDown'\\|\\|event\\.key==='ArrowRight'/,
+  'Settings tabs must support arrow-key navigation');
+assert.match(page, /event\\.key==='Home'/,
+  'Settings tabs must support Home and End keyboard navigation');
+assert.match(page, /location\\.hash\\.match\\(\\/\\^#section-/,
+  'Settings must be able to restore a selected tab from its URL hash');
+
 // Navigation and local appearance must remain available even when the Supabase CDN fails.
 const navScriptIndex = page.indexOf('settings-section-navigation');
 const supabaseScriptIndex = page.indexOf('supabase-js@2');
