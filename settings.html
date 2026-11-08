@@ -149,7 +149,7 @@ main{width:min(1100px,calc(100% - 32px));margin:35px auto 70px}.intro{margin-bot
    event.preventDefault();activate(buttons[next],{focus:true,updateHash:true});
   });
  });
- const hashSection=location.hash.match(/^#section-(privacy|features|notifications|appearance|security)$/)?.[1];
+ const hashSection=location.hash.match(/^#section-(privacy|features|notifications|appearance|account|security)$/)?.[1];
  const initial=buttons.find(button=>button.dataset.section===hashSection)||buttons.find(button=>button.classList.contains('active'))||buttons[0];
  if(initial)activate(initial);
 })();
