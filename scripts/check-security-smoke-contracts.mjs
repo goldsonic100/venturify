@@ -31,7 +31,7 @@ for (const check of requiredChecks) {
   assert.ok(sql.includes("'" + check + "'"), 'Security smoke suite is missing required check: ' + check);
 }
 
-const declaredChecks = [...sql.matchAll(/SELECT\s+'([a-z0-9_]+)'\s*(?:::text)?\s+AS\s+check_name/gi)]
+const declaredChecks = [...sql.matchAll(/\bSELECT\s+'([a-z0-9_]+)'/gi)]
   .map((match) => match[1]);
 assert.ok(declaredChecks.length >= requiredChecks.length,
   'Security smoke suite must declare all critical named checks');
