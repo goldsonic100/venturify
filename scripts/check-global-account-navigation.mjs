@@ -37,8 +37,12 @@ for (const path of pages) {
   for (const [href, label] of requiredDestinations) {
     assert.ok(nav.includes('href="' + href + '"'), path + ' must include the ' + label + ' destination.');
   }
-  assert.ok(nav.includes('href="discover.html#founderDiscovery"') || nav.includes('href="#founderDiscovery"'),
-    path + ' must include the People directory destination.');
+  assert.ok(nav.includes('href="discover.html#founderDiscovery"'),
+    path + ' must include the Founders directory destination.');
+  const founderLink = openingTagContaining(nav, 'data-app-view="people"');
+  assert.ok(founderLink.includes('class="nav-item"'), path + ' Founders must use the shared tab class.');
+  assert.ok(founderLink.includes('data-nav-key="founders"'), path + ' Founders must expose a stable navigation key.');
+  assert.ok(nav.includes('>Founders</a>'), path + ' must use the same Founders label on every page.');
 
   const navItemClasses = nav.match(/class="[^"]*nav-item[^"]*"/g) || [];
   assert.ok(navItemClasses.length >= 8, path + ' must expose the full set of consistently styled text tabs.');
@@ -83,6 +87,10 @@ assert.match(navigationPolish, /\.topbar \.nav>a\[data-auth-only\]\[hidden\]\{di
   'Auth-gated destination links must stay visible even when page scripts mark them hidden for guests.');
 assert.match(navigationPolish, /\.topbar \.nav>\.notification-wrap\[data-auth-only\]\[hidden\]\{display:flex!important/,
   'The Announcements control must stay visible for guests as well as signed-in users.');
+assert.ok(navigationPolish.includes('.topbar .nav>a.nav-item[data-nav-key]{flex:0 0 104px!important;width:104px!important;min-width:104px!important;'),
+  'Primary destination tabs must use the same desktop width.');
+assert.ok(navigationPolish.includes('@media(max-width:760px){.topbar .nav>a.nav-item[data-nav-key]{flex:0 0 96px!important;width:96px!important;min-width:96px!important;'),
+  'Primary destination tabs must keep a consistent touch target on mobile.');
 
 
 const publicHandlePages = ['index.html','feed.html','discover.html','profile.html','communities.html','messages.html','notifications.html'];

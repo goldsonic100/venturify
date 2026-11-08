@@ -390,3 +390,12 @@ body .topbar .nav>.notification-wrap>#notificationButton[hidden]{display:inline-
     transform: scale(.9);
   }
 }
+
+
+/* Shared navigation sizing: primary destination tabs use the same footprint on every page. */
+.topbar .nav>a.nav-item[data-nav-key]{flex:0 0 104px!important;width:104px!important;min-width:104px!important;min-height:36px;box-sizing:border-box;text-align:center;}
+.topbar .nav>a.nav-item[data-nav-key]:not([href="messages.html"]){justify-content:center!important;}
+.topbar .nav>a.nav-item[data-nav-key][aria-current="page"]{background:rgba(91,145,255,.16);border:1px solid rgba(91,145,255,.42);color:#8dbaff!important;font-weight:750;}
+.topbar .nav>a.nav-item[data-nav-key]:hover{background:rgba(91,145,255,.12);border-color:rgba(91,145,255,.32);}
+@media(max-width:1100px){.topbar .nav>a.nav-item[data-nav-key]{flex-basis:96px!important;width:96px!important;min-width:96px!important;}}
+@media(max-width:760px){.topbar .nav>a.nav-item[data-nav-key]{flex:0 0 96px!important;width:96px!important;min-width:96px!important;min-height:34px;padding:7px 6px!important;font-size:11px!important;}}
