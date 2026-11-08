@@ -101,3 +101,13 @@ assert.ok(files.feed.includes('Retry feed</button>') && files.feed.includes('Ret
 
 assert.ok(files.settings.includes('id="discardSettings" disabled') && files.settings.includes("discard.addEventListener('click',()=>{if(!dirty)return;apply(savedValues)"), 'Settings should allow restoring the last saved values without writing to the database');
 assert.ok(files.settings.includes('savedValues=captureSettings()') && files.settings.includes('discard.disabled=true'), 'Successful saves should become the new reset baseline and disable discard');
+
+
+const tabNames = [...profile.matchAll(/data-profile-tab="([^"]+)"/g)].map(match => match[1]);
+assert.deepEqual(tabNames, ['posts', 'replies', 'stories', 'about'], 'Profile tabs must retain their four supported views in order');
+assert.match(profile, /id="profileStories"[^>]*\bhidden\b/, 'Stories must start hidden until the Stories tab is selected');
+assert.match(profile, /const allowed=new Set\(\['posts','replies','stories','about'\]\)/, 'Profile tab handler must reject unknown view names');
+assert.match(profile, /setTab\('posts'\)/, 'Profile tabs must initialize to the Posts panel on first load');
+for (const [name, panel] of [['about','profileAbout'],['stories','profileStories']]) {
+  assert.ok(profile.includes("if(" + panel + ")") || profile.includes("const " + (name === 'about' ? 'about' : 'stories') + "=document.getElementById('" + panel + "')"), 'Profile tab handler must manage #' + panel);
+}
