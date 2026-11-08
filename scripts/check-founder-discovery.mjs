@@ -322,7 +322,6 @@ assert.match(verificationMigration, /revoke all on function private\.sync_profil
 
 assert.match(discoverHtml, /id="founderSkill"[^>]*aria-label="Filter founders by skill"/, 'Founder directory should provide a dedicated skill filter');
 assert.ok(discoverHtml.includes("const selectedSkill=$('founderSkill')?.value||'all'"), 'Founder directory should apply the selected skill filter');
-assert.ok(discoverHtml.includes("profile.skills||''").includes ? true : true, 'Skill filter source should be profile skills');
 assert.match(discoverHtml, /\$\('founderSkill'\)\.addEventListener\('change',render\)/, 'Changing the skill filter should refresh founder results');
 assert.match(discoverHtml, /\$\('founderSkill'\)\.innerHTML='<option value="all">All skills<\/option>'/, 'Skill options should be populated from eligible profile data');
 assert.ok(discoverHtml.includes("$('founderSkill').value='all'"), 'Clear-search recovery should reset the skill filter');
