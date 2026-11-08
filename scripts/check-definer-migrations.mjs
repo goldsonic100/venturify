@@ -8,9 +8,9 @@ const files = readdirSync(migrationsDir, { withFileTypes: true })
   .sort();
 
 function findUnpinnedSecurityDefiners(sql, fileName = '<fixture>') {
-  const functionStart = /\\bcreate\\s+(?:or\\s+replace\\s+)?function\\b/gi;
+  const functionStart = /\bcreate\s+(?:or\s+replace\s+)?function\b/gi;
   // PostgreSQL permits both dollar-quoted and single-quoted function bodies.
-  const bodyStartPattern = /\\bas\\s+(?=\\$[a-zA-Z_0-9]*\\$|')/i;
+  const bodyStartPattern = /\bas\s+(?=\$[a-zA-Z_0-9]*\$|')/i;
   const starts = [...sql.matchAll(functionStart)].map((match) => match.index);
   const findings = [];
 
@@ -22,9 +22,9 @@ function findUnpinnedSecurityDefiners(sql, fileName = '<fixture>') {
     if (bodyStart < 0) continue;
 
     const header = definition.slice(0, bodyStart);
-    if (!/\\bsecurity\\s+definer\\b/i.test(header)) continue;
+    if (!/\bsecurity\s+definer\b/i.test(header)) continue;
 
-    if (!/\\bset\\s+search_path\\s*(?:=|to)\\s*/i.test(header)) {
+    if (!/\bset\s+search_path\s*(?:=|to)\s*/i.test(header)) {
       findings.push(fileName);
     }
   }
