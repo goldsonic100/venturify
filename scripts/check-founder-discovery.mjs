@@ -25,7 +25,7 @@ assert.ok(discoverHtml.includes("p.looking_for,p.headline,p.bio,p.skills,p.inter
 assert.ok(discoverHtml.includes('Try a shorter keyword, clear your search, or switch from “Open to co-founders / collaborators” to “Everyone.”'), 'Empty searches should help users broaden the collaborator filter');
 assert.ok(discoverHtml.includes("created_at,email_verified"), 'Guest discovery must select the trusted profile email_verified field before filtering unregistered guests');
 assert.ok(discoverHtml.includes('data-clear-discover-search'), 'Empty discovery searches should offer a clear-search recovery action');
-assert.ok(discoverHtml.includes("$('founderSearch').value='';$('founderIntent').value='all';render()"), 'Clear-search recovery should reset both keyword and collaborator filters');
+assert.ok(discoverHtml.includes("$('founderSearch').value='';$('founderIntent').value='all';$('founderSkill').value='all';render()"), 'Clear-search recovery should reset keyword, collaborator, and skill filters');
 assert.ok(discoverHtml.includes('Learn topic preferences from founders the viewer explicitly rated'),
   'Discover should learn topic preferences from explicit feedback');
 assert.ok(discoverHtml.includes('learnedTopicWeights.get(word)||0'),
@@ -319,3 +319,9 @@ assert.match(verificationMigration, /revoke all on function private\.enforce_pro
   'The trigger function must not be directly callable by client roles');
 assert.match(verificationMigration, /revoke all on function private\.sync_profile_email_verification\(\) from public, anon, authenticated/i,
   'The sync trigger function must not be directly callable by client roles');
+
+assert.match(discoverHtml, /id="founderSkill"[^>]*aria-label="Filter founders by skill"/, 'Founder directory should provide a dedicated skill filter');
+assert.ok(discoverHtml.includes("const selectedSkill=$('founderSkill')?.value||'all'"), 'Founder directory should apply the selected skill filter');
+assert.match(discoverHtml, /\$\('founderSkill'\)\.addEventListener\('change',render\)/, 'Changing the skill filter should refresh founder results');
+assert.match(discoverHtml, /\$\('founderSkill'\)\.innerHTML='<option value="all">All skills<\/option>'/, 'Skill options should be populated from eligible profile data');
+assert.ok(discoverHtml.includes("$('founderSkill').value='all'"), 'Clear-search recovery should reset the skill filter');
