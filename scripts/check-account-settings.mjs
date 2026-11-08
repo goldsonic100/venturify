@@ -89,7 +89,7 @@ for (const [, attributes, sectionName] of tabButtons) {
 for (const sectionName of ['privacy', 'features', 'notifications', 'appearance', 'account', 'security']) {
   assert.ok(tabNames.has(sectionName), 'Missing Settings section: ' + sectionName);
 }
-assert.match(page, /role="tablist"[^>]*aria-label="Settings sections"/,
+assert.match(page, /<aside[^>]*role="tablist"[^>]*aria-label="Settings sections"|<aside[^>]*aria-label="Settings sections"[^>]*role="tablist"/,
   'Settings tabs must be grouped in an accessible tablist');
 assert.match(page, /item\.setAttribute\('aria-selected',String\(active\)\)/,
   'Selecting a settings tab must update its accessible selected state');
