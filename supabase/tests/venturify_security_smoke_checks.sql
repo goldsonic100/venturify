@@ -262,9 +262,10 @@ checks AS (
     (
       EXISTS (SELECT 1 FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='get_messageable_founder_ids' AND p.prosecdef AND EXISTS (SELECT 1 FROM pg_catalog.unnest(COALESCE(p.proconfig, ARRAY[]::text[])) cfg(setting) WHERE cfg.setting LIKE 'search_path=%'))
       AND EXISTS (SELECT 1 FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='get_discoverable_founder_ids' AND p.prosecdef AND EXISTS (SELECT 1 FROM pg_catalog.unnest(COALESCE(p.proconfig, ARRAY[]::text[])) cfg(setting) WHERE cfg.setting LIKE 'search_path=%'))
-      AND EXISTS (SELECT 1 FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='get_or_create_direct_conversation' AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'public_dms') > 0 AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'only accepts messages from people they follow') > 0)
+      AND EXISTS (SELECT 1 FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='get_messageable_founder_ids' AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'email_confirmed_at') > 0)
+      AND EXISTS (SELECT 1 FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname='get_or_create_direct_conversation' AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'public_dms') > 0 AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'only accepts messages from people they follow') > 0 AND pg_catalog.strpos(pg_catalog.pg_get_functiondef(p.oid), 'email_confirmed_at') > 0)
     ),
-    'Founder picker uses an allowlist RPC and the direct-conversation RPC enforces closed-DM preferences'
+    'Message recipient lookup and new direct conversations require verified accounts while retaining DM preferences'
 
   UNION ALL
   SELECT
