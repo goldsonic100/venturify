@@ -74,7 +74,7 @@ assert.match(privateDmFix, /c\.is_group = false/i,
 
 // Every Settings tab must have a real, uniquely addressable panel. This guards
 // against tabs that appear clickable but render an empty or missing section.
-const tabButtons = [...page.matchAll(/<button\\b([^>]*data-section="([^"]+)"[^>]*)>([\\s\\S]*?)<\\/button>/gi)];
+const tabButtons = [...page.matchAll(/<button\b([^>]*data-section="([^"]+)"[^>]*)>([\s\S]*?)<\/button>/gi)];
 assert.equal(tabButtons.length, 6, 'Settings must expose all six expected sections');
 const tabNames = new Set();
 for (const [, attributes, sectionName] of tabButtons) {
@@ -91,15 +91,15 @@ for (const sectionName of ['privacy', 'features', 'notifications', 'appearance',
 }
 assert.match(page, /role="tablist"[^>]*aria-label="Settings sections"/,
   'Settings tabs must be grouped in an accessible tablist');
-assert.match(page, /item\\.setAttribute\\('aria-selected',String\\(active\\)\\)/,
+assert.match(page, /item\.setAttribute\('aria-selected',String\(active\)\)/,
   'Selecting a settings tab must update its accessible selected state');
-assert.match(page, /section\\.hidden=!active/,
+assert.match(page, /section\.hidden=!active/,
   'Selecting a settings tab must show its panel and hide the other panels');
-assert.match(page, /event\\.key==='ArrowDown'\\|\\|event\\.key==='ArrowRight'/,
+assert.match(page, /event\.key==='ArrowDown'\|\|event\.key==='ArrowRight'/,
   'Settings tabs must support arrow-key navigation');
-assert.match(page, /event\\.key==='Home'/,
+assert.match(page, /event\.key==='Home'/,
   'Settings tabs must support Home and End keyboard navigation');
-assert.match(page, /location\\.hash\\.match\\(\\/\\^#section-/,
+assert.match(page, /location\.hash\.match\(\/\^#section-/,
   'Settings must be able to restore a selected tab from its URL hash');
 
 // Navigation and local appearance must remain available even when the Supabase CDN fails.
