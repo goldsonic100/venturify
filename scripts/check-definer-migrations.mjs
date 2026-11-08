@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
 
 const migrationsDir = new URL('../supabase/migrations/', import.meta.url);
 const files = readdirSync(migrationsDir, { withFileTypes: true })
@@ -10,8 +9,8 @@ const files = readdirSync(migrationsDir, { withFileTypes: true })
 
 assert.ok(files.length > 0, 'Supabase migration directory must contain SQL migrations');
 
-const functionStart = /\\bcreate\\s+(?:or\\s+replace\\s+)?function\\b/gi;
-const dollarBody = /\\bas\\s+(\\$[a-zA-Z_0-9]*\\$)/i;
+const functionStart = /\bcreate\s+(?:or\s+replace\s+)?function\b/gi;
+const dollarBody = /\bas\s+(\$[a-zA-Z_0-9]*\$)/i;
 const findings = [];
 
 for (const file of files) {
@@ -26,9 +25,9 @@ for (const file of files) {
     if (bodyStart < 0) continue;
 
     const header = definition.slice(0, bodyStart);
-    if (!/\\bsecurity\\s+definer\\b/i.test(header)) continue;
+    if (!/\bsecurity\s+definer\b/i.test(header)) continue;
 
-    if (!/\\bset\\s+search_path\\s*(?:=|to)\\s*/i.test(header)) {
+    if (!/\bset\s+search_path\s*(?:=|to)\s*/i.test(header)) {
       findings.push(file);
     }
   }
