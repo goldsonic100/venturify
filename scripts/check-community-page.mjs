@@ -35,7 +35,11 @@ scripts.forEach((source,index)=>{try{new Function(source)}catch(error){throw new
 
 assert.match(directory,/personal_score:\(topicInterest\.get\(c\.topic\)\|\|0\)\+\(directInterest\.get\(c\.id\)\|\|0\)/,'Community recommendations must be grounded in the viewer’s existing community activity.');
 assert.match(directory,/community-recommendation-reason/,'Personalized community cards must explain why they were recommended.');
-assert.match(directory,/Recommended because you have activity in /,'Recommendation explanations must identify the topic behind the match.');
+assert.match(directory,/recommendationReasons\.set\(c\.id,reasons\)/,'Recommendation explanations must retain only concrete, grounded signals.');
+assert.match(directory,/<details class="community-why">/,'Personalized cards must provide a native expandable explanation.');
+assert.match(directory,/<summary>Why this community\?<\/summary>/,'The explanation disclosure must have a clear accessible label.');
+assert.match(directory,/recommendationReasons\.get\(c\.id\)\.map\(reason=>/,'The disclosure must list each grounded reason independently.');
+assert.match(directory,/community-why summary:focus-visible/,'The disclosure must have a visible keyboard focus state.');
 assert.match(directory,/featured\.map\(c=>renderCommunityTile\(c,true,\(c\.personal_score\|\|0\)>0\?'Picked for you':'Popular community'\)\)/,'Popular fallback cards must not be mislabeled as personalized recommendations.');
 
 
