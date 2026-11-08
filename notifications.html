@@ -762,7 +762,7 @@ renderCases();
   if(key==='deadlines')return n.type==='task_due_soon'||n.type==='task_overdue';
   if(key==='tasks')return notificationTaskTypes.includes(n.type);
   if(key==='collaboration')return notificationCollaborationTypes.includes(n.type);
-  if(key==='message')return ['message','message_reaction','group_mention','project_message'].includes(n.type);
+  if(key==='message')return ['message','message_reaction','group_mention','project_message','collaboration_message'].includes(n.type);
   if(key==='mention')return ['mention','post_mention','group_mention'].includes(n.type);
   return n.type===key;
  }
