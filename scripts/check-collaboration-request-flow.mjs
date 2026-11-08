@@ -10,6 +10,8 @@ const [feed, collaborations, workspace, notifications, migration] = [
   '../supabase/migrations/20261016010000_create_collaboration_requests.sql',
 ].map(read);
 
+const discussionMigration = read('../supabase/migrations/20261108150000_add_collaboration_proposal_discussions.sql');
+
 for (const [page, html] of Object.entries({ feed, collaborations, workspace, notifications })) {
   const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
     .map(([, source]) => source.trim())
@@ -160,3 +162,19 @@ assert.ok(workspace.includes("if(presencePaused){el.dataset.state='away';label.t
 assert.ok(workspace.includes('presencePaused=true;renderWorkspacePresence()') && workspace.includes('presencePaused=false;renderWorkspacePresence(presenceChannel?.presenceState?.()||{})'), 'Visibility changes must pause and resume presence rendering explicitly');
 
 assert.ok(collaborations.includes("esc(r.message||'No message was included with this request.')"), 'Collaboration inbox must display the escaped request message, including structured proposals, without a schema change');
+
+assert.ok(collaborations.includes('data-negotiation-form=') && collaborations.includes('collaboration_request_messages'), 'Pending collaboration requests should include a private proposal discussion thread');
+assert.ok(collaborations.includes(".from('collaboration_request_messages').select('id,request_id,sender_id,message,created_at')"), 'Negotiation history should load from the dedicated participant-only message table');
+assert.ok(collaborations.includes(".from('collaboration_request_messages').insert({request_id:requestId,sender_id:user.id,message})"), 'Both participants should be able to send negotiation messages while the request is pending');
+assert.ok(collaborations.includes("table:'collaboration_request_messages',filter:'request_id=eq.'+requestId"), 'Open proposal discussions should receive realtime updates');
+assert.ok(collaborations.includes("request.status!=='pending'"), 'Negotiation messages must only be sent while the proposal is pending');
+assert.ok(collaborations.includes('maxlength="500"'), 'Negotiation messages should respect the 500-character limit');
+
+assert.match(discussionMigration, /create table if not exists public\.collaboration_request_messages/, 'Negotiation messages must use a dedicated table');
+assert.match(discussionMigration, /enable row level security/, 'Negotiation messages must have RLS enabled');
+assert.match(discussionMigration, /sender_id=\(select auth\.uid\(\)\)/, 'Only the signed-in participant may send a negotiation message as themselves');
+assert.match(discussionMigration, /r\.status='pending'/, 'Negotiation writes must stop when a proposal is no longer pending');
+assert.match(discussionMigration, /revoke all on table public\.collaboration_request_messages from anon,authenticated/, 'Negotiation messages must use explicit least-privilege grants');
+assert.match(discussionMigration, /security definer set search_path=''/, 'Notification trigger must pin its SECURITY DEFINER search path');
+assert.match(discussionMigration, /alter publication supabase_realtime add table public\.collaboration_request_messages/, 'Negotiation threads should be eligible for realtime updates');
+assert.match(discussionMigration, /'task_comment','task_completed','checklist_completed','postmortem_review','collaboration_message'/, 'The new notification type must preserve all previously supported notification types');
