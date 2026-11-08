@@ -38,6 +38,15 @@ assert.match(directory,/community-recommendation-reason/,'Personalized community
 assert.match(directory,/Recommended because you have activity in /,'Recommendation explanations must identify the topic behind the match.');
 assert.match(directory,/featured\.map\(c=>renderCommunityTile\(c,true,\(c\.personal_score\|\|0\)>0\?'Picked for you':'Popular community'\)\)/,'Popular fallback cards must not be mislabeled as personalized recommendations.');
 
+
+assert.match(directory,/from\('follows'\)\.select\('following_id'\)\.eq\('follower_id',user\.id\)/,'Community recommendations must use only the signed-in user’s followed founders.');
+assert.match(directory,/from\('post_bookmarks'\)\.select\('post_id'\)\.eq\('user_id',user\.id\)/,'Community recommendations must read only the signed-in user’s saved posts.');
+assert.match(directory,/followedPostResult\.data/,'Followed-founder posts must contribute topic signals.');
+assert.match(directory,/savedResourceResult\.data/,'Saved resource posts must contribute topic signals.');
+assert.match(directory,/Topics shared by founders you follow/,'Recommendations must explain followed-founder topic matches.');
+assert.match(directory,/Related to resources you saved/,'Recommendations must explain saved-resource topic matches.');
+assert.match(directory,/savedResourceResult\.data\|\|\[\]\)\.forEach\(p=>\{if\(p\.community_id/,'Saved resource community activity must be mapped to existing communities.');
+
 console.log('Dedicated community page regression checks passed (static checks only).');
 
 const sortGroup = page.match(/<div class="sorts"[^>]*>/);
