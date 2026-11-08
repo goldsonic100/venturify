@@ -33,3 +33,11 @@ const scripts=[...page.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(x=
 assert.ok(scripts.length,'Community page must have an application script.');
 scripts.forEach((source,index)=>{try{new Function(source)}catch(error){throw new Error('community.html inline script '+(index+1)+' failed to parse: '+error.message)}});
 console.log('Dedicated community page regression checks passed (static checks only).');
+
+const sortGroup = page.match(/<div class="sorts"[^>]*>/);
+assert.ok(sortGroup && sortGroup[0].includes('aria-controls="postFeed"'), 'Community sort controls must be associated with the discussion feed');
+for (const mode of ['recommended', 'new', 'top', 'discussed']) {
+  const button = page.match(new RegExp('<button[^>]*data-sort="' + mode + '"[^>]*>'));
+  assert.ok(button && button[0].includes('aria-pressed='), 'Community sort "' + mode + '" must expose its selected state');
+}
+assert.match(page, /x\.setAttribute\('aria-pressed',String\(active\)\)/, 'Community sort changes must update the accessible selected state');
