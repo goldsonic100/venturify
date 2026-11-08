@@ -514,6 +514,9 @@ checks AS (
       AND position('status' in pg_get_functiondef('public.list_published_founder_postmortems(integer)'::regprocedure)) > 0
       AND position('approved' in pg_get_functiondef('public.list_published_founder_postmortems(integer)'::regprocedure)) > 0
       AND position('consent_to_publish' in pg_get_functiondef('public.list_published_founder_postmortems(integer)'::regprocedure)) > 0
+      AND position('s.company_visibility = ''public''' in pg_get_functiondef('public.list_published_founder_postmortems(integer)'::regprocedure)) > 0
+      AND position('s.author_display_mode = ''profile''' in pg_get_functiondef('public.list_published_founder_postmortems(integer)'::regprocedure)) > 0
+      AND position('Anonymous founder' in pg_get_functiondef('public.list_published_founder_postmortems(integer)'::regprocedure)) > 0
       AND position('author_id' in pg_get_function_result('public.list_published_founder_postmortems(integer)'::regprocedure)) = 0
       AND position('moderator_notes' in pg_get_function_result('public.list_published_founder_postmortems(integer)'::regprocedure)) = 0
     ),
