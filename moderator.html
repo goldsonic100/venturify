@@ -86,7 +86,11 @@ h1{font:500 clamp(32px,5vw,48px) Georgia,serif;letter-spacing:-1.5px;margin:8px 
 <section class="panel" id="panel-accounts" hidden><div class="surface"><h2>Account directory</h2><p class="muted">Search profile records by username, display name, or exact profile ID. For privacy, this view does not expose emails, credentials, sessions, or private messages.</p><p class="footer-note">Account actions are audited. Warnings are recorded for review; posting restrictions block new posts and comments until restored or expired. These controls do not delete accounts or access private messages.</p><div class="toolbar"><input id="userQuery" type="search" maxlength="120" placeholder="Search username, name, or profile UUID"><button class="btn primary" id="searchUsers">Search accounts</button></div><div id="usersList"><div class="empty">Search to view accounts.</div></div><div class="actions"><button class="btn" id="prevUsers">← Previous</button><button class="btn" id="nextUsers">Next →</button></div></div></section>
 <section class="panel" id="panel-appeals" hidden><div class="surface"><h2>Account restriction appeals</h2><p class="muted">Review explanations submitted by users with active posting restrictions. Accepting an appeal restores posting access and records that decision in the account audit history. Denying an appeal leaves the restriction unchanged.</p><div class="toolbar"><select id="appealFilter" aria-label="Filter appeals"><option value="submitted">Awaiting review</option><option value="under_review">In review</option><option value="all">All appeals</option><option value="accepted">Accepted</option><option value="denied">Denied</option></select><button class="btn" id="loadAppeals">Refresh appeals</button></div><div id="appealsList"><div class="empty">Open Appeals to load submissions.</div></div></div></section>
 <section class="panel" id="panel-content" hidden><div class="surface"><h2>Recent posts</h2><p class="muted">Search publicly shared posts to review content that may need moderation.</p><div class="toolbar"><input id="postQuery" type="search" maxlength="120" placeholder="Search post text, author, or post UUID"><button class="btn primary" id="searchPosts">Search content</button></div><div id="postsList"><div class="empty">Loading recent posts…</div></div><div class="actions"><button class="btn" id="prevPosts" type="button">← Previous</button><button class="btn" id="nextPosts" type="button">Next →</button><span id="postPageLabel" class="muted">Page 1</span></div></div></section>
-<section class="panel" id="panel-systems" hidden><div class="surface"><h2>System checks</h2><p class="muted">Read-only checks of important RLS settings, moderator RPC permissions, and moderation indexes. This is not a full security audit or hosting/uptime monitor.</p><div id="systemChecks"></div><div class="actions"><button class="btn primary" id="checkSystems">Run checks</button></div></div><div class="surface"><h2>Security boundaries</h2><p>✓ Moderator RPCs check the private moderator allowlist.</p><p>✓ Account directory returns profile-level fields only.</p><p>✓ No service-role key is shipped to this browser page.</p><p>✓ Private messages and authentication credentials are not shown in this dashboard.</p></div></section>
+<section class="panel" id="panel-systems" hidden><div class="surface"><h2>System checks</h2><p class="muted">Read-only checks of important RLS settings, moderator RPC permissions, and moderation indexes. This is not a full security audit or hosting/uptime monitor.</p><div class="toolbar" aria-label="Filter system diagnostics">
+<input id="systemSearch" type="search" maxlength="100" placeholder="Find a check…" aria-label="Search system checks">
+<select id="systemStatusFilter" aria-label="Filter diagnostic status"><option value="all">All statuses</option><option value="error">Needs attention</option><option value="warning">Warnings</option><option value="ok">Passed</option></select>
+<button class="btn" id="exportSystems" type="button">Export report ↓</button>
+</div><p class="footer-note" id="systemFilterSummary" aria-live="polite">Showing all system checks.</p><div id="systemChecks"></div><div class="actions"><button class="btn primary" id="checkSystems">Run checks</button></div></div><div class="surface"><h2>Security boundaries</h2><p>✓ Moderator RPCs check the private moderator allowlist.</p><p>✓ Account directory returns profile-level fields only.</p><p>✓ No service-role key is shipped to this browser page.</p><p>✓ Private messages and authentication credentials are not shown in this dashboard.</p></div></section>
 </div>
 <p class="footer-note">Account suspension, deletion, and authentication-provider actions are not enabled here yet; those need a separate audited server-side workflow.</p>
 </main>
@@ -320,33 +324,49 @@ async function loadPosts(){
   visiblePosts.forEach(p=>{const card=document.createElement('article');card.className='item';const title=document.createElement('h3');title.textContent='@'+(p.username||'unknown author');const content=document.createElement('p');content.textContent=p.content;const meta=document.createElement('small');meta.textContent=new Date(p.created_at).toLocaleString()+' · Post ID: '+p.id;card.append(title,content,meta);host.append(card)});
  }catch(e){postHasNext=false;updatePostPagination();host.innerHTML='<div class="empty">Unable to load posts: '+escapeHtml(e.message)+'</div>'}
 }
+let latestSystemReport=null;
+function renderSystemChecks(){
+ const host=$('systemChecks');host.replaceChildren();
+ const report=latestSystemReport;if(!report)return;
+ const query=$('systemSearch').value.trim().toLowerCase();
+ const filter=$('systemStatusFilter').value;
+ const all=Array.isArray(report.checks)?report.checks:[];
+ const visible=all.filter(check=>(filter==='all'||check.status===filter)&&(!query||[check.name,check.detail].some(value=>safe(value).toLowerCase().includes(query))));
+ const counts=all.reduce((a,c)=>{a[c.status]=(a[c.status]||0)+1;return a},{});
+ $('systemFilterSummary').textContent='Showing '+visible.length+' of '+all.length+' checks · '+(counts.error||0)+' need attention · '+(counts.warning||0)+' warnings · '+(counts.ok||0)+' passed.';
+ if(!visible.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No system checks match these filters.';host.append(empty);return}
+ visible.forEach(check=>{
+  const el=document.createElement('article');el.className='item';
+  const pill=document.createElement('span');pill.className='pill';
+  pill.textContent=check.status==='ok'?'Passed':check.status==='warning'?'Warning':check.status==='error'?'Needs attention':'Unknown';
+  if(check.status==='warning'){pill.style.background='#fff4d8';pill.style.color='#79530b'}
+  if(check.status==='error'){pill.style.background='#ffe8e4';pill.style.color='#922d20'}
+  const heading=document.createElement('h3');heading.textContent=check.name||'System check';
+  const detail=document.createElement('p');detail.textContent=check.detail||'No diagnostic detail returned.';
+  el.append(pill,heading,detail);host.append(el);
+ });
+}
+async function exportSystemReport(){
+ if(!latestSystemReport){status('Run system checks before exporting a report.',true);return}
+ const payload={product:'Venturify',report_type:'moderator_system_diagnostics',exported_at:new Date().toISOString(),generated_at:latestSystemReport.generated_at||null,scope_note:latestSystemReport.scope_note||null,checks:latestSystemReport.checks||[]};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
+ const url=URL.createObjectURL(blob),link=document.createElement('a');
+ link.href=url;link.download='venturify-system-diagnostics-'+new Date().toISOString().slice(0,10)+'.json';
+ document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ status('System diagnostics report exported. It contains selected configuration checks, not credentials or private messages.');
+}
 async function loadSystems(){
  const host=$('systemChecks');host.replaceChildren();
  const loading=document.createElement('div');loading.className='empty';loading.textContent='Checking database configuration…';host.append(loading);
  const button=$('checkSystems');button.disabled=true;
  try{
   const result=await rpc('moderator_system_diagnostics');
-  host.replaceChildren();
+  latestSystemReport=result||{checks:[]};
+  renderSystemChecks();
   const checks=Array.isArray(result?.checks)?result.checks:[];
   const counts=checks.reduce((a,c)=>{a[c.status]=(a[c.status]||0)+1;return a},{});
-  const summary=document.createElement('div');summary.className='item';
-  const heading=document.createElement('h3');heading.textContent='Diagnostic summary';
-  const summaryText=document.createElement('p');summaryText.textContent=(counts.ok||0)+' passed · '+(counts.warning||0)+' warnings · '+(counts.error||0)+' errors';
-  const timestamp=document.createElement('small');timestamp.textContent='Checked: '+new Date(result.generated_at).toLocaleString();
-  summary.append(heading,summaryText,timestamp);host.append(summary);
-  checks.forEach(check=>{
-   const el=document.createElement('div');el.className='item';
-   const pill=document.createElement('span');pill.className='pill';
-   pill.textContent=check.status==='ok'?'OK':check.status==='warning'?'Review':'Needs attention';
-   if(check.status==='warning'){pill.style.background='#fff4d8';pill.style.color='#79530b'}
-   if(check.status==='error'){pill.style.background='#ffe8e4';pill.style.color='#922d20'}
-   const h=document.createElement('h3');h.textContent=check.name||'System check';
-   const p=document.createElement('p');p.textContent=check.detail||'No diagnostic detail returned.';
-   el.append(pill,h,p);host.append(el);
-  });
-  const note=document.createElement('p');note.className='footer-note';note.textContent=result.scope_note||'Selected read-only diagnostics only; not a complete security audit.';host.append(note);
   status(counts.error?'System diagnostics completed with '+counts.error+' item(s) needing attention.':counts.warning?'System diagnostics completed with warnings to review.':'System diagnostics completed; all selected checks passed.');
- }catch(e){host.replaceChildren();const error=document.createElement('div');error.className='item';error.textContent='Could not complete system diagnostics: '+safe(e.message);host.append(error);status('System check failed: '+safe(e.message),true)}
+ }catch(e){latestSystemReport=null;host.replaceChildren();const error=document.createElement('div');error.className='item';error.textContent='Could not complete system diagnostics: '+safe(e.message);host.append(error);status('System check failed: '+safe(e.message),true)}
  finally{button.disabled=false}
 }
 async function init(){
@@ -365,6 +385,7 @@ $('searchUsers').addEventListener('click',()=>{userOffset=0;loadUsers()});$('use
 $('prevUsers').addEventListener('click',()=>{if(userOffset===0)return;userOffset=Math.max(0,userOffset-50);loadUsers()});$('nextUsers').addEventListener('click',()=>{if(!userHasNext)return;userOffset+=50;loadUsers()});
 updateUserPagination();
 $('searchPosts').addEventListener('click',()=>{postOffset=0;loadPosts()});$('postQuery').addEventListener('keydown',e=>{if(e.key==='Enter'){postOffset=0;loadPosts()}});$('prevPosts').addEventListener('click',()=>{if(postOffset===0)return;postOffset=Math.max(0,postOffset-50);loadPosts()});$('nextPosts').addEventListener('click',()=>{if(!postHasNext)return;postOffset+=50;loadPosts()});updatePostPagination();$('checkSystems').addEventListener('click',loadSystems);
+$('systemSearch').addEventListener('input',renderSystemChecks);$('systemStatusFilter').addEventListener('change',renderSystemChecks);$('exportSystems').addEventListener('click',exportSystemReport);
 init();
 })();
 </script>
