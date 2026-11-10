@@ -289,13 +289,29 @@ async function loadUsers(){
     if(sources[2].status==='fulfilled')sources[2].value.forEach(e=>entries.push({date:e.event_created_at,type:'Appeal · '+e.event_type.replaceAll('_',' '),detail:(e.statement||'')+(e.event_message?' · '+e.event_message:''),actor:e.actor_id,status:e.status}));
     else entries.push({error:'Appeal history unavailable: '+safe(sources[2].reason?.message)});
     entries.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
-    if(!entries.length){const empty=document.createElement('p');empty.textContent='No investigation events are available.';unifiedTimeline.append(empty);}
-    entries.forEach(entry=>{const row=document.createElement('article');row.className='item';if(entry.error){row.textContent=entry.error;unifiedTimeline.append(row);return;}
-     const heading=document.createElement('b');heading.textContent=entry.type+(entry.status?' · '+entry.status:'');
-     const meta=document.createElement('small');meta.textContent=(entry.date?new Date(entry.date).toLocaleString():'Date unavailable')+(entry.actor?' · Reference '+entry.actor:'');
-     const detail=document.createElement('p');detail.textContent=entry.detail||'No additional details.';
-     row.append(heading,meta,detail);unifiedTimeline.append(row);
+    const toolbar=document.createElement('div');toolbar.className='actions';
+    const filter=document.createElement('select');filter.setAttribute('aria-label','Filter investigation timeline');
+    [['all','All activity'],['action','Moderation actions'],['report','Reports'],['appeal','Appeals']].forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;filter.append(option)});
+    const count=document.createElement('small');count.setAttribute('aria-live','polite');
+    const exportButton=document.createElement('button');exportButton.type='button';exportButton.className='btn';exportButton.textContent='Export timeline CSV';
+    const list=document.createElement('div');
+    const category=entry=>entry.type?.startsWith('Moderation action')?'action':entry.type?.startsWith('Report')?'report':entry.type?.startsWith('Appeal')?'appeal':'error';
+    const visibleEntries=()=>entries.filter(entry=>entry.error||filter.value==='all'||category(entry)===filter.value);
+    const render=()=>{list.replaceChildren();const visible=visibleEntries();count.textContent=visible.filter(e=>!e.error).length+' events shown';
+     if(!visible.length){const empty=document.createElement('p');empty.textContent='No events match this filter.';list.append(empty);}
+     visible.forEach(entry=>{const row=document.createElement('article');row.className='item';if(entry.error){row.textContent=entry.error;list.append(row);return;}
+      const heading=document.createElement('b');heading.textContent=entry.type+(entry.status?' · '+entry.status:'');
+      const meta=document.createElement('small');meta.textContent=(entry.date?new Date(entry.date).toLocaleString():'Date unavailable')+(entry.actor?' · Reference '+entry.actor:'');
+      const detail=document.createElement('p');detail.textContent=entry.detail||'No additional details.';
+      row.append(heading,meta,detail);list.append(row);
+     });
+    };
+    filter.addEventListener('change',render);
+    exportButton.addEventListener('click',()=>{const rows=[['Date','Type','Status','Reference','Details'],...visibleEntries().filter(e=>!e.error).map(e=>[e.date||'',e.type||'',e.status||'',e.actor||'',e.detail||''])];
+     const csv=rows.map(row=>row.map(value=>{let cell=String(value).replace(/[\\r\\n]+/g,' ');if(/^[=+\\-@\\t]/.test(cell))cell="'"+cell;return '"'+cell.replace(/"/g,'""')+'"';}).join(',')).join('\\r\\n');
+     const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download='account-investigation-timeline.csv';link.click();URL.revokeObjectURL(url);
     });
+    toolbar.append(filter,count,exportButton);unifiedTimeline.append(toolbar,list);render();
     unifiedTimeline.hidden=false;timelineButton.textContent='Hide unified investigation timeline';timelineButton.disabled=false;
    });
 
