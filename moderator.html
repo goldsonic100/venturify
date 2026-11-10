@@ -270,6 +270,9 @@ async function loadUsers(){
    const reportHistoryButton=document.createElement('button');reportHistoryButton.type='button';reportHistoryButton.className='btn';reportHistoryButton.textContent='View report history';
    const reportHistory=document.createElement('div');reportHistory.hidden=true;reportHistory.className='footer-note';
    reportHistory.setAttribute('role','region');reportHistory.setAttribute('aria-label','Account report activity history');
+   const appealHistoryButton=document.createElement('button');appealHistoryButton.type='button';appealHistoryButton.className='btn';appealHistoryButton.textContent='View appeal history';
+   const appealHistory=document.createElement('div');appealHistory.hidden=true;appealHistory.className='footer-note';
+   appealHistory.setAttribute('role','region');appealHistory.setAttribute('aria-label','Account appeal history');
    action.addEventListener('change',()=>{durationLabel.hidden=duration.hidden=action.value!=='posting_restricted'});
    action.dispatchEvent(new Event('change'));
    apply.addEventListener('click',async()=>{
@@ -315,8 +318,28 @@ async function loadUsers(){
     }catch(e){reportHistory.replaceChildren();const error=document.createElement('p');error.textContent='Could not load report history: '+safe(e.message);reportHistory.append(error);reportHistory.hidden=false;reportHistoryButton.textContent='Hide report history';}
     finally{reportHistoryButton.disabled=false;}
    });
-   actionButtons.append(apply,historyButton,reportHistoryButton);
-   moderation.append(state,actionLabel,action,durationLabel,duration,reasonLabel,reason,actionButtons,history,reportHistory);
+   appealHistoryButton.addEventListener('click',async()=>{
+    if(!appealHistory.hidden){appealHistory.hidden=true;appealHistoryButton.textContent='View appeal history';return;}
+    appealHistoryButton.disabled=true;appealHistoryButton.textContent='Loading appeal history…';
+    try{
+     const events=await rpc('moderator_get_account_appeal_history',{p_target_user_id:u.id});
+     appealHistory.replaceChildren();
+     if(!events?.length){const empty=document.createElement('p');empty.textContent='No appeals have been submitted by this account.';appealHistory.append(empty);}
+     else events.forEach(event=>{
+      const row=document.createElement('article');row.className='item';
+      const heading=document.createElement('b');heading.textContent='Appeal #'+event.appeal_id+' · '+event.status.replaceAll('_',' ');
+      const meta=document.createElement('p');meta.textContent=new Date(event.event_created_at).toLocaleString()+' · '+event.event_type.replaceAll('_',' ')+' · Actor '+event.actor_id;
+      const statement=document.createElement('p');statement.textContent='Account statement: '+event.statement;
+      const message=document.createElement('p');message.textContent='Timeline note: '+event.event_message;
+      const decision=document.createElement('small');decision.textContent=event.moderator_message?'Moderator response: '+event.moderator_message:'No final moderator response recorded.';
+      row.append(heading,meta,statement,message,decision);appealHistory.append(row);
+     });
+     appealHistory.hidden=false;appealHistoryButton.textContent='Hide appeal history';
+    }catch(e){appealHistory.replaceChildren();const error=document.createElement('p');error.textContent='Could not load appeal history: '+safe(e.message);appealHistory.append(error);appealHistory.hidden=false;appealHistoryButton.textContent='Hide appeal history';}
+    finally{appealHistoryButton.disabled=false;}
+   });
+   actionButtons.append(apply,historyButton,reportHistoryButton,appealHistoryButton);
+   moderation.append(state,actionLabel,action,durationLabel,duration,reasonLabel,reason,actionButtons,history,reportHistory,appealHistory);
    card.append(title,bio,meta,details,moderation);host.append(card);
   });
  }catch(e){userHasNext=false;updateUserPagination();host.innerHTML='<div class="empty">Unable to load accounts: '+escapeHtml(e.message)+'</div>'}
