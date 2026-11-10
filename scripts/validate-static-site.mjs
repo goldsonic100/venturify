@@ -78,6 +78,12 @@ if (!feedHtml.includes('id="communityPostTypeFilter"') || !feedHtml.includes("po
 if (!feedHtml.includes("$('communityPostTypeFilter').hidden=!current;") || !feedHtml.includes("$('communityPostTypeFilter').value='all'")) {
   failures.push("feed.html: community post filters must appear only for a selected community and reset when leaving it.");
 }
+if (!feedHtml.includes('<option value="discussed">Most discussed</option>') || !feedHtml.includes("if(sortMode==='discussed')") || !feedHtml.includes("discussionScores.get(b.id)")) {
+  failures.push("feed.html: founders must be able to sort community and feed discussions by engagement.");
+}
+if (!feedHtml.includes("sortMode!=='discussed'")) {
+  failures.push("feed.html: most-discussed sorting must take precedence over default personalized and trending ordering.");
+}
 if (!feedHtml.includes("content.length>1200")) {
   failures.push("feed.html: post edits must enforce the composer character limit.");
 }
