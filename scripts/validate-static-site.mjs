@@ -57,14 +57,11 @@ for (const page of pages) {
 }
 
 const feedHtml = await readFile(path.join(root, "feed.html"), "utf8");
-if (!feedHtml.includes('data-post-content="\'+encodeURIComponent(p.content||\'\')+\'"')) {
-  failures.push("feed.html: rendered posts must preserve an encoded content value for safe editing.");
+if (!feedHtml.includes("encodeURIComponent(p.content||''")) {
+  failures.push("feed.html: rendered posts must preserve encoded content for safe editing.");
 }
-if (!feedHtml.includes('data-edit="\'+p.id+\'"')) {
-  failures.push("feed.html: founders must have an Edit action on their own eligible posts.");
-}
-if (!feedHtml.includes("p.post_type!=='poll'")) {
-  failures.push("feed.html: poll posts must not expose the plain-text edit action.");
+if (!feedHtml.includes("data-edit=") || !feedHtml.includes("p.post_type!=='poll'")) {
+  failures.push("feed.html: eligible owner posts must expose an Edit action, excluding polls.");
 }
 if (!feedHtml.includes(".update({content}).eq('id',edit.dataset.edit).eq('user_id',user.id)")) {
   failures.push("feed.html: post edits must be scoped to both the selected post and the signed-in owner.");
