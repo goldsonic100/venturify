@@ -30,4 +30,8 @@ for (const contract of ['SECURITY DEFINER function inventory','unexpected_anon_g
   assert.ok(definerInventory.includes(contract), 'Security-definer inventory diagnostics are missing: ' + contract);
 }
 assert.ok(page.includes("rpc('moderator_system_diagnostics')"), 'Moderator Systems tab must call the protected diagnostics RPC.');
+
+for (const contract of ['systemSearch','systemStatusFilter','systemFilterSummary','exportSystems','renderSystemChecks','exportSystemReport','latestSystemReport','JSON.stringify(payload,null,2)']) {
+  assert.ok(page.includes(contract), 'Moderator Systems UI is missing: ' + contract);
+}
 console.log('Moderator authorization and system-diagnostics contract checks passed.');
