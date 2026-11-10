@@ -7,7 +7,7 @@ const diagnostics = read('supabase/migrations/20261108010000_moderator_system_di
 const policyDiagnostics = read('supabase/migrations/20261110010000_add_moderator_rls_policy_diagnostics.sql');
 const definerInventory = read('supabase/migrations/20261111020000_add_security_definer_inventory_diagnostics.sql');
 const accountDirectory = read('supabase/migrations/20261111030000_moderator_account_directory_filters.sql');
-for (const contract of ['moderator_list_reports','moderator_list_users','moderator_update_report','moderator']) {
+for (const contract of ['moderator_list_reports','moderator_search_accounts','moderator_update_report','moderator']) {
   assert.ok(page.includes(contract), 'Moderator page is missing contract: ' + contract);
 }
 for (const contract of ['moderator_security_definer_functions_check_moderator_membership','sensitive_rpc_not_executable_by_anon','public_security_definer_functions_pin_search_path']) {
