@@ -23,6 +23,7 @@ begin
       ('public','content_reports',false),
       ('public','founder_postmortems',false),
       ('public','founder_postmortem_reviews',false),
+      ('private','moderators',true),
       ('private','account_moderation_state',true),
       ('private','account_moderation_audit',true),
       ('private','account_moderation_appeals',true),
@@ -59,6 +60,7 @@ begin
   with expected_functions(function_name, signature) as (
     values
       ('Dashboard overview','public.moderator_dashboard_overview()'),
+      ('System diagnostics endpoint','public.moderator_system_diagnostics()'),
       ('Trust & safety analytics','public.moderator_dashboard_analytics(integer)'),
       ('Founder & community analytics','public.moderator_growth_analytics(integer)'),
       ('Filtered report queue','public.moderator_list_reports_filtered_page(text,text,text,integer,integer)'),
