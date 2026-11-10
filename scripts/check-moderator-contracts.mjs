@@ -51,3 +51,11 @@ for (const contract of ['appealOffset','appealHasNext','updateAppealPagination',
 for (const contract of ['Inspect reporter account','Inspect reported account','Inspect reported post',"$('userQuery').value=report.reporter_id","$('userQuery').value=report.reported_user_id","$('postQuery').value=report.post_id",'switchTab(\'accounts\')','switchTab(\'content\')']) {
   assert.ok(page.includes(contract), 'Moderator report investigation shortcut is missing: ' + contract);
 }
+
+const reportHistory = read('supabase/migrations/20261112010000_moderator_account_report_history.sql');
+for (const contract of ['moderator_get_account_report_history','p_target_user_id','private.moderators','Moderator access required','r.reporter_id = p_target_user_id','r.reported_user_id = p_target_user_id','reviewed_by','limit 100','revoke all on function','grant execute on function']) {
+  assert.ok(reportHistory.includes(contract), 'Moderator account report history migration is missing: ' + contract);
+}
+for (const contract of ['View report history','moderator_get_account_report_history','Account report activity history','Filed by this account','Filed against this account','reportHistory.hidden=false','event.details']) {
+  assert.ok(page.includes(contract), 'Moderator account report timeline UI is missing: ' + contract);
+}

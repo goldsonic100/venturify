@@ -266,6 +266,10 @@ async function loadUsers(){
    const apply=document.createElement('button');apply.type='button';apply.className='btn primary';apply.textContent='Save audited action';
    const historyButton=document.createElement('button');historyButton.type='button';historyButton.className='btn';historyButton.textContent='View action history';
    const history=document.createElement('div');history.hidden=true;history.className='footer-note';
+   history.setAttribute('role','region');history.setAttribute('aria-label','Account moderation action history');
+   const reportHistoryButton=document.createElement('button');reportHistoryButton.type='button';reportHistoryButton.className='btn';reportHistoryButton.textContent='View report history';
+   const reportHistory=document.createElement('div');reportHistory.hidden=true;reportHistory.className='footer-note';
+   reportHistory.setAttribute('role','region');reportHistory.setAttribute('aria-label','Account report activity history');
    action.addEventListener('change',()=>{durationLabel.hidden=duration.hidden=action.value!=='posting_restricted'});
    action.dispatchEvent(new Event('change'));
    apply.addEventListener('click',async()=>{
@@ -291,8 +295,28 @@ async function loadUsers(){
     }catch(e){status('Could not load account history: '+safe(e.message),true)}
     finally{historyButton.disabled=false}
    });
-   actionButtons.append(apply,historyButton);
-   moderation.append(state,actionLabel,action,durationLabel,duration,reasonLabel,reason,actionButtons,history);
+   reportHistoryButton.addEventListener('click',async()=>{
+    if(!reportHistory.hidden){reportHistory.hidden=true;reportHistoryButton.textContent='View report history';return;}
+    reportHistoryButton.disabled=true;reportHistoryButton.textContent='Loading report history…';
+    try{
+     const events=await rpc('moderator_get_account_report_history',{p_target_user_id:u.id});
+     reportHistory.replaceChildren();
+     if(!events?.length){const empty=document.createElement('p');empty.textContent='No reports have been filed by or against this account.';reportHistory.append(empty);}
+     else events.forEach(event=>{
+      const row=document.createElement('article');row.className='item';
+      const heading=document.createElement('b');
+      heading.textContent=(event.account_role==='reporter'?'Filed by this account':event.account_role==='reported_account'?'Filed against this account':'Filed by and against this account')+' · '+safe(event.reason).replaceAll('_',' ');
+      const meta=document.createElement('p');meta.textContent=new Date(event.created_at).toLocaleString()+' · '+event.status+' · Report '+event.report_id;
+      const details=document.createElement('p');details.textContent=event.details||'No additional details provided.';
+      const refs=document.createElement('small');refs.textContent=[event.reported_user_id?'Reported account: '+event.reported_user_id:'',event.post_id?'Post: '+event.post_id:'',event.comment_id?'Comment: '+event.comment_id:'',event.reviewed_at?'Reviewed: '+new Date(event.reviewed_at).toLocaleString():''].filter(Boolean).join(' · ');
+      row.append(heading,meta,details,refs);reportHistory.append(row);
+     });
+     reportHistory.hidden=false;reportHistoryButton.textContent='Hide report history';
+    }catch(e){reportHistory.replaceChildren();const error=document.createElement('p');error.textContent='Could not load report history: '+safe(e.message);reportHistory.append(error);reportHistory.hidden=false;reportHistoryButton.textContent='Hide report history';}
+    finally{reportHistoryButton.disabled=false;}
+   });
+   actionButtons.append(apply,historyButton,reportHistoryButton);
+   moderation.append(state,actionLabel,action,durationLabel,duration,reasonLabel,reason,actionButtons,history,reportHistory);
    card.append(title,bio,meta,details,moderation);host.append(card);
   });
  }catch(e){userHasNext=false;updateUserPagination();host.innerHTML='<div class="empty">Unable to load accounts: '+escapeHtml(e.message)+'</div>'}
