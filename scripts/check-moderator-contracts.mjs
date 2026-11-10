@@ -43,3 +43,7 @@ for (const contract of ['moderator_search_accounts','p_status','p_sort','needs_a
 for (const contract of ['userStatusFilter','userSort','userPageSummary',"rpc('moderator_search_accounts'","p_status:$('userStatusFilter').value","p_sort:$('userSort').value"]) {
   assert.ok(page.includes(contract), 'Moderator account directory UI is missing: ' + contract);
 }
+
+for (const contract of ['appealOffset','appealHasNext','updateAppealPagination','prevAppeals','nextAppeals','appealPageLabel',"p_limit:51,p_offset:appealOffset",'visibleAppeals=rows.slice(0,50)']) {
+  assert.ok(page.includes(contract), 'Moderator appeal pagination is missing: ' + contract);
+}
