@@ -139,6 +139,7 @@ main{padding:24px 0 60px}.back{display:inline-flex;align-items:center;gap:7px;fo
   community=r.data;
   const [memberRows,mine,postRows]=await Promise.all([client.from('community_members').select('user_id').eq('community_id',communityId),user?client.from('community_members').select('community_id').eq('community_id',communityId).eq('user_id',user.id).maybeSingle():Promise.resolve({data:null}),client.from('posts').select('id,user_id,content,image_url,topic_tags,created_at,pinned_at,community_id').eq('community_id',communityId).order('created_at',{ascending:false}).limit(100)]);
   membership=!!mine.data;members=(memberRows.data||[]).map(x=>x.user_id);community.member_count=members.length;const memberResult=members.length?await client.from('profiles').select('id,username,display_name,avatar_url').in('id',members):{data:[]};memberProfiles=memberResult.data||[];posts=postRows.data||[];if(postRows.error){$('postFeed').innerHTML='<div class="empty">Could not load discussions. Please refresh and try again.</div>';return}
+  if(user){try{localStorage.setItem('venturify:community-last-seen:'+user.id+':'+communityId,String(Date.now()))}catch(e){}}
   await loadEngagement();renderHeader();renderFeed();
  }
  async function loadEngagement(){const ids=posts.map(p=>p.id),userIds=[...new Set(posts.map(p=>p.user_id))];if(!ids.length)return;
