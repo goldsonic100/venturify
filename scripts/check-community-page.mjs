@@ -20,6 +20,12 @@ assert.match(page,/from\('communities'\)/,'Community details must load from the 
 assert.match(page,/from\('community_members'\)/,'Membership must use the community_members table.');
 assert.match(page,/from\('posts'\)/,'Community discussions must load from posts.');
 assert.match(page,/from\('likes'\)/,'Community voting must use the existing likes table.');
+assert.match(page,/from\('post_bookmarks'\)\.select\('post_id'\)\.eq\('user_id',user\.id\)\.in\('post_id',ids\)/,'Community pages must load the signed-in member’s saved discussion state.');
+assert.match(page,/data-save-post=/,'Every community discussion must expose a save control.');
+assert.match(page,/from\('post_bookmarks'\)\.insert\(\{post_id:id,user_id:user\.id\}\)/,'Saving a community discussion must use the existing post_bookmarks table and current user.');
+assert.match(page,/from\('post_bookmarks'\)\.delete\(\)\.eq\('post_id',id\)\.eq\('user_id',user\.id\)/,'Removing a saved discussion must be scoped to the signed-in user.');
+assert.match(page,/aria-pressed=/,'Saved discussion state must be exposed accessibly.');
+
 assert.match(page,/from\('comments'\)/,'Community replies must use the existing comments table.');
 assert.match(page,/select\('id,post_id,user_id,content,created_at,parent_id'\)/,'Community discussions must load the existing parent-comment relationship.');
 assert.match(page,/function renderCommentNode\(comment,childrenByParent,depth=0\)/,'Community comments must render as a nested reply thread.');
