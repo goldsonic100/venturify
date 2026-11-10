@@ -114,6 +114,16 @@ assert.match(files.feed, /p\.opportunity_offer,p\.opportunity_need/, 'Feed searc
 assert.match(files.feed, /sortMode==='oldest'/, 'Feed sorting must support oldest-first ordering');
 assert.match(files.feed, /clearFeedSearch.*addEventListener/s, 'Feed search must provide a working clear action');
 assert.match(files.feed, /Search covers the latest posts loaded for the selected feed/, 'Feed search scope must be explained to members');
+assert.match(files.feed, /window\.venturifyFeedVisibleLimit=40/, 'Feed should start with a manageable first page');
+assert.match(files.feed, /data-feed-load-more/, 'Feed should offer progressive browsing beyond the first page');
+assert.match(files.feed, /Show more posts/, 'Feed pagination should have a clear member-facing action');
+assert.match(files.feed, /limit\(250\)/, 'Feed discovery views should evaluate a broader candidate pool before rendering');
+assert.match(files.feed, /if\(mode==='for-you'&&[\s\S]{0,1800}relationship=followedIds\.has\(p\.user_id\)\?9:0/, 'For-you feed should rank with member relationships');
+assert.match(files.feed, /engagement=\(likeCounts\.get\(p\.id\)\|\|0\)\*1\.5/, 'For-you feed should incorporate real engagement signals');
+assert.ok(files.feed.includes("if(mode==='for-you'&&($('feedSort')?.value||'newest')!=='oldest')"), 'Explicit oldest-first sorting should take precedence over personalized ranking');
+assert.match(files.feed, /community=p\.community_id/, 'For-you ranking should account for joined communities');
+assert.match(files.feed, /if\(mode==='trending'\)[\s\S]{0,1000}posts\.sort/, 'Trending should rank posts by engagement');
+
 
 assert.ok(files.feed.includes('Retry feed</button>') && files.feed.includes('Retry feed</button></p></div>'), 'Retry controls should be present in feed query error states');
 

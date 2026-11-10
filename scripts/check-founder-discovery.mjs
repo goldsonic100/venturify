@@ -25,7 +25,7 @@ assert.ok(discoverHtml.includes("p.looking_for,p.headline,p.bio,p.skills,p.inter
 assert.ok(discoverHtml.includes('Try a shorter keyword, clear your search, or switch from “Open to co-founders / collaborators” to “Everyone.”'), 'Empty searches should help users broaden the collaborator filter');
 assert.ok(discoverHtml.includes("created_at,email_verified"), 'Guest discovery must select the trusted profile email_verified field before filtering unregistered guests');
 assert.ok(discoverHtml.includes('data-clear-discover-search'), 'Empty discovery searches should offer a clear-search recovery action');
-assert.ok(discoverHtml.includes("$('founderSearch').value='';$('founderIntent').value='all';$('founderSkill').value='all';$('founderFit').value='all';render()"), 'Clear-search recovery should reset keyword, collaborator, skill, and collaboration-fit filters');
+assert.ok(discoverHtml.includes("$('founderSearch').value='';$('founderIntent').value='all';$('founderSkill').value='all';$('founderFit').value='all';resetFounderResults()"), 'Clear-search recovery should reset keyword, collaborator, skill, and collaboration-fit filters');
 assert.ok(discoverHtml.includes('Learn topic preferences from founders the viewer explicitly rated'),
   'Discover should learn topic preferences from explicit feedback');
 assert.ok(discoverHtml.includes('learnedTopicWeights.get(word)||0'),
@@ -322,7 +322,7 @@ assert.match(verificationMigration, /revoke all on function private\.sync_profil
 
 assert.match(discoverHtml, /id="founderSkill"[^>]*aria-label="Filter founders by skill"/, 'Founder directory should provide a dedicated skill filter');
 assert.ok(discoverHtml.includes("const selectedSkill=$('founderSkill')?.value||'all'"), 'Founder directory should apply the selected skill filter');
-assert.match(discoverHtml, /\$\('founderSkill'\)\.addEventListener\('change',render\)/, 'Changing the skill filter should refresh founder results');
+assert.match(discoverHtml, /\$\('founderSkill'\)\.addEventListener\('change',resetFounderResults\)/, 'Changing the skill filter should refresh founder results');
 assert.match(discoverHtml, /\$\('founderSkill'\)\.innerHTML='<option value="all">All skills<\/option>'/, 'Skill options should be populated from eligible profile data');
 assert.ok(discoverHtml.includes("$('founderSkill').value='all'"), 'Clear-search recovery should reset the skill filter');
 
@@ -330,8 +330,8 @@ assert.match(discoverHtml, /id="founderFit"[^>]*aria-label="Filter founders by c
 for (const value of ['need_from_them','offer_to_them','two_way','open_collab']) assert.ok(discoverHtml.includes('value="'+value+'"'), 'Collaboration-fit filter is missing '+value);
 assert.match(discoverHtml, /skillFit:\{needFromThem:complement\.length>0,offerToThem:helps\.length>0,twoWay:complement\.length>0&&helps\.length>0,openCollab:collab\}/, 'Collaboration-fit filters must use the same complementary-skill and collaboration signals as match explanations');
 assert.match(discoverHtml, /const selectedFit=\$\('founderFit'\)\?\.value\|\|'all'/, 'Founder results must apply the selected collaboration-fit filter');
-assert.match(discoverHtml, /\$\('founderFit'\)\.addEventListener\('change',render\)/, 'Changing collaboration fit must refresh founder results');
-assert.ok(discoverHtml.includes("$('founderFit').value='all';render()"), 'Clear-search recovery should reset collaboration-fit filters');
+assert.match(discoverHtml, /\$\('founderFit'\)\.addEventListener\('change',resetFounderResults\)/, 'Changing collaboration fit must refresh founder results');
+assert.ok(discoverHtml.includes("$('founderFit').value='all';resetFounderResults()"), 'Clear-search recovery should reset collaboration-fit filters');
 
 assert.match(discoverHtml, /compatibilityParts=\[\{label:'Skills that match your goals',points:Math\.min\(complement\.length,3\)\*12,max:36\}/, 'Compatibility score should reward skills that match the viewer goals');
 assert.match(discoverHtml, /compatibilityScore=compatibilityParts\.reduce\(\(sum,part\)=>sum\+part\.points,0\)/, 'Compatibility score should be the sum of transparent component scores');
@@ -347,3 +347,11 @@ assert.match(discoverHtml, /from\('collaboration_requests'\)\.insert\(\{requeste
 assert.match(discoverHtml, /from\('user_blocks'\)[\s\S]{0,500}from\('user_blocks'\)/, 'Proposal submission must check blocks in both directions');
 assert.match(discoverHtml, /message\.length>500/, 'Structured proposals must respect the collaboration request 500-character database limit');
 assert.match(discoverHtml, /proposalDialog\.showModal\(\)/, 'Proposal dialog must open as an accessible modal');
+
+assert.match(discoverHtml, /founderVisibleLimit=40/, 'Founder discovery should render a manageable initial page');
+assert.match(discoverHtml, /data-founder-load-more/, 'Founder discovery should progressively reveal additional eligible results');
+assert.match(discoverHtml, /Show 40 more founders/, 'Founder discovery should label its progressive loading action');
+assert.match(discoverHtml, /\.range\(0,999\)/, 'Founder discovery should search a broader first batch than the former 500-profile cap');
+assert.match(discoverHtml, /function resetFounderResults\(\)/, 'Founder discovery filters should reset pagination when changed');
+assert.match(discoverHtml, /if\(e\.target\.closest\('\[data-founder-load-more\]'\)\)\{founderVisibleLimit\+=40;render\(\);return;\}/, 'Founder discovery load-more action should reveal the next page');
+assert.match(discoverHtml, /Math\.min\(list\.length,founderVisibleLimit\)/, 'Founder discovery status should report the visible result count');
