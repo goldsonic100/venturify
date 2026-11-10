@@ -63,6 +63,13 @@ for (const path of pages) {
 
   assert.ok(nav.includes('data-auth-only') && nav.includes('data-guest-only'),
     path + ' must mark authenticated and guest navigation controls explicitly.');
+  const signupTag = openingTagContaining(nav, 'id="navSignup"');
+  assert.ok(signupTag && signupTag.includes('data-guest-only'), path + ' Sign up must be guest-only.');
+  assert.equal((html.match(/id="navSignup"/g) || []).length, 1, path + ' must not duplicate Sign up.');
+  assert.ok(html.includes('assets/global-navigation.css'), path + ' must load the global navigation override.');
+  assert.ok(html.includes('assets/global-auth-navigation.js'), path + ' must load the session-aware auth navigation.');
+  assert.ok(html.includes('@supabase/supabase-js'), path + ' must load Supabase before the shared auth navigation.');
+
   assert.ok(nav.includes('aria-label="Announcements and notifications"'),
     path + ' must expose the Announcements and notifications control.');
 }
@@ -85,6 +92,15 @@ assert.ok(css.includes('min-height:40px'), 'All navigation tabs must share a con
 assert.ok(css.includes('overflow-x:auto'), 'Mobile navigation must allow access to every tab through horizontal scrolling.');
 assert.ok(css.includes('aria-current="page"'), 'The active navigation destination must have a distinct visible state.');
 assert.ok(css.includes('prefers-reduced-motion:reduce'), 'Navigation must respect reduced-motion preferences.');
+const globalNavigation = readFileSync(new URL('../assets/global-navigation.css', import.meta.url), 'utf8');
+assert.match(globalNavigation, /flex-flow:row nowrap!important/, 'The shared navigation must stay on one row on desktop.');
+assert.match(globalNavigation, /flex:0 0 104px!important;width:104px!important/, 'Every desktop text tab must have the same fixed width.');
+assert.match(globalNavigation, /border-radius:20px!important/, 'Every primary tab must use the same pill shape.');
+assert.match(globalNavigation, /background:#536174!important;color:#f2f6fc!important/, 'Inactive tabs must share the same slate treatment.');
+assert.match(globalNavigation, /background:#e5efff!important;border-color:#9dbdf2!important;color:#315d9d!important/, 'The active tab must use the same selected treatment.');
+assert.match(globalNavigation, /body\.authenticated[\\s\\S]*#navSignup[hidden]\{display:none!important/, 'Sign up must disappear while signed in.');
+assert.match(globalNavigation, /body\.authenticated[\\s\\S]*#navAccount\{display:inline-flex!important/, 'The signed-in account destination must remain available.');
+
 
 const navigationPolish = readFileSync(new URL('../venturify-ui.css', import.meta.url), 'utf8');
 assert.match(navigationPolish, /\.topbar \.nav>a\[data-auth-only\]\[hidden\]\{display:inline-flex!important/,
