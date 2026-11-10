@@ -6,6 +6,7 @@ const sql = read('supabase/tests/venturify_security_smoke_checks.sql');
 const diagnostics = read('supabase/migrations/20261108010000_moderator_system_diagnostics.sql');
 const policyDiagnostics = read('supabase/migrations/20261110010000_add_moderator_rls_policy_diagnostics.sql');
 const definerInventory = read('supabase/migrations/20261111020000_add_security_definer_inventory_diagnostics.sql');
+const accountDirectory = read('supabase/migrations/20261111030000_moderator_account_directory_filters.sql');
 for (const contract of ['moderator_list_reports','moderator_list_users','moderator_update_report','moderator']) {
   assert.ok(page.includes(contract), 'Moderator page is missing contract: ' + contract);
 }
@@ -35,3 +36,10 @@ for (const contract of ['systemSearch','systemStatusFilter','systemFilterSummary
   assert.ok(page.includes(contract), 'Moderator Systems UI is missing: ' + contract);
 }
 console.log('Moderator authorization and system-diagnostics contract checks passed.');
+
+for (const contract of ['moderator_search_accounts','p_status','p_sort','needs_attention','posting_restricted','most_posts','most_followers','private.account_moderation_state','Moderator access required','revoke all on function']) {
+  assert.ok(accountDirectory.includes(contract), 'Account directory migration is missing: ' + contract);
+}
+for (const contract of ['userStatusFilter','userSort','userPageSummary',"rpc('moderator_search_accounts'",'p_status:$('+'userStatusFilter').value','p_sort:$('+'userSort').value']) {
+  assert.ok(page.includes(contract), 'Moderator account directory UI is missing: ' + contract);
+}
