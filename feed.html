@@ -495,6 +495,12 @@ async function feed(){
   }
  }else if(user&&!currentCommunityId&&mode!=='all'&&mode!=='trending'){
   const [fr,mr]=await Promise.all([client.from('follows').select('following_id').eq('follower_id',user.id),client.from('community_members').select('community_id').eq('user_id',user.id)]);
+  const relationshipError=(mode==='following'?fr.error:mode==='communities'?mr.error:(fr.error||mr.error));
+  if(relationshipError){
+   const relationshipLabel=mode==='following'?'followed founders':mode==='communities'?'community memberships':'your founder and community connections';
+   box.innerHTML='<div class="community-empty" role="alert">Could not load '+relationshipLabel+': '+esc(relationshipError.message||'Please try again.')+'<p><button type="button" class="btn" data-retry-feed>Retry feed</button></p></div>';
+   return;
+  }
   followedIds=new Set((fr.data||[]).map(x=>x.following_id));joinedCommunityIds=new Set((mr.data||[]).map(x=>x.community_id));
   const all=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').order('created_at',{ascending:false}).limit(250);
   if(all.error){box.innerHTML='<div class="community-empty">Could not load posts: '+esc(all.error.message)+'<p><button type="button" class="btn" data-retry-feed>Retry feed</button></p></div>';return}
