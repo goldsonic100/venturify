@@ -127,6 +127,9 @@ for (const id of ['feedSearchForm','feedSearchInput','feedSort','clearFeedSearch
   assert.ok(files.feed.includes('id="' + id + '"'), 'Feed discovery controls must include #' + id);
 }
 assert.match(files.feed, /window\.venturifyFeedSearch/, 'Feed search must preserve its query while changing feed views');
+assert.ok(files.feed.includes('id="savedPostTypeFilter"'), 'Saved posts must expose a dedicated post-type filter');
+assert.match(files.feed, /mode==='saved'&&savedPostTypeFilter&&savedPostTypeFilter\.value!=='all'/, 'Saved post-type filtering must apply only in the Saved view');
+assert.match(files.feed, /savedPostTypeFilter.*addEventListener\('change'/, 'Saved post-type changes must reload the filtered list');
 assert.match(files.feed, /p\.opportunity_offer,p\.opportunity_need/, 'Feed search must include collaboration offers and needs');
 assert.match(files.feed, /sortMode==='oldest'/, 'Feed sorting must support oldest-first ordering');
 assert.match(files.feed, /clearFeedSearch.*addEventListener/s, 'Feed search must provide a working clear action');
