@@ -118,7 +118,7 @@ assert.match(files.feed, /window\.venturifyFeedVisibleLimit=40/, 'Feed should st
 assert.match(files.feed, /data-feed-load-more/, 'Feed should offer progressive browsing beyond the first page');
 assert.match(files.feed, /Show more posts/, 'Feed pagination should have a clear member-facing action');
 assert.match(files.feed, /limit\(250\)/, 'Feed discovery views should evaluate a broader candidate pool before rendering');
-assert.match(files.feed, /if\(mode==='for-you'\)[\s\S]{0,1800}relationship=followedIds\.has\(p\.user_id\)\?9:0/, 'For-you feed should rank with member relationships');
+assert.match(files.feed, /if\(mode==='for-you'&&[\s\S]{0,1800}relationship=followedIds\.has\(p\.user_id\)\?9:0/, 'For-you feed should rank with member relationships');
 assert.match(files.feed, /engagement=\(likeCounts\.get\(p\.id\)\|\|0\)\*1\.5/, 'For-you feed should incorporate real engagement signals');
 assert.ok(files.feed.includes("if(mode==='for-you'&&($('feedSort')?.value||'newest')!=='oldest')"), 'Explicit oldest-first sorting should take precedence over personalized ranking');
 assert.match(files.feed, /community=p\.community_id/, 'For-you ranking should account for joined communities');
