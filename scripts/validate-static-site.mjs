@@ -66,6 +66,12 @@ if (!feedHtml.includes("data-edit=") || !feedHtml.includes("p.post_type!=='poll'
 if (!feedHtml.includes(".update({content}).eq('id',edit.dataset.edit).eq('user_id',user.id)")) {
   failures.push("feed.html: post edits must be scoped to both the selected post and the signed-in owner.");
 }
+if (!feedHtml.includes("venturify:post-draft:") || !feedHtml.includes("restorePostDraft()")) {
+  failures.push("feed.html: founder post drafts must be saved per account and restored after sign-in.");
+}
+if (!feedHtml.includes("clearPostDraft();") || !feedHtml.includes("localStorage.setItem(key,JSON.stringify(draft))")) {
+  failures.push("feed.html: successful publishing must clear the saved draft and draft autosave must persist locally.");
+}
 if (!feedHtml.includes("content.length>1200")) {
   failures.push("feed.html: post edits must enforce the composer character limit.");
 }
