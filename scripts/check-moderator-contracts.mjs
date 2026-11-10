@@ -75,3 +75,7 @@ for (const contract of ["Investigate account","$('userQuery').value=appeal.user_
 for (const contract of ["Load unified investigation timeline","Promise.allSettled([","moderator_get_account_moderation_history","moderator_get_account_report_history","moderator_get_account_appeal_history","entries.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0))","entry.error"]) {
  assert.ok(page.includes(contract), 'Unified investigation timeline contract missing: '+contract);
 }
+
+for (const contract of ["Filter investigation timeline","Moderation actions","Export timeline CSV","account-investigation-timeline.csv","visibleEntries().filter(e=>!e.error)","String.fromCharCode(13)+String.fromCharCode(10)"]) {
+ assert.ok(page.includes(contract), 'Timeline filtering/export contract missing: '+contract);
+}
