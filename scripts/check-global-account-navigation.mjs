@@ -104,7 +104,7 @@ assert.match(globalNavigation, /flex:0 0 104px!important;width:104px!important/,
 assert.match(globalNavigation, /border-radius:20px!important/, 'Every primary tab must use the same pill shape.');
 assert.match(globalNavigation, /background:#536174!important;color:#f2f6fc!important/, 'Inactive tabs must share the same slate treatment.');
 assert.match(globalNavigation, /background:#e5efff!important;border-color:#9dbdf2!important;color:#315d9d!important/, 'The active tab must use the same selected treatment.');
-assert.match(globalNavigation, /body\.authenticated[\s\S]*#navSignup[hidden]\{display:none!important/, 'Sign up must disappear while signed in.');
+assert.match(globalNavigation, /body\.authenticated[\s\S]*#navSignup\\[hidden\\]\{display:none!important/, 'Sign up must disappear while signed in.');
 assert.match(globalNavigation, /body\.authenticated[\s\S]*#navAccount\{display:inline-flex!important/, 'The signed-in account destination must remain available.');
 
 
