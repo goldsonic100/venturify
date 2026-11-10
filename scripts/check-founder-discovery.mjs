@@ -347,3 +347,11 @@ assert.match(discoverHtml, /from\('collaboration_requests'\)\.insert\(\{requeste
 assert.match(discoverHtml, /from\('user_blocks'\)[\s\S]{0,500}from\('user_blocks'\)/, 'Proposal submission must check blocks in both directions');
 assert.match(discoverHtml, /message\.length>500/, 'Structured proposals must respect the collaboration request 500-character database limit');
 assert.match(discoverHtml, /proposalDialog\.showModal\(\)/, 'Proposal dialog must open as an accessible modal');
+
+assert.match(discoverHtml, /founderVisibleLimit=40/, 'Founder discovery should render a manageable initial page');
+assert.match(discoverHtml, /data-founder-load-more/, 'Founder discovery should progressively reveal additional eligible results');
+assert.match(discoverHtml, /Show 40 more founders/, 'Founder discovery should label its progressive loading action');
+assert.match(discoverHtml, /\.range\(0,999\)/, 'Founder discovery should search a broader first batch than the former 500-profile cap');
+assert.match(discoverHtml, /function resetFounderResults\(\)/, 'Founder discovery filters should reset pagination when changed');
+assert.match(discoverHtml, /if\(e\.target\.closest\('\[data-founder-load-more\]'\)\)\{founderVisibleLimit\+=40;render\(\);return;\}/, 'Founder discovery load-more action should reveal the next page');
+assert.match(discoverHtml, /Math\.min\(list\.length,founderVisibleLimit\)/, 'Founder discovery status should report the visible result count');
