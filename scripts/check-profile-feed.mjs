@@ -106,6 +106,12 @@ assert.ok(settings.includes("save.dataset.dirty='false';save.textContent='Save s
 
 assert.ok(files.feed.includes('commentUserIds=[...new Set((cr.data||[]).map(x=>x.user_id))]'), 'Feed should fetch profiles for comment authors too');
 assert.ok(files.feed.includes('data-retry-feed') && files.feed.includes("feedRetryRoot.addEventListener('click'"), 'Feed and opportunity query failures should expose a retry action');
+assert.match(files.feed, /const relationshipError=\(mode==='following'\?fr\.error:mode==='communities'\?mr\.error:\(fr\.error\|\|mr\.error\)\)/,
+  'Personalized feed modes must detect failed relationship lookups instead of treating them as empty results.');
+assert.match(files.feed, /Could not load '\+relationshipLabel\+': '\+esc\(relationshipError\.message\|\|'Please try again\.'\)/,
+  'Relationship lookup failures must show an escaped, understandable error message.');
+assert.match(files.feed, /relationshipError[\s\S]{0,400}data-retry-feed/,
+  'Relationship lookup failures must provide the existing feed retry action.');
 for (const id of ['feedSearchForm','feedSearchInput','feedSort','clearFeedSearch','feedSearchSummary']) {
   assert.ok(files.feed.includes('id="' + id + '"'), 'Feed discovery controls must include #' + id);
 }
