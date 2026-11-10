@@ -76,6 +76,6 @@ for (const contract of ["Load unified investigation timeline","Promise.allSettle
  assert.ok(page.includes(contract), 'Unified investigation timeline contract missing: '+contract);
 }
 
-for (const contract of ["Filter investigation timeline","Moderation actions","Export timeline CSV","account-investigation-timeline.csv","visibleEntries().filter(e=>!e.error)","cell.replace(/\"/g,'\"\"')"]) {
+for (const contract of ["Filter investigation timeline","Moderation actions","Export timeline CSV","account-investigation-timeline.csv","visibleEntries().filter(e=>!e.error)","String.fromCharCode(13)+String.fromCharCode(10)"]) {
  assert.ok(page.includes(contract), 'Timeline filtering/export contract missing: '+contract);
 }
