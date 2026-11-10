@@ -71,3 +71,7 @@ for (const contract of ['View appeal history','moderator_get_account_appeal_hist
 for (const contract of ["Investigate account","$('userQuery').value=appeal.user_id","userOffset=0;switchTab('accounts')","controls.append(inspect,save)"]) {
  assert.ok(page.includes(contract), 'Appeal-to-account investigation shortcut missing: '+contract);
 }
+
+for (const contract of ["Load unified investigation timeline","Promise.allSettled([","moderator_get_account_moderation_history","moderator_get_account_report_history","moderator_get_account_appeal_history","entries.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0))","entry.error"]) {
+ assert.ok(page.includes(contract), 'Unified investigation timeline contract missing: '+contract);
+}
