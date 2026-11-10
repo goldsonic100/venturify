@@ -330,7 +330,7 @@ assert.match(discoverHtml, /id="founderFit"[^>]*aria-label="Filter founders by c
 for (const value of ['need_from_them','offer_to_them','two_way','open_collab']) assert.ok(discoverHtml.includes('value="'+value+'"'), 'Collaboration-fit filter is missing '+value);
 assert.match(discoverHtml, /skillFit:\{needFromThem:complement\.length>0,offerToThem:helps\.length>0,twoWay:complement\.length>0&&helps\.length>0,openCollab:collab\}/, 'Collaboration-fit filters must use the same complementary-skill and collaboration signals as match explanations');
 assert.match(discoverHtml, /const selectedFit=\$\('founderFit'\)\?\.value\|\|'all'/, 'Founder results must apply the selected collaboration-fit filter');
-assert.match(discoverHtml, /\$\('founderFit'\)\.addEventListener\('change',render\)/, 'Changing collaboration fit must refresh founder results');
+assert.match(discoverHtml, /\$\('founderFit'\)\.addEventListener\('change',resetFounderResults\)/, 'Changing collaboration fit must refresh founder results');
 assert.ok(discoverHtml.includes("$('founderFit').value='all';resetFounderResults()"), 'Clear-search recovery should reset collaboration-fit filters');
 
 assert.match(discoverHtml, /compatibilityParts=\[\{label:'Skills that match your goals',points:Math\.min\(complement\.length,3\)\*12,max:36\}/, 'Compatibility score should reward skills that match the viewer goals');
