@@ -6,11 +6,13 @@ on:
       - 'moderator.html'
       - 'scripts/check-moderator-contracts.mjs'
       - 'supabase/migrations/20261108010000_moderator_system_diagnostics.sql'
+      - 'supabase/migrations/20261110010000_add_moderator_rls_policy_diagnostics.sql'
       - '.github/workflows/moderator-system-diagnostics.yml'
   push:
     branches: [main]
     paths:
       - 'moderator.html'
+      - 'supabase/migrations/20261110010000_add_moderator_rls_policy_diagnostics.sql'
       - 'scripts/check-moderator-contracts.mjs'
       - 'supabase/migrations/20261108010000_moderator_system_diagnostics.sql'
       - '.github/workflows/moderator-system-diagnostics.yml'
