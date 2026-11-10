@@ -75,7 +75,8 @@ assert.deepEqual(
 console.log('SECURITY DEFINER migration checks passed across ' + files.length + ' SQL migrations (including parser fixtures).');
 
 
-const triggerHardening = readFileSync(new URL('../supabase/migrations/20261111010000_pin_trigger_security_definer_search_path.sql', import.meta.url), 'utf8');
+
+const triggerHardening = readFileSync(new URL('../supabase/migrations/20261111010000_pin_trigger_security_definer_search_path.sql', import.meta.url), 'utf8').toLowerCase();
 const rewrittenTriggerFunctions = [
   'log_workspace_activity_event',
   'log_workspace_task_checklist_activity',
@@ -89,15 +90,16 @@ const alteredTriggerFunctions = [
   'rls_auto_enable',
 ];
 for (const name of rewrittenTriggerFunctions) {
-  const definition = triggerHardening.match(new RegExp('create\\s+or\\s+replace\\s+function\\s+public\\.' + name + '\\s*\\([\\s\\S]*?\\$function\\$;', 'i'))?.[0] ?? '';
+  const start = triggerHardening.indexOf('create or replace function public.' + name + '(');
+  const end = start < 0 ? -1 : triggerHardening.indexOf('$function$;', start);
+  const definition = start < 0 || end < 0 ? '' : triggerHardening.slice(start, end);
   assert.ok(definition, 'Trigger hardening migration must recreate ' + name);
-  assert.match(definition, /set\s+search_path\s+to\s+''/i, name + ' must pin an empty search_path');
-  assert.match(definition, /auth\.uid\(\)/i, name + ' must schema-qualify auth.uid()');
+  assert.ok(definition.includes("set search_path to ''"), name + ' must pin an empty search_path');
+  assert.ok(definition.includes('auth.uid()'), name + ' must schema-qualify auth.uid()');
 }
 for (const name of alteredTriggerFunctions) {
-  assert.match(
-    triggerHardening,
-    new RegExp('alter\\s+function\\s+public\\.' + name + '\\s*\\(\\)\\s+set\\s+search_path\\s*=\\s*\\x27\\x27', 'i'),
+  assert.ok(
+    triggerHardening.includes('alter function public.' + name + "() set search_path = '';"),
     name + ' must be altered to an empty search_path',
   );
 }
