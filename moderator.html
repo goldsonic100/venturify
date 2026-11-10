@@ -357,13 +357,15 @@ async function loadAppeals(){
  const decision=document.createElement('select');[['under_review','Mark in review'],['accepted','Accept and restore posting'],['denied','Deny appeal']].forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;decision.append(o)});decision.value=appeal.status==='submitted'?'under_review':appeal.status;
  const nl=document.createElement('label');nl.textContent='Response to the user (required, 8–1000 characters)';
  const notes=document.createElement('textarea');notes.maxLength=1000;notes.placeholder='Explain the decision or what happens next.';
+ const inspect=document.createElement('button');inspect.type='button';inspect.className='btn';inspect.textContent='Investigate account';
+ inspect.addEventListener('click',()=>{$('userQuery').value=appeal.user_id;userOffset=0;switchTab('accounts');status('Account investigation opened for '+(appeal.username?'@'+appeal.username:appeal.user_id)+'.');});
  const save=document.createElement('button');save.type='button';save.className='btn primary';save.textContent='Save appeal decision';
  save.addEventListener('click',async()=>{const msg=notes.value.trim();if(msg.length<8){status('Please provide a response of at least 8 characters.',true);notes.focus();return}
  if(decision.value==='accepted'&&!window.confirm('Accept this appeal and restore the account’s ability to create posts and comments?'))return;
  if(decision.value==='denied'&&!window.confirm('Deny this appeal? The existing posting restriction will remain active until it expires or is restored.'))return;
  save.disabled=true;try{await rpc('moderator_review_account_appeal',{p_appeal_id:appeal.appeal_id,p_decision:decision.value,p_moderator_message:msg});status('Appeal decision saved to the audit history.');await loadAppeals()}
  catch(e){status('Could not save appeal decision: '+safe(e.message),true)}finally{save.disabled=false}});
- card.append(h,meta,statement,label,decision,nl,notes,save);host.append(card)});
+ const controls=document.createElement('div');controls.className='actions';controls.append(inspect,save);card.append(h,meta,statement,label,decision,nl,notes,controls);host.append(card)});
  }catch(e){host.innerHTML='<div class="empty">Unable to load appeals: '+escapeHtml(e.message)+'</div>'}
 }
 async function loadPosts(){
