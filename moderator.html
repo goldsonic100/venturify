@@ -271,6 +271,34 @@ async function loadUsers(){
    const reportHistory=document.createElement('div');reportHistory.hidden=true;reportHistory.className='footer-note';
    reportHistory.setAttribute('role','region');reportHistory.setAttribute('aria-label','Account report activity history');
    const appealHistoryButton=document.createElement('button');appealHistoryButton.type='button';appealHistoryButton.className='btn';appealHistoryButton.textContent='View appeal history';
+   const timelineButton=document.createElement('button');timelineButton.type='button';timelineButton.className='btn primary';timelineButton.textContent='Load unified investigation timeline';
+   const unifiedTimeline=document.createElement('div');unifiedTimeline.hidden=true;unifiedTimeline.className='footer-note';unifiedTimeline.setAttribute('role','region');unifiedTimeline.setAttribute('aria-label','Unified account investigation timeline');
+   timelineButton.addEventListener('click',async()=>{
+    if(!unifiedTimeline.hidden){unifiedTimeline.hidden=true;timelineButton.textContent='Load unified investigation timeline';return;}
+    timelineButton.disabled=true;timelineButton.textContent='Loading investigation timeline…';unifiedTimeline.replaceChildren();
+    const sources=await Promise.allSettled([
+     rpc('moderator_get_account_moderation_history',{p_target_user_id:u.id}),
+     rpc('moderator_get_account_report_history',{p_target_user_id:u.id}),
+     rpc('moderator_get_account_appeal_history',{p_target_user_id:u.id})
+    ]);
+    const entries=[];
+    if(sources[0].status==='fulfilled')sources[0].value.forEach(e=>entries.push({date:e.created_at,type:'Moderation action',detail:e.action.replaceAll('_',' ')+' · '+e.previous_status+' → '+e.new_status+' · '+e.reason,actor:e.moderator_id}));
+    else entries.push({error:'Action history unavailable: '+safe(sources[0].reason?.message)});
+    if(sources[1].status==='fulfilled')sources[1].value.forEach(e=>entries.push({date:e.created_at,type:'Report · '+(e.account_role||'account').replaceAll('_',' '),detail:e.reason.replaceAll('_',' ')+(e.details?' · '+e.details:''),actor:e.report_id,status:e.status}));
+    else entries.push({error:'Report history unavailable: '+safe(sources[1].reason?.message)});
+    if(sources[2].status==='fulfilled')sources[2].value.forEach(e=>entries.push({date:e.event_created_at,type:'Appeal · '+e.event_type.replaceAll('_',' '),detail:(e.statement||'')+(e.event_message?' · '+e.event_message:''),actor:e.actor_id,status:e.status}));
+    else entries.push({error:'Appeal history unavailable: '+safe(sources[2].reason?.message)});
+    entries.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+    if(!entries.length){const empty=document.createElement('p');empty.textContent='No investigation events are available.';unifiedTimeline.append(empty);}
+    entries.forEach(entry=>{const row=document.createElement('article');row.className='item';if(entry.error){row.textContent=entry.error;unifiedTimeline.append(row);return;}
+     const heading=document.createElement('b');heading.textContent=entry.type+(entry.status?' · '+entry.status:'');
+     const meta=document.createElement('small');meta.textContent=(entry.date?new Date(entry.date).toLocaleString():'Date unavailable')+(entry.actor?' · Reference '+entry.actor:'');
+     const detail=document.createElement('p');detail.textContent=entry.detail||'No additional details.';
+     row.append(heading,meta,detail);unifiedTimeline.append(row);
+    });
+    unifiedTimeline.hidden=false;timelineButton.textContent='Hide unified investigation timeline';timelineButton.disabled=false;
+   });
+
    const appealHistory=document.createElement('div');appealHistory.hidden=true;appealHistory.className='footer-note';
    appealHistory.setAttribute('role','region');appealHistory.setAttribute('aria-label','Account appeal history');
    action.addEventListener('change',()=>{durationLabel.hidden=duration.hidden=action.value!=='posting_restricted'});
@@ -338,8 +366,8 @@ async function loadUsers(){
     }catch(e){appealHistory.replaceChildren();const error=document.createElement('p');error.textContent='Could not load appeal history: '+safe(e.message);appealHistory.append(error);appealHistory.hidden=false;appealHistoryButton.textContent='Hide appeal history';}
     finally{appealHistoryButton.disabled=false;}
    });
-   actionButtons.append(apply,historyButton,reportHistoryButton,appealHistoryButton);
-   moderation.append(state,actionLabel,action,durationLabel,duration,reasonLabel,reason,actionButtons,history,reportHistory,appealHistory);
+   actionButtons.append(apply,historyButton,reportHistoryButton,appealHistoryButton,timelineButton);
+   moderation.append(state,actionLabel,action,durationLabel,duration,reasonLabel,reason,actionButtons,history,reportHistory,appealHistory,unifiedTimeline);
    card.append(title,bio,meta,details,moderation);host.append(card);
   });
  }catch(e){userHasNext=false;updateUserPagination();host.innerHTML='<div class="empty">Unable to load accounts: '+escapeHtml(e.message)+'</div>'}
