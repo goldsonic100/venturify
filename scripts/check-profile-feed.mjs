@@ -106,6 +106,15 @@ assert.ok(settings.includes("save.dataset.dirty='false';save.textContent='Save s
 
 assert.ok(files.feed.includes('commentUserIds=[...new Set((cr.data||[]).map(x=>x.user_id))]'), 'Feed should fetch profiles for comment authors too');
 assert.ok(files.feed.includes('data-retry-feed') && files.feed.includes("feedRetryRoot.addEventListener('click'"), 'Feed and opportunity query failures should expose a retry action');
+for (const id of ['feedSearchForm','feedSearchInput','feedSort','clearFeedSearch','feedSearchSummary']) {
+  assert.ok(files.feed.includes('id="' + id + '"'), 'Feed discovery controls must include #' + id);
+}
+assert.match(files.feed, /window\.venturifyFeedSearch/, 'Feed search must preserve its query while changing feed views');
+assert.match(files.feed, /p\.opportunity_offer,p\.opportunity_need/, 'Feed search must include collaboration offers and needs');
+assert.match(files.feed, /sortMode==='oldest'/, 'Feed sorting must support oldest-first ordering');
+assert.match(files.feed, /clearFeedSearch.*addEventListener/s, 'Feed search must provide a working clear action');
+assert.match(files.feed, /Search covers the latest posts loaded for the selected feed/, 'Feed search scope must be explained to members');
+
 assert.ok(files.feed.includes('Retry feed</button>') && files.feed.includes('Retry feed</button></p></div>'), 'Retry controls should be present in feed query error states');
 
 
