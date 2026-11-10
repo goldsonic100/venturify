@@ -106,6 +106,17 @@ assert.ok(settings.includes("save.dataset.dirty='false';save.textContent='Save s
 
 assert.ok(files.feed.includes('commentUserIds=[...new Set((cr.data||[]).map(x=>x.user_id))]'), 'Feed should fetch profiles for comment authors too');
 assert.ok(files.feed.includes('data-retry-feed') && files.feed.includes("feedRetryRoot.addEventListener('click'"), 'Feed and opportunity query failures should expose a retry action');
+for (const failure of ['Could not load reposted posts:', 'Could not load trending posts:']) {
+  const at = files.feed.indexOf(failure);
+  assert.ok(at >= 0, 'Feed must retain the ' + failure + ' error state.');
+  const state = files.feed.slice(at - 50, at + 260);
+  assert.match(state, /role="alert"/, failure + ' must be announced as an error.');
+  assert.match(state, /data-retry-feed/, failure + ' must offer the existing retry action.');
+}
+const communityFeedError = files.feed.indexOf("Could not load posts: '+esc(r.error.message)");
+assert.ok(communityFeedError >= 0, 'Community and public feed query failures must remain identifiable.');
+assert.match(files.feed.slice(communityFeedError - 60, communityFeedError + 260), /role="alert"[\s\S]*data-retry-feed/,
+  'Community and public feed failures must provide an accessible retry action.');
 assert.match(files.feed, /const relationshipError=\(mode==='following'\?fr\.error:mode==='communities'\?mr\.error:\(fr\.error\|\|mr\.error\)\)/,
   'Personalized feed modes must detect failed relationship lookups instead of treating them as empty results.');
 assert.match(files.feed, /Could not load '\+relationshipLabel\+': '\+esc\(relationshipError\.message\|\|'Please try again\.'\)/,
