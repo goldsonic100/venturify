@@ -67,3 +67,7 @@ for (const contract of ['moderator_get_account_appeal_history','p_target_user_id
 for (const contract of ['View appeal history','moderator_get_account_appeal_history','Account appeal history','Account statement: ','Timeline note: ','event.event_created_at','appealHistory.hidden=false']) {
   assert.ok(page.includes(contract), 'Moderator account appeal timeline UI is missing: ' + contract);
 }
+
+for (const contract of ["Investigate account","$('userQuery').value=appeal.user_id","userOffset=0;switchTab('accounts')","controls.append(inspect,save)"]) {
+ assert.ok(page.includes(contract), 'Appeal-to-account investigation shortcut missing: '+contract);
+}
