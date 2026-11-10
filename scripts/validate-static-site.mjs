@@ -72,6 +72,12 @@ if (!feedHtml.includes("venturify:post-draft:") || !feedHtml.includes("restorePo
 if (!feedHtml.includes("clearPostDraft();") || !feedHtml.includes("localStorage.setItem(key,JSON.stringify(draft))")) {
   failures.push("feed.html: successful publishing must clear the saved draft and draft autosave must persist locally.");
 }
+if (!feedHtml.includes('id="communityPostTypeFilter"') || !feedHtml.includes("posts=posts.filter(p=>(p.post_type||'standard')===selectedType)")) {
+  failures.push("feed.html: selected community feeds must support filtering by post type.");
+}
+if (!feedHtml.includes("$('communityPostTypeFilter').hidden=!current;") || !feedHtml.includes("$('communityPostTypeFilter').value='all'")) {
+  failures.push("feed.html: community post filters must appear only for a selected community and reset when leaving it.");
+}
 if (!feedHtml.includes("content.length>1200")) {
   failures.push("feed.html: post edits must enforce the composer character limit.");
 }
