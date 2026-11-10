@@ -16,3 +16,5 @@ body.authenticated .topbar .nav.venturify-primary-nav [data-guest-only]{display:
 @media(prefers-reduced-motion:reduce){.topbar .nav.venturify-primary-nav{scroll-behavior:auto!important;}}
 body.authenticated .topbar .nav.venturify-primary-nav #navAccount{display:inline-flex!important;}
 body.authenticated .topbar .nav.venturify-primary-nav #navSignup,body.authenticated .topbar .nav.venturify-primary-nav #navSignup[hidden]{display:none!important;}
+
+body.authenticated .topbar .nav.venturify-primary-nav #navSignup[hidden]{display:none!important;}
