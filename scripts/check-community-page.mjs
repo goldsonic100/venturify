@@ -10,6 +10,12 @@ assert.match(directory,/select\('community_id,created_at'\)[\s\S]{0,180}order\('
 assert.match(page,/localStorage\.setItem\('venturify:community-last-seen:'/,'Opening a community must update the member’s last-visited timestamp.');
 for(const id of ['communityName','communityTopic','communityDescription','memberCount','joinButton','postCount','postForm','postContent','postFeed','timeFilter'])assert.ok(page.includes('id="'+id+'"'),'Dedicated community page is missing #'+id);
 for(const mode of ['recommended','new','top','discussed'])assert.ok(page.includes('data-sort="'+mode+'"'),'Community feed is missing '+mode+' sorting.');
+assert.match(page,/id="commentSort"/,'Community discussions must expose comment sorting.');
+for(const mode of ['newest','oldest','replies'])assert.ok(page.includes('value="'+mode+'"'),'Comment sorting is missing '+mode+' mode.');
+assert.match(page,/function sortCommentRows\(rows,childrenByParent\)/,'Comment sorting must preserve threaded relationships while ordering each level.');
+assert.match(page,/children\.length\+' '\+\(children\.length===1\?'reply':'replies'\)/,'Each comment must show its direct reply count.');
+assert.match(page,/sortCommentRows\(comments\.filter\(c=>!c\.parent_id\),childrenByParent\)/,'Top-level comments must use the selected sort mode.');
+assert.match(page,/commentSort==='replies'/,'Most-replies sorting must rank comments by direct reply activity.');
 assert.match(page,/from\('communities'\)/,'Community details must load from the communities table.');
 assert.match(page,/from\('community_members'\)/,'Membership must use the community_members table.');
 assert.match(page,/from\('posts'\)/,'Community discussions must load from posts.');
