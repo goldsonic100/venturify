@@ -79,3 +79,7 @@ for (const contract of ["Load unified investigation timeline","Promise.allSettle
 for (const contract of ["Filter investigation timeline","Moderation actions","Export timeline CSV","account-investigation-timeline.csv","visibleEntries().filter(e=>!e.error)","String.fromCharCode(13)+String.fromCharCode(10)"]) {
  assert.ok(page.includes(contract), 'Timeline filtering/export contract missing: '+contract);
 }
+
+for (const contract of ["Select all on this page","Bulk report status","Apply to selected","moderator_update_report",{x:1}].filter(x=>typeof x==='string')) {
+ assert.ok(page.includes(contract), 'Bulk report review contract missing: '+contract);
+}
