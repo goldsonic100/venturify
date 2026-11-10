@@ -185,8 +185,30 @@ async function loadReports(){
   const now=Date.now(), ageMs=report=>Math.max(0,now-new Date(report.created_at).getTime());
   $('reportScopeNote').textContent='Server-side filters and sorting cover the entire report queue. Showing '+visibleReports.length+' report(s) on page '+(Math.floor(reportOffset/50)+1)+'.';
   host.replaceChildren();if(!visibleReports.length){if(reportOffset>0){reportOffset=Math.max(0,reportOffset-50);updateReportPagination();await loadReports();return;}host.innerHTML='<div class="empty">No reports match these filters.</div>';return;}
+  const bulkBar=document.createElement('div');bulkBar.className='toolbar';
+  const selectedIds=new Set();
+  const selectAllLabel=document.createElement('label');selectAllLabel.textContent='Select all on this page';
+  const selectAll=document.createElement('input');selectAll.type='checkbox';selectAll.setAttribute('aria-label','Select all reports on this page');
+  const bulkStatus=document.createElement('select');bulkStatus.setAttribute('aria-label','Bulk report status');
+  [['reviewing','Set reviewing'],['resolved','Resolve'],['dismissed','Dismiss'],['pending','Return to pending']].forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;bulkStatus.append(option)});
+  const bulkApply=document.createElement('button');bulkApply.type='button';bulkApply.className='btn primary';bulkApply.textContent='Apply to selected (0)';bulkApply.disabled=true;
+  const updateBulk=()=>{bulkApply.disabled=selectedIds.size===0;bulkApply.textContent='Apply to selected ('+selectedIds.size+')';selectAll.checked=selectedIds.size===visibleReports.length;selectAll.indeterminate=selectedIds.size>0&&selectedIds.size<visibleReports.length;};
+  selectAll.addEventListener('change',()=>{visibleReports.forEach(report=>selectAll.checked?selectedIds.add(report.id):selectedIds.delete(report.id));host.querySelectorAll('[data-report-select]').forEach(input=>{input.checked=selectAll.checked});updateBulk();});
+  bulkApply.addEventListener('click',async()=>{
+   if(!selectedIds.size)return;
+   const count=selectedIds.size,nextStatus=bulkStatus.value;
+   if(!window.confirm('Change '+count+' selected report(s) to '+nextStatus+'? This action will be recorded by the moderation system.'))return;
+   bulkApply.disabled=true;let saved=0,failed=0;
+   for(const id of selectedIds){const report=visibleReports.find(item=>item.id===id);if(!report)continue;try{await rpc('moderator_update_report',{p_report_id:id,p_status:nextStatus,p_moderator_notes:report.moderator_notes||''});saved++;}catch(e){failed++;}}
+   status('Bulk review finished: '+saved+' saved, '+failed+' failed.' ,failed>0);
+   await loadReports();await loadOverview();
+  });
+  selectAllLabel.prepend(selectAll);bulkBar.append(selectAllLabel,bulkStatus,bulkApply);host.append(bulkBar);
   visibleReports.forEach(report=>{
    const card=document.createElement('article');card.className='item';
+   const pickLabel=document.createElement('label');pickLabel.textContent='Select report';
+   const pick=document.createElement('input');pick.type='checkbox';pick.dataset.reportSelect='true';pick.setAttribute('aria-label','Select report '+report.id);
+   pick.addEventListener('change',()=>{pick.checked?selectedIds.add(report.id):selectedIds.delete(report.id);updateBulk();});pickLabel.prepend(pick);
    const title=document.createElement('h3');title.textContent=report.reason+' · '+report.status;
    const age=ageMs(report), ageLabel=formatAge(age), priority=report.status==='pending'?(age>=604800000?' · Critical overdue':age>=86400000?' · Overdue':' · Within 24h'):'';
    const meta=document.createElement('p');meta.textContent='Created '+new Date(report.created_at).toLocaleString()+' · Age '+ageLabel+priority+' · Report '+report.id;
@@ -204,7 +226,7 @@ async function loadReports(){
    const notes=document.createElement('textarea');notes.maxLength=2000;notes.value=report.moderator_notes||'';
    const save=document.createElement('button');save.className='btn primary';save.textContent='Save review';
    save.addEventListener('click',async()=>{save.disabled=true;try{await rpc('moderator_update_report',{p_report_id:report.id,p_status:select.value,p_moderator_notes:notes.value});status('Report review saved.');await loadReports();await loadOverview()}catch(e){status('Could not save review: '+safe(e.message),true)}finally{save.disabled=false}});
-   card.append(title,meta,target,inspect,details,label,select,noteLabel,notes,save);host.append(card);
+   card.append(pickLabel,title,meta,target,inspect,details,label,select,noteLabel,notes,save);host.append(card);
   });
  }catch(e){reportHasNext=false;updateReportPagination();host.innerHTML='<div class="empty">Unable to load reports: '+escapeHtml(e.message)+'</div>'}
 }
