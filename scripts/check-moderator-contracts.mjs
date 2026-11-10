@@ -59,3 +59,11 @@ for (const contract of ['moderator_get_account_report_history','p_target_user_id
 for (const contract of ['View report history','moderator_get_account_report_history','Account report activity history','Filed by this account','Filed against this account','reportHistory.hidden=false','event.details']) {
   assert.ok(page.includes(contract), 'Moderator account report timeline UI is missing: ' + contract);
 }
+
+const appealHistory = read('supabase/migrations/20261112020000_moderator_account_appeal_history.sql');
+for (const contract of ['moderator_get_account_appeal_history','p_target_user_id','private.moderators','Moderator access required','private.account_moderation_appeals','private.account_moderation_appeal_events','a.user_id = p_target_user_id','limit 100','revoke all on function','grant execute on function']) {
+  assert.ok(appealHistory.includes(contract), 'Moderator account appeal history migration is missing: ' + contract);
+}
+for (const contract of ['View appeal history','moderator_get_account_appeal_history','Account appeal history','Account statement: ','Timeline note: ','event.event_created_at','appealHistory.hidden=false']) {
+  assert.ok(page.includes(contract), 'Moderator account appeal timeline UI is missing: ' + contract);
+}
