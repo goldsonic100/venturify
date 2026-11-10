@@ -531,7 +531,8 @@ async function feed(){
  if(mode==='opportunities'){const opportunityTypes=['idea','resource','lesson'];const kind=window.venturifyOpportunityFilter||'all';posts=posts.filter(p=>opportunityTypes.includes(p.post_type)&&(kind==='all'||p.post_type===kind))}
  const searchTerm=String(window.venturifyFeedSearch||'').trim().toLowerCase();
  if(searchTerm)posts=posts.filter(p=>[p.content,p.post_type,(p.topic_tags||[]).join(' '),p.opportunity_offer,p.opportunity_need].filter(Boolean).join(' ').toLowerCase().includes(searchTerm));
- if(currentCommunityId&&communityPostTypeFilter&&communityPostTypeFilter.value!=='all'){const selectedType=communityPostTypeFilter.value;posts=posts.filter(p=>(p.post_type||'standard')===selectedType)}\n if(mode==='saved'&&savedPostTypeFilter&&savedPostTypeFilter.value!=='all'){const selectedSavedType=savedPostTypeFilter.value;posts=posts.filter(p=>(p.post_type||'standard')===selectedSavedType)}
+ if(currentCommunityId&&communityPostTypeFilter&&communityPostTypeFilter.value!=='all'){const selectedType=communityPostTypeFilter.value;posts=posts.filter(p=>(p.post_type||'standard')===selectedType)}
+ if(mode==='saved'&&savedPostTypeFilter&&savedPostTypeFilter.value!=='all'){const selectedSavedType=savedPostTypeFilter.value;posts=posts.filter(p=>(p.post_type||'standard')===selectedSavedType)}
  const sortMode=$('feedSort')?.value||'newest';
  posts.sort((a,b)=>(b.pinned_at?1:0)-(a.pinned_at?1:0)||(sortMode==='oldest'?new Date(a.created_at)-new Date(b.created_at):new Date(b.created_at)-new Date(a.created_at)));
  const summary=$('feedSearchSummary');if(summary)summary.textContent=(searchTerm?'Showing '+posts.length+' matching post(s) in this view. ':'Showing '+posts.length+' post(s) in this view. ')+(sortMode==='discussed'?'Sorted by discussion, likes, and repost activity. ':'')+'Search covers the latest posts loaded for the selected feed.';
@@ -577,7 +578,8 @@ $('feedSearchInput').value=window.venturifyFeedSearch||'';
 $('feedSearchForm').addEventListener('submit',async event=>{event.preventDefault();window.venturifyFeedSearch=$('feedSearchInput').value.trim();window.venturifyFeedVisibleLimit=40;await feed()});
 $('clearFeedSearch').addEventListener('click',async()=>{window.venturifyFeedSearch='';window.venturifyFeedVisibleLimit=40;$('feedSearchInput').value='';await feed()});
 $('feedSort').addEventListener('change',()=>{window.venturifyFeedVisibleLimit=40;feed()});
-$('communityPostTypeFilter').addEventListener('change',()=>{window.venturifyFeedVisibleLimit=40;feed()});\n$('savedPostTypeFilter').addEventListener('change',()=>{window.venturifyFeedVisibleLimit=40;feed()});
+$('communityPostTypeFilter').addEventListener('change',()=>{window.venturifyFeedVisibleLimit=40;feed()});
+$('savedPostTypeFilter').addEventListener('change',()=>{window.venturifyFeedVisibleLimit=40;feed()});
 const feedRetryRoot=$('feed');
 feedRetryRoot.addEventListener('click',event=>{const more=event.target.closest('[data-feed-load-more]');if(more){window.venturifyFeedVisibleLimit=(Number(window.venturifyFeedVisibleLimit)||40)+40;feed();return;}const button=event.target.closest('[data-retry-feed]');if(!button)return;button.disabled=true;button.textContent='Retrying…';feed().catch(error=>{console.error('Feed retry failed',error);feedRetryRoot.innerHTML='<div class="community-empty" role="alert">Something went wrong while loading this feed. Please check your connection and try again.<p><button type="button" class="btn" data-retry-feed>Try again</button></p></div>'})});
 window.venturifyReloadFeed=feed;
