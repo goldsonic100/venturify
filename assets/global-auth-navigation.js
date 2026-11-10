@@ -6,11 +6,9 @@
   const client = window.venturifySupabaseClient || (window.supabase && window.supabase.createClient
     ? window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co', 'sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W')
     : null);
-  let lastUserId = null;
   const applySession = (session) => {
     const user = session && session.user ? session.user : null;
     const authenticated = !!user;
-    lastUserId = user ? user.id : null;
     document.body.classList.toggle('authenticated', authenticated);
     if (account) {
       account.textContent = authenticated ? 'Account' : 'Log in';
