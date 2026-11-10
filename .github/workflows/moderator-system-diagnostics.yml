@@ -1,0 +1,30 @@
+name: Moderator system diagnostics contracts
+
+on:
+  pull_request:
+    paths:
+      - 'moderator.html'
+      - 'scripts/check-moderator-contracts.mjs'
+      - 'supabase/migrations/20261108010000_moderator_system_diagnostics.sql'
+      - '.github/workflows/moderator-system-diagnostics.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'moderator.html'
+      - 'scripts/check-moderator-contracts.mjs'
+      - 'supabase/migrations/20261108010000_moderator_system_diagnostics.sql'
+      - '.github/workflows/moderator-system-diagnostics.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  moderator-diagnostics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify moderator diagnostics and authorization contracts
+        run: node scripts/check-moderator-contracts.mjs
