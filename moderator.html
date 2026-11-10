@@ -191,6 +191,12 @@ async function loadReports(){
    const age=ageMs(report), ageLabel=formatAge(age), priority=report.status==='pending'?(age>=604800000?' · Critical overdue':age>=86400000?' · Overdue':' · Within 24h'):'';
    const meta=document.createElement('p');meta.textContent='Created '+new Date(report.created_at).toLocaleString()+' · Age '+ageLabel+priority+' · Report '+report.id;
    const target=document.createElement('p');target.textContent='Reporter: '+report.reporter_id+' · Target: '+(report.reported_user_id||report.post_id||report.comment_id||'unknown');
+   const inspect=document.createElement('div');inspect.className='actions';
+   const inspectReporter=document.createElement('button');inspectReporter.type='button';inspectReporter.className='btn';inspectReporter.textContent='Inspect reporter account';inspectReporter.addEventListener('click',()=>{ $('userQuery').value=report.reporter_id; $('userStatusFilter').value='all'; $('userSort').value='newest'; userOffset=0; switchTab('accounts'); });
+   inspect.append(inspectReporter);
+   if(report.reported_user_id){const inspectTarget=document.createElement('button');inspectTarget.type='button';inspectTarget.className='btn';inspectTarget.textContent='Inspect reported account';inspectTarget.addEventListener('click',()=>{ $('userQuery').value=report.reported_user_id; $('userStatusFilter').value='all'; $('userSort').value='newest'; userOffset=0; switchTab('accounts'); });inspect.append(inspectTarget);}
+   if(report.post_id){const inspectPost=document.createElement('button');inspectPost.type='button';inspectPost.className='btn';inspectPost.textContent='Inspect reported post';inspectPost.addEventListener('click',()=>{ $('postQuery').value=report.post_id; postOffset=0; switchTab('content'); });inspect.append(inspectPost);}
+   if(report.comment_id){const commentRef=document.createElement('small');commentRef.textContent='Comment ID: '+report.comment_id;inspect.append(commentRef);}
    const details=document.createElement('p');details.textContent=report.details||'No additional details provided.';
    const label=document.createElement('label');label.textContent='Decision';
    const select=document.createElement('select');[['pending','Pending'],['reviewing','Reviewing'],['resolved','Resolved'],['dismissed','Dismissed']].forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;select.append(o)});select.value=report.status;
@@ -198,7 +204,7 @@ async function loadReports(){
    const notes=document.createElement('textarea');notes.maxLength=2000;notes.value=report.moderator_notes||'';
    const save=document.createElement('button');save.className='btn primary';save.textContent='Save review';
    save.addEventListener('click',async()=>{save.disabled=true;try{await rpc('moderator_update_report',{p_report_id:report.id,p_status:select.value,p_moderator_notes:notes.value});status('Report review saved.');await loadReports();await loadOverview()}catch(e){status('Could not save review: '+safe(e.message),true)}finally{save.disabled=false}});
-   card.append(title,meta,target,details,label,select,noteLabel,notes,save);host.append(card);
+   card.append(title,meta,target,inspect,details,label,select,noteLabel,notes,save);host.append(card);
   });
  }catch(e){reportHasNext=false;updateReportPagination();host.innerHTML='<div class="empty">Unable to load reports: '+escapeHtml(e.message)+'</div>'}
 }

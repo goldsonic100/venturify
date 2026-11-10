@@ -47,3 +47,7 @@ for (const contract of ['userStatusFilter','userSort','userPageSummary',"rpc('mo
 for (const contract of ['appealOffset','appealHasNext','updateAppealPagination','prevAppeals','nextAppeals','appealPageLabel',"p_limit:51,p_offset:appealOffset",'visibleAppeals=rows.slice(0,50)']) {
   assert.ok(page.includes(contract), 'Moderator appeal pagination is missing: ' + contract);
 }
+
+for (const contract of ['Inspect reporter account','Inspect reported account','Inspect reported post',"$('userQuery').value=report.reporter_id","$('userQuery').value=report.reported_user_id","$('postQuery').value=report.post_id",'switchTab(\'accounts\')','switchTab(\'content\')']) {
+  assert.ok(page.includes(contract), 'Moderator report investigation shortcut is missing: ' + contract);
+}
