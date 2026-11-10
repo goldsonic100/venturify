@@ -89,15 +89,15 @@ const alteredTriggerFunctions = [
   'rls_auto_enable',
 ];
 for (const name of rewrittenTriggerFunctions) {
-  const definition = triggerHardening.match(new RegExp('create\\\\s+or\\\\s+replace\\\\s+function\\\\s+public\\\\.' + name + '\\\\s*\\\\([\\\\s\\\\S]*?\\\\$function\\\\$;', 'i'))?.[0] ?? '';
+  const definition = triggerHardening.match(new RegExp('create\\s+or\\s+replace\\s+function\\s+public\\.' + name + '\\s*\\([\\s\\S]*?\\$function\\$;', 'i'))?.[0] ?? '';
   assert.ok(definition, 'Trigger hardening migration must recreate ' + name);
-  assert.match(definition, /set\\\\s+search_path\\\\s+to\\\\s+''/i, name + ' must pin an empty search_path');
-  assert.match(definition, /auth\\\\.uid\\\\(\\\\)/i, name + ' must schema-qualify auth.uid()');
+  assert.match(definition, /set\s+search_path\s+to\s+''/i, name + ' must pin an empty search_path');
+  assert.match(definition, /auth\.uid\(\)/i, name + ' must schema-qualify auth.uid()');
 }
 for (const name of alteredTriggerFunctions) {
   assert.match(
     triggerHardening,
-    new RegExp('alter\\\\s+function\\\\s+public\\\\.' + name + '\\\\s*\\\\(\\\\)\\\\s+set\\\\s+search_path\\\\s*=\\\\s*\\\\x27\\\\x27', 'i'),
+    new RegExp('alter\\s+function\\s+public\\.' + name + '\\s*\\(\\)\\s+set\\s+search_path\\s*=\\s*\\x27\\x27', 'i'),
     name + ' must be altered to an empty search_path',
   );
 }
