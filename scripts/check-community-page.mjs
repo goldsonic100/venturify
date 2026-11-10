@@ -15,6 +15,11 @@ assert.match(page,/from\('community_members'\)/,'Membership must use the communi
 assert.match(page,/from\('posts'\)/,'Community discussions must load from posts.');
 assert.match(page,/from\('likes'\)/,'Community voting must use the existing likes table.');
 assert.match(page,/from\('comments'\)/,'Community replies must use the existing comments table.');
+assert.match(page,/select\('id,post_id,user_id,content,created_at,parent_id'\)/,'Community discussions must load the existing parent-comment relationship.');
+assert.match(page,/function renderCommentNode\(comment,childrenByParent,depth=0\)/,'Community comments must render as a nested reply thread.');
+assert.match(page,/data-reply-to=/,'Each comment must expose a direct reply action.');
+assert.match(page,/parent_id:parentId/,'Replies must be saved against the comment they answer.');
+assert.match(page,/authorIds=\[\.\.\.new Set\(\[\.\.\.posts\.map\(p=>p\.user_id\),\.\.\.commentRows\.map\(c=>c\.user_id\)\]\)\]/,'Profiles for comment and reply authors must be loaded so thread identities render correctly.');
 
 for(const id of ['memberList','memberToggle','memberPreview'])assert.ok(page.includes('id="'+id+'"'),'Community member directory is missing #'+id);
 assert.match(page,/from\('community_members'\)\.select\('user_id'\)/,'Member directory must derive membership from the community_members table.');
