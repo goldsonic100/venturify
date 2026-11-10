@@ -93,13 +93,19 @@ assert.ok(css.includes('overflow-x:auto'), 'Mobile navigation must allow access 
 assert.ok(css.includes('aria-current="page"'), 'The active navigation destination must have a distinct visible state.');
 assert.ok(css.includes('prefers-reduced-motion:reduce'), 'Navigation must respect reduced-motion preferences.');
 const globalNavigation = readFileSync(new URL('../assets/global-navigation.css', import.meta.url), 'utf8');
+const globalAuthNavigation = readFileSync(new URL('../assets/global-auth-navigation.js', import.meta.url), 'utf8');
+assert.match(globalAuthNavigation, /auth\.getSession\(\)/, 'The shared navigation must read the persisted Supabase session.');
+assert.match(globalAuthNavigation, /auth\.onAuthStateChange/, 'The shared navigation must react to authentication changes.');
+assert.match(globalAuthNavigation, /authenticated \? 'Account' : 'Log in'/, 'The account control must show Account only for signed-in members.');
+assert.match(globalAuthNavigation, /signup\.hidden = authenticated/, 'The Sign up control must be hidden for signed-in members.');
+
 assert.match(globalNavigation, /flex-flow:row nowrap!important/, 'The shared navigation must stay on one row on desktop.');
 assert.match(globalNavigation, /flex:0 0 104px!important;width:104px!important/, 'Every desktop text tab must have the same fixed width.');
 assert.match(globalNavigation, /border-radius:20px!important/, 'Every primary tab must use the same pill shape.');
 assert.match(globalNavigation, /background:#536174!important;color:#f2f6fc!important/, 'Inactive tabs must share the same slate treatment.');
 assert.match(globalNavigation, /background:#e5efff!important;border-color:#9dbdf2!important;color:#315d9d!important/, 'The active tab must use the same selected treatment.');
-assert.match(globalNavigation, /body\.authenticated[\\s\\S]*#navSignup[hidden]\{display:none!important/, 'Sign up must disappear while signed in.');
-assert.match(globalNavigation, /body\.authenticated[\\s\\S]*#navAccount\{display:inline-flex!important/, 'The signed-in account destination must remain available.');
+assert.match(globalNavigation, /body\.authenticated[\s\S]*#navSignup[hidden]\{display:none!important/, 'Sign up must disappear while signed in.');
+assert.match(globalNavigation, /body\.authenticated[\s\S]*#navAccount\{display:inline-flex!important/, 'The signed-in account destination must remain available.');
 
 
 const navigationPolish = readFileSync(new URL('../venturify-ui.css', import.meta.url), 'utf8');
