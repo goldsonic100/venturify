@@ -322,7 +322,7 @@ assert.match(verificationMigration, /revoke all on function private\.sync_profil
 
 assert.match(discoverHtml, /id="founderSkill"[^>]*aria-label="Filter founders by skill"/, 'Founder directory should provide a dedicated skill filter');
 assert.ok(discoverHtml.includes("const selectedSkill=$('founderSkill')?.value||'all'"), 'Founder directory should apply the selected skill filter');
-assert.match(discoverHtml, /\$\('founderSkill'\)\.addEventListener\('change',render\)/, 'Changing the skill filter should refresh founder results');
+assert.match(discoverHtml, /\$\('founderSkill'\)\.addEventListener\('change',resetFounderResults\)/, 'Changing the skill filter should refresh founder results');
 assert.match(discoverHtml, /\$\('founderSkill'\)\.innerHTML='<option value="all">All skills<\/option>'/, 'Skill options should be populated from eligible profile data');
 assert.ok(discoverHtml.includes("$('founderSkill').value='all'"), 'Clear-search recovery should reset the skill filter');
 
@@ -331,7 +331,7 @@ for (const value of ['need_from_them','offer_to_them','two_way','open_collab']) 
 assert.match(discoverHtml, /skillFit:\{needFromThem:complement\.length>0,offerToThem:helps\.length>0,twoWay:complement\.length>0&&helps\.length>0,openCollab:collab\}/, 'Collaboration-fit filters must use the same complementary-skill and collaboration signals as match explanations');
 assert.match(discoverHtml, /const selectedFit=\$\('founderFit'\)\?\.value\|\|'all'/, 'Founder results must apply the selected collaboration-fit filter');
 assert.match(discoverHtml, /\$\('founderFit'\)\.addEventListener\('change',render\)/, 'Changing collaboration fit must refresh founder results');
-assert.ok(discoverHtml.includes("$('founderFit').value='all';render()"), 'Clear-search recovery should reset collaboration-fit filters');
+assert.ok(discoverHtml.includes("$('founderFit').value='all';resetFounderResults()"), 'Clear-search recovery should reset collaboration-fit filters');
 
 assert.match(discoverHtml, /compatibilityParts=\[\{label:'Skills that match your goals',points:Math\.min\(complement\.length,3\)\*12,max:36\}/, 'Compatibility score should reward skills that match the viewer goals');
 assert.match(discoverHtml, /compatibilityScore=compatibilityParts\.reduce\(\(sum,part\)=>sum\+part\.points,0\)/, 'Compatibility score should be the sum of transparent component scores');
