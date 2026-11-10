@@ -73,3 +73,34 @@ assert.deepEqual(
 );
 
 console.log('SECURITY DEFINER migration checks passed across ' + files.length + ' SQL migrations (including parser fixtures).');
+
+
+
+const triggerHardening = readFileSync(new URL('../supabase/migrations/20261111010000_pin_trigger_security_definer_search_path.sql', import.meta.url), 'utf8').toLowerCase();
+const rewrittenTriggerFunctions = [
+  'log_workspace_activity_event',
+  'log_workspace_task_checklist_activity',
+  'notify_workspace_checklist_completion',
+  'notify_workspace_task_change',
+  'notify_workspace_task_changes',
+];
+const alteredTriggerFunctions = [
+  'notify_workspace_message',
+  'notify_workspace_task_comment',
+  'rls_auto_enable',
+];
+for (const name of rewrittenTriggerFunctions) {
+  const start = triggerHardening.indexOf('create or replace function public.' + name + '(');
+  const end = start < 0 ? -1 : triggerHardening.indexOf('$function$;', start);
+  const definition = start < 0 || end < 0 ? '' : triggerHardening.slice(start, end);
+  assert.ok(definition, 'Trigger hardening migration must recreate ' + name);
+  assert.ok(definition.includes("set search_path to ''"), name + ' must pin an empty search_path');
+  assert.ok(definition.includes('auth.uid()'), name + ' must schema-qualify auth.uid()');
+}
+for (const name of alteredTriggerFunctions) {
+  assert.ok(
+    triggerHardening.includes('alter function public.' + name + "() set search_path = '';"),
+    name + ' must be altered to an empty search_path',
+  );
+}
+console.log('Remaining SECURITY DEFINER trigger functions are pinned to an empty search_path.');
