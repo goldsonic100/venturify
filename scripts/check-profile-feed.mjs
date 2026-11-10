@@ -55,6 +55,16 @@ for (const control of ['data-like=', 'data-focus=', 'data-bookmark=', 'data-subm
 assert.match(feed, /maxlength=["']500["']/i, 'Comment inputs must remain length-limited');
 assert.match(feed, /function\s+loginRequired|const\s+loginRequired\s*=/, 'Feed must retain login gating for interactions');
 assert.match(feed, /@media\s*\(max-width:\s*760px\)/, 'Feed must retain a mobile breakpoint');
+for (const id of ['gettingStarted','gettingStartedProgress','gettingStartedTrack','gettingStartedBar','gettingStartedList','gettingStartedNote']) {
+  assert.ok(feed.includes('id="' + id + '"'), 'Member onboarding checklist must include #' + id);
+}
+assert.match(feed, /async function updateGettingStarted\s*\(/, 'Member onboarding checklist must load real account progress');
+assert.match(feed, /client\.from\(['"]follows['"]\)\.select\(['"]following_id['"]\)/, 'Onboarding must use the signed-in member follow state');
+assert.match(feed, /client\.from\(['"]posts['"]\)\.select\(['"]id['"]\)\.eq\(['"]user_id['"],user\.id\)/, 'Onboarding must use the signed-in member post state');
+assert.match(feed, /communityMemberships\.size>0/, 'Onboarding must reflect actual community membership');
+assert.match(feed, /data-onboarding-focus/, 'Onboarding actions must focus the relevant existing workflow');
+assert.match(feed, /await updateGettingStarted\(\)/, 'Onboarding progress must refresh after member actions');
+
 
 assert.ok(files.feed.includes('comment-author profile-open') && files.feed.includes("data-profile=\"'+esc(r.user_id)+'\""), 'Reply authors should have clickable profile controls');
 assert.ok(files.feed.includes("usernameBase+'_'+user.id.replace(/-/g,'').slice(0,8)") && files.profile.includes("usernameBase+'_'+user.id.replace(/-/g,'').slice(0,8)"), 'Missing profile usernames should be repaired and persisted instead of displaying the @founder fallback');
