@@ -56,6 +56,20 @@ for (const page of pages) {
   }
 }
 
+const feedHtml = await readFile(path.join(root, "feed.html"), "utf8");
+if (!feedHtml.includes("encodeURIComponent(p.content||''")) {
+  failures.push("feed.html: rendered posts must preserve encoded content for safe editing.");
+}
+if (!feedHtml.includes("data-edit=") || !feedHtml.includes("p.post_type!=='poll'")) {
+  failures.push("feed.html: eligible owner posts must expose an Edit action, excluding polls.");
+}
+if (!feedHtml.includes(".update({content}).eq('id',edit.dataset.edit).eq('user_id',user.id)")) {
+  failures.push("feed.html: post edits must be scoped to both the selected post and the signed-in owner.");
+}
+if (!feedHtml.includes("content.length>1200")) {
+  failures.push("feed.html: post edits must enforce the composer character limit.");
+}
+
 console.log(`Checked ${pages.length} HTML pages, ${checkedScripts} inline JavaScript blocks, and ${checkedLocalLinks} local HTML links.`);
 
 if (failures.length) {
