@@ -40,6 +40,6 @@ console.log('Moderator authorization and system-diagnostics contract checks pass
 for (const contract of ['moderator_search_accounts','p_status','p_sort','needs_attention','posting_restricted','most_posts','most_followers','private.account_moderation_state','Moderator access required','revoke all on function']) {
   assert.ok(accountDirectory.includes(contract), 'Account directory migration is missing: ' + contract);
 }
-for (const contract of ['userStatusFilter','userSort','userPageSummary',"rpc('moderator_search_accounts'",'p_status:$('+'userStatusFilter').value','p_sort:$('+'userSort').value']) {
+for (const contract of ['userStatusFilter','userSort','userPageSummary',"rpc('moderator_search_accounts'","p_status:$('userStatusFilter').value","p_sort:$('userSort').value"]) {
   assert.ok(page.includes(contract), 'Moderator account directory UI is missing: ' + contract);
 }
