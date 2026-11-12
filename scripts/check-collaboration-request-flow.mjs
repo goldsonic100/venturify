@@ -38,6 +38,12 @@ assert.ok(feed.includes('This founder has already invited you. Open your collabo
 assert.ok(feed.includes('You cannot request collaboration with yourself.'),
   'Self-collaboration must be rejected');
 
+assert.ok(collaborations.includes('data-request-card="'+esc(r.id)+'"') || collaborations.includes('data-request-card="\\'+esc(r.id)),
+  'Collaboration requests must expose a stable target for notification deep links.');
+assert.ok(notifications.includes("window.location.href='collaborations.html?request='+encodeURIComponent(collaborationId)"),
+  'Request, accepted, and declined notifications must open their exact collaboration request.');
+assert.ok(collaborations.includes("requestCard.scrollIntoView") && collaborations.includes("requestCard.focus({preventScroll:true})"),
+  'A collaboration deep link must bring the exact request into view and focus it.');
 assert.ok(collaborations.includes("href=\"workspace.html?request='+encodeURIComponent(r.id)+'\""),
   'Accepted collaboration requests must link into their workspace');
 assert.ok(collaborations.includes("status==='accepted'"),
