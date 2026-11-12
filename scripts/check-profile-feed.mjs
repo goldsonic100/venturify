@@ -130,6 +130,10 @@ assert.match(files.feed, /window\.venturifyFeedSearch/, 'Feed search must preser
 assert.ok(files.feed.includes('id="savedPostTypeFilter"'), 'Saved posts must expose a dedicated post-type filter');
 assert.match(files.feed, /mode==='saved'&&savedPostTypeFilter&&savedPostTypeFilter\.value!=='all'/, 'Saved post-type filtering must apply only in the Saved view');
 assert.match(files.feed, /savedPostTypeFilter.*addEventListener\('change'/, 'Saved post-type changes must reload the filtered list');
+assert.ok(files.feed.includes('id="savedCommunityFilter"'), 'Saved posts must expose a dedicated community filter');
+assert.match(files.feed, /savedCommunityFilter\.innerHTML[\s\S]{0,600}All saved communities/, 'Saved community options must be populated from communities represented in bookmarks');
+assert.match(files.feed, /selectedCommunity==='__none__'\?\!p\.community_id:p\.community_id===selectedCommunity/, 'Saved community filtering must include a not-in-a-community option');
+assert.match(files.feed, /savedCommunityFilter.*addEventListener\('change'/, 'Saved community changes must reload the filtered list');
 assert.match(files.feed, /p\.opportunity_offer,p\.opportunity_need/, 'Feed search must include collaboration offers and needs');
 assert.match(files.feed, /sortMode==='oldest'/, 'Feed sorting must support oldest-first ordering');
 assert.match(files.feed, /clearFeedSearch.*addEventListener/s, 'Feed search must provide a working clear action');
