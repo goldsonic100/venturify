@@ -148,6 +148,8 @@ assert.match(files.feed, /clearFeedSearch.*addEventListener/s, 'Feed search must
 assert.match(files.feed, /Search covers the latest posts loaded for the selected feed/, 'Feed search scope must be explained to members');
 assert.match(files.feed, /window\.venturifyFeedVisibleLimit=40/, 'Feed should start with a manageable first page');
 assert.match(files.feed, /data-feed-load-more/, 'Feed should offer progressive browsing beyond the first page');
+assert.match(files.feed, /const sharedPostId=window\.location\.hash\.startsWith\('#post-'\)/, 'Shared post URLs must resolve their target even when it is outside the normal feed candidate set');
+assert.match(files.feed, /if\(sharedPostId\)\{const sharedIndex=posts\.findIndex\(p=>p\.id===sharedPostId\)/, 'A directly linked post must be moved into the visible first position before feed pagination');
 assert.match(files.feed, /Show more posts/, 'Feed pagination should have a clear member-facing action');
 assert.match(files.feed, /limit\(250\)/, 'Feed discovery views should evaluate a broader candidate pool before rendering');
 assert.match(files.feed, /if\(mode==='for-you'&&[\s\S]{0,1800}relationship=followedIds\.has\(p\.user_id\)\?9:0/, 'For-you feed should rank with member relationships');
