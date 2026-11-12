@@ -34,6 +34,13 @@ assert.match(profile, /safeProfileUrl\s*=\s*value\s*=>/, 'Profile URLs must use 
 assert.match(profile, /profileClient\.from\(['"]follows['"]\)/, 'Profiles must retain follower/following data');
 assert.match(profile, /profileClient\.from\(['"]posts['"]\)/, 'Profiles must retain recent posts');
 assert.match(profile, /@media\s*\(max-width:\s*760px\)/, 'Profiles must retain a mobile breakpoint');
+assert.ok(profile.includes('id="shareFounderProfile"'), 'Founder profiles must expose a share action');
+assert.ok(profile.includes('id="profileShareStatus"') && profile.includes('aria-live="polite"'), 'Profile sharing feedback must be announced accessibly');
+assert.match(profile, /new URL\(window\.location\.href\)/, 'Profile sharing must use the current profile URL');
+assert.match(profile, /navigator\.share\(payload\)/, 'Profile sharing should use the native share sheet when available');
+assert.match(profile, /navigator\.clipboard\?\.writeText\(url\.href\)/, 'Profile sharing must provide a clipboard fallback');
+assert.match(profile, /document\.execCommand\('copy'\)/, 'Profile sharing must retain a legacy copy fallback');
+
 
 // Guard the reputation breakdown against the malformed concatenation fixed in PR #25.
 for (const fragment of [
