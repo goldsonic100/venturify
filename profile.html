@@ -179,6 +179,7 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
 .profile-public-avatar{width:88px;height:88px;border-radius:50%;border:4px solid var(--card);background:#eaf2df;display:grid;place-items:center;overflow:hidden;font-size:30px;font-weight:850;margin-top:-42px;position:relative;color:#31553a}
 .profile-public-avatar img{width:100%;height:100%;object-fit:cover}
 .profile-public-top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.profile-public-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.profile-share-btn{border:1px solid #cad9bd;background:#eff5e8;color:#35563a;border-radius:8px;padding:10px 13px;font-size:12px;font-weight:800;cursor:pointer}.profile-share-btn:hover{background:#e4efd9}.profile-share-btn:focus-visible{outline:3px solid #8da98a;outline-offset:2px}#profileShareStatus:empty{display:none}
 .profile-public-name{font-size:clamp(23px,3vw,32px);font-weight:850;letter-spacing:-.8px;margin:12px 0 1px;overflow-wrap:anywhere}
 .profile-public-handle{color:var(--muted);font-size:14px}
 .profile-public-bio{white-space:pre-wrap;overflow-wrap:anywhere;margin:15px 0 10px;line-height:1.65}
@@ -304,7 +305,7 @@ body.authenticated .topbar .nav .notification-wrap{display:block}
   </div>
   <div class="community-current" id="communityCurrent" hidden><div><strong id="communityCurrentName">All community posts</strong><div><span id="communityCurrentMeta">Posts from everyone</span></div></div><button type="button" id="clearCommunityFilter">Show all posts ×</button></div>
   <div class="guest-banner" id="guestBanner" role="status" hidden><div><strong>You’re browsing Venturify as a guest.</strong><p>You can explore posts, founder profiles, and communities. Create a free account to like, comment, follow founders, join communities, publish posts, or send messages.</p></div><div class="guest-banner-actions"><button type="button" id="guestLogin">Log in</button><button type="button" class="guest-signup" id="guestSignup">Create free account ↗</button></div></div>
-  <section class="profile-public-card" aria-label="Founder profile"><div class="profile-cover" id="publicProfileCover"></div><div class="profile-public-body"><div class="profile-public-top"><div class="profile-public-avatar" id="publicProfileAvatar">V</div><button type="button" class="btn btn-outline" id="openProfileEditor" data-auth-only>Edit profile</button></div><h1 class="profile-public-name" id="publicProfileName">Your founder profile</h1><div class="profile-public-handle" id="publicProfileHandle">@founder</div><p class="profile-public-bio" id="publicProfileBio">Share what you're building, what you've learned, and what you'd like to work on next.</p><div class="profile-public-meta" id="publicProfileMeta"></div><div class="profile-public-stats"><span><strong id="publicProfilePostCount">—</strong> posts &amp; stories</span></div><nav class="profile-tabs" aria-label="Profile activity" id="profileActivityTabs"><button type="button" class="active" data-profile-tab="posts" aria-pressed="true">Posts</button><button type="button" data-profile-tab="replies" aria-pressed="false">Replies</button><button type="button" data-profile-tab="stories" aria-pressed="false">Stories</button><button type="button" data-profile-tab="about" aria-pressed="false">About</button></nav></div></section>
+  <section class="profile-public-card" aria-label="Founder profile"><div class="profile-cover" id="publicProfileCover"></div><div class="profile-public-body"><div class="profile-public-top"><div class="profile-public-avatar" id="publicProfileAvatar">V</div><div class="profile-public-actions"><button type="button" class="profile-share-btn" id="shareFounderProfile">Share profile</button><button type="button" class="btn btn-outline" id="openProfileEditor" data-auth-only>Edit profile</button></div></div><p id="profileShareStatus" class="muted-small" role="status" aria-live="polite" aria-atomic="true"></p><h1 class="profile-public-name" id="publicProfileName">Your founder profile</h1><div class="profile-public-handle" id="publicProfileHandle">@founder</div><p class="profile-public-bio" id="publicProfileBio">Share what you're building, what you've learned, and what you'd like to work on next.</p><div class="profile-public-meta" id="publicProfileMeta"></div><div class="profile-public-stats"><span><strong id="publicProfilePostCount">—</strong> posts &amp; stories</span></div><nav class="profile-tabs" aria-label="Profile activity" id="profileActivityTabs"><button type="button" class="active" data-profile-tab="posts" aria-pressed="true">Posts</button><button type="button" data-profile-tab="replies" aria-pressed="false">Replies</button><button type="button" data-profile-tab="stories" aria-pressed="false">Stories</button><button type="button" data-profile-tab="about" aria-pressed="false">About</button></nav></div></section>
   <div class="community-layout">
    <div>
     <div class="community-card compose">
@@ -980,5 +981,29 @@ document.addEventListener('click',function(e){
 </script>
   <script src="assets/active-navigation.js" defer></script>
 <script src="assets/global-auth-navigation.js" defer></script>
+
+<script id="share-founder-profile">
+(function(){
+ const button=document.getElementById('shareFounderProfile');
+ const status=document.getElementById('profileShareStatus');
+ if(!button||!status)return;
+ button.addEventListener('click',async()=>{
+  const url=new URL(window.location.href);url.hash='';
+  const name=document.getElementById('publicProfileName')?.textContent?.trim()||'Founder on Venturify';
+  const payload={title:name+' — Venturify',text:'Connect with '+name+' on Venturify.',url:url.href};
+  button.disabled=true;
+  try{
+   if(navigator.share){await navigator.share(payload);status.textContent='Share sheet opened.';}
+   else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url.href);status.textContent='Profile link copied. Share it with your network.';}
+   else{
+    const field=document.createElement('textarea');field.value=url.href;field.setAttribute('readonly','');field.style.position='fixed';field.style.opacity='0';document.body.appendChild(field);field.select();
+    const copied=document.execCommand('copy');field.remove();
+    status.textContent=copied?'Profile link copied. Share it with your network.':'Could not copy automatically. Copy the profile URL from your browser.';
+   }
+  }catch(error){if(error?.name==='AbortError')return;status.textContent='Could not share automatically. Copy the profile URL from your browser.';}
+  finally{button.disabled=false;}
+ });
+})();
+</script>
 </body>
 </html>
