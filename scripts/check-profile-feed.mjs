@@ -131,6 +131,10 @@ assert.ok(files.feed.includes('id="savedPostTypeFilter"'), 'Saved posts must exp
 assert.match(files.feed, /mode==='saved'&&savedPostTypeFilter&&savedPostTypeFilter\.value!=='all'/, 'Saved post-type filtering must apply only in the Saved view');
 assert.match(files.feed, /savedPostTypeFilter.*addEventListener\('change'/, 'Saved post-type changes must reload the filtered list');
 assert.ok(files.feed.includes('id="savedCommunityFilter"'), 'Saved posts must expose a dedicated community filter');
+assert.ok(files.feed.includes('id="savedLibraryHeader"'), 'Saved view must have a dedicated library heading');
+assert.ok(files.feed.includes('id="savedLibraryCount"'), 'Saved library must show the member’s bookmark count');
+assert.match(files.feed, /savedLibraryHeader\.hidden=mode!=='saved'/, 'Saved library heading must appear only in Saved view');
+assert.match(files.feed, /savedLibraryCount\.textContent=savedIds\.length/, 'Saved library count must reflect the signed-in member’s bookmarks');
 assert.match(files.feed, /savedCommunityFilter\.innerHTML[\s\S]{0,600}All saved communities/, 'Saved community options must be populated from communities represented in bookmarks');
 assert.match(files.feed, /selectedCommunity==='__none__'\?\!p\.community_id:p\.community_id===selectedCommunity/, 'Saved community filtering must include a not-in-a-community option');
 assert.match(files.feed, /savedCommunityFilter.*addEventListener\('change'/, 'Saved community changes must reload the filtered list');
