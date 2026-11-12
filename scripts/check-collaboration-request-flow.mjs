@@ -47,6 +47,12 @@ assert.match(discussionSecurityMigration, /as restrictive[\s\S]*for select[\s\S]
 assert.ok(discussionSecurityMigration.includes('on public.collaboration_request_messages') && discussionSecurityMigration.includes('as restrictive') && discussionSecurityMigration.includes('for insert') && discussionSecurityMigration.includes('with check (private.can_access_pending_collaboration_discussion(request_id))'), 'A restrictive INSERT policy must prevent new messages after either participant blocks the other.');
 assert.match(discussionSecurityMigration, /status\s*=\s*'pending'/i, 'Proposal discussion access must end when a request is accepted or declined.');
 assert.match(discussionSecurityMigration, /guard_collaboration_request_message[\s\S]*can_access_pending_collaboration_discussion/i, 'A database trigger must reject writes when a discussion is no longer available.');
+assert.ok(collaborations.includes('data-request-card='),
+  'Collaboration requests must expose a stable target for notification deep links.');
+assert.ok(notifications.includes("window.location.href='collaborations.html?request='+encodeURIComponent(collaborationId)"),
+  'Request, accepted, and declined notifications must open their exact collaboration request.');
+assert.ok(collaborations.includes("requestCard.scrollIntoView") && collaborations.includes("requestCard.focus({preventScroll:true})"),
+  'A collaboration deep link must bring the exact request into view and focus it.');
 assert.ok(collaborations.includes("href=\"workspace.html?request='+encodeURIComponent(r.id)+'\""),
   'Accepted collaboration requests must link into their workspace');
 assert.ok(collaborations.includes("status==='accepted'"),
