@@ -133,6 +133,9 @@ assert.match(files.feed, /savedPostTypeFilter.*addEventListener\('change'/, 'Sav
 assert.ok(files.feed.includes('id="savedCommunityFilter"'), 'Saved posts must expose a dedicated community filter');
 assert.ok(files.feed.includes('id="savedLibraryHeader"'), 'Saved view must have a dedicated library heading');
 assert.ok(files.feed.includes('id="savedLibraryCount"'), 'Saved library must show the member’s bookmark count');
+assert.ok(files.feed.includes('id="resetSavedFilters"'), 'Saved library must provide a one-click filter reset');
+assert.match(files.feed, /resetSavedFilters\.hidden=mode!=='saved'/, 'Saved filter reset must only appear in the Saved view');
+assert.match(files.feed, /resetSavedFilters'\)\.addEventListener\('click',[\s\S]{0,500}savedCommunityFilter'\)\.value='all'/, 'Saved filter reset must clear search, sorting, type, and community filters');
 assert.match(files.feed, /savedLibraryHeader\.hidden=mode!=='saved'/, 'Saved library heading must appear only in Saved view');
 assert.match(files.feed, /savedLibraryCount\.textContent=savedIds\.length/, 'Saved library count must reflect the signed-in member’s bookmarks');
 assert.match(files.feed, /savedCommunityFilter\.innerHTML[\s\S]{0,600}All saved communities/, 'Saved community options must be populated from communities represented in bookmarks');
