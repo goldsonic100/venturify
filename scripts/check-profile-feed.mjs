@@ -38,7 +38,7 @@ assert.ok(profile.includes('id="shareFounderProfile"'), 'Founder profiles must e
 assert.ok(profile.includes('id="profileShareStatus"') && profile.includes('aria-live="polite"'), 'Profile sharing feedback must be announced accessibly');
 assert.match(profile, /new URL\(window\.location\.href\)/, 'Profile sharing must use the current profile URL');
 assert.match(profile, /navigator\.share\(payload\)/, 'Profile sharing should use the native share sheet when available');
-assert.match(profile, /navigator\.clipboard\?\.writeText\(url\.href\)/, 'Profile sharing must provide a clipboard fallback');
+assert.match(profile, /navigator\\.clipboard\\.writeText\\(url\\.href\\)/, 'Profile sharing must provide a clipboard fallback');
 assert.match(profile, /document\.execCommand\('copy'\)/, 'Profile sharing must retain a legacy copy fallback');
 
 
