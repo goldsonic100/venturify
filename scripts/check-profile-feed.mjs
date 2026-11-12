@@ -138,6 +138,7 @@ assert.match(files.feed, /resetSavedFilters\.hidden=mode!=='saved'/, 'Saved filt
 assert.match(files.feed, /resetSavedFilters'\)\.addEventListener\('click',[\s\S]{0,500}savedCommunityFilter'\)\.value='all'/, 'Saved filter reset must clear search, sorting, type, and community filters');
 assert.match(files.feed, /savedLibraryHeader\.hidden=mode!=='saved'/, 'Saved library heading must appear only in Saved view');
 assert.match(files.feed, /savedLibraryCount\.textContent=savedIds\.length/, 'Saved library count must reflect the signed-in member’s bookmarks');
+assert.match(files.feed, /\.in\('id',savedIds\)\.order\('created_at',\{ascending:false\}\);/, 'Saved library must not silently truncate the member’s saved discussions to an arbitrary 100-post limit');
 assert.match(files.feed, /savedCommunityFilter\.innerHTML[\s\S]{0,600}All saved communities/, 'Saved community options must be populated from communities represented in bookmarks');
 assert.match(files.feed, /selectedCommunity==='__none__'\?\!p\.community_id:p\.community_id===selectedCommunity/, 'Saved community filtering must include a not-in-a-community option');
 assert.match(files.feed, /savedCommunityFilter.*addEventListener\('change'/, 'Saved community changes must reload the filtered list');
