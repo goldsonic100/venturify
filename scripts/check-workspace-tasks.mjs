@@ -45,3 +45,7 @@ assert.match(activity, /enable row level security/i, 'Workspace activity must re
 assert.match(activity, /r\.status='accepted'/i, 'Activity access must require accepted collaborators');
 
 console.log('Workspace task/checklist/comment regression checks passed (static checks only).');
+
+assert.match(workspace, /id="resetTaskFilters" class="btn">Reset task filters<\/button>/, 'Workspace tasks should provide a one-click filter reset');
+assert.match(workspace, /\$\('resetTaskFilters'\)\.addEventListener\('click',\(\)=>\{taskFilter='all';taskSearchTerm='';taskLabelFilter='';taskPriorityFilter='any';taskChecklistFilter='any';taskAssigneeFilter='any';taskDueFilter='any'/, 'Reset should clear every task filter state');
+assert.match(workspace, /\$\('taskSearch'\)\.value='';\$\('taskLabelFilter'\)\.value='';\$\('taskPriorityFilter'\)\.value='any';\$\('taskChecklistFilter'\)\.value='any';\$\('taskAssigneeFilter'\)\.value='any';\$\('taskDueFilter'\)\.value='any'/, 'Reset should synchronize all visible task controls');
