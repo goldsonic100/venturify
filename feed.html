@@ -492,7 +492,7 @@ async function feed(){
   if(savedRows.error){box.innerHTML='<div class="community-empty" role="alert">Could not load saved posts: '+esc(savedRows.error.message)+'<p><button type="button" class="btn" data-retry-feed>Retry saved posts</button></p></div>';return}
   const savedIds=(savedRows.data||[]).map(x=>x.post_id);if(savedLibraryCount)savedLibraryCount.textContent=savedIds.length+' saved post'+(savedIds.length===1?'':'s');
   if(savedIds.length){
-   const savedPosts=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').in('id',savedIds).order('created_at',{ascending:false}).limit(100);
+   const savedPosts=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').in('id',savedIds).order('created_at',{ascending:false});
    if(savedPosts.error){box.innerHTML='<div class="community-empty" role="alert">Could not load saved posts: '+esc(savedPosts.error.message)+'<p><button type="button" class="btn" data-retry-feed>Retry saved posts</button></p></div>';return}
    posts=savedPosts.data||[];
   }
