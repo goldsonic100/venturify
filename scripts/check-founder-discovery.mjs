@@ -335,6 +335,8 @@ assert.ok(discoverHtml.includes("$('founderFit').value='all';resetFounderResults
 
 assert.match(discoverHtml, /compatibilityParts=\[\{label:'Skills that match your goals',points:Math\.min\(complement\.length,3\)\*12,max:36\}/, 'Compatibility score should reward skills that match the viewer goals');
 assert.match(discoverHtml, /compatibilityScore=compatibilityParts\.reduce\(\(sum,part\)=>sum\+part\.points,0\)/, 'Compatibility score should be the sum of transparent component scores');
+assert.ok(discoverHtml.includes('<option value="compatibility">Best collaboration fit</option>'), 'Founder directory should offer sorting by collaboration compatibility');
+assert.match(discoverHtml, /compatibility:\{value:p=>matchInfo\(p\)\.compatibility\.score,type:'number'\}/, 'Collaboration-fit sorting should use the displayed compatibility score');
 assert.match(discoverHtml, /Collaboration compatibility/, 'Founder cards should display a distinct collaboration compatibility score');
 assert.match(discoverHtml, /role="progressbar" aria-label="Profile-based collaboration compatibility"/, 'Compatibility score should expose an accessible progress indicator');
 assert.match(discoverHtml, /Estimate based on listed skills, interests, communities, and collaboration goals/, 'Compatibility UI should explain its limits and avoid promising collaboration success');
