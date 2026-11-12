@@ -80,6 +80,20 @@ assert.match(groupPrivacyMigration, /email_confirmed_at\s+is not null/i,
   'Group chat members must remain email verified.');
 assert.match(groupPrivacyMigration, /public\.user_blocks[\s\S]*blocker_id\s*=\s*any\(member_ids\)[\s\S]*blocked_id\s*=\s*any\(member_ids\)/,
   'Group chats must continue to reject any blocked pair.');
+const verifiedDirectMessageMigration = readFileSync(
+  new URL('../supabase/migrations/20261112180000_require_verified_direct_message_accounts.sql', import.meta.url),
+  'utf8',
+);
+assert.match(verifiedDirectMessageMigration, /join auth\.users au on au\.id = p\.id[\s\S]*au\.email_confirmed_at is not null/,
+  'The direct-message recipient directory must only return verified founder accounts.');
+assert.match(verifiedDirectMessageMigration, /current_user_id[\s\S]*email_confirmed_at is not null/,
+  'Unverified senders must not create new direct conversations.');
+assert.match(verifiedDirectMessageMigration, /target_user_id[\s\S]*email_confirmed_at is not null/,
+  'Unverified recipients must not receive new direct conversations.');
+assert.match(verifiedDirectMessageMigration, /public\.user_blocks[\s\S]*blocker_id[\s\S]*blocked_id/,
+  'Direct-message verification changes must preserve two-way block enforcement.');
+assert.match(verifiedDirectMessageMigration, /public\.follows[\s\S]*follower_id = current_user_id[\s\S]*following_id = target_user_id/,
+  'Direct-message privacy must continue to honor the recipient-follow direction.');
 const workspaceChatMigration = readFileSync(
   new URL('../supabase/migrations/20261016040000_add_private_workspace_chat.sql', import.meta.url),
   'utf8',
