@@ -59,6 +59,8 @@ for (const path of pages) {
   assert.ok(gearTag, path + ' must have exactly one Settings gear link.');
   assert.ok(gearTag.includes('class="nav-icon-link settings-gear-link"'), path + ' Settings must use the shared icon-link class.');
   assert.ok(gearTag.includes('data-auth-only'), path + ' Settings gear must only appear to signed-in users.');
+  assert.ok(!html.includes('data-global-settings-link') && !html.includes('header.appendChild(link)'),
+    path + ' must not inject a second, differently styled Settings gear outside the shared navigation.');
   assert.equal((nav.match(/settings-gear-link/g) || []).length, 1, path + ' must not duplicate the Settings gear.');
 
   assert.ok(nav.includes('data-auth-only') && nav.includes('data-guest-only'),
