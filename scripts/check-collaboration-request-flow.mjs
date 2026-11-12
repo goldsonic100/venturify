@@ -167,6 +167,13 @@ assert.ok(collaborations.includes('data-negotiation-form=') && collaborations.in
 assert.ok(collaborations.includes(".from('collaboration_request_messages').select('id,request_id,sender_id,message,created_at')"), 'Negotiation history should load from the dedicated participant-only message table');
 assert.ok(collaborations.includes(".from('collaboration_request_messages').insert({request_id:requestId,sender_id:user.id,message})"), 'Both participants should be able to send negotiation messages while the request is pending');
 assert.ok(collaborations.includes("table:'collaboration_request_messages',filter:'request_id=eq.'+requestId"), 'Open proposal discussions should receive realtime updates');
+assert.ok(collaborations.includes('data-negotiation-status=') && collaborations.includes('data-retry-negotiation'),
+  'Proposal discussion loading and realtime failures must expose a visible retry control.');
+assert.match(collaborations, /subscribe\(status=>\{if\(status==='SUBSCRIBED'\)[\s\S]*CHANNEL_ERROR[\s\S]*TIMED_OUT[\s\S]*CLOSED/,
+  'Proposal discussion realtime must communicate successful connections and recoverable channel failures.');
+assert.ok(collaborations.includes("const loaded=await loadNegotiationMessages(requestId);if(loaded)watchNegotiation(requestId)"),
+  'Retrying a proposal discussion must reload persisted messages before reconnecting realtime.');
+
 assert.ok(collaborations.includes("request.status!=='pending'"), 'Negotiation messages must only be sent while the proposal is pending');
 assert.ok(collaborations.includes('maxlength="500"'), 'Negotiation messages should respect the 500-character limit');
 
