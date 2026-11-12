@@ -68,6 +68,18 @@ const workspaceMigration = readFileSync(
   new URL('../supabase/migrations/20261016020000_create_collaboration_workspaces_and_tasks.sql', import.meta.url),
   'utf8',
 );
+const groupPrivacyMigration = readFileSync(
+  new URL('../supabase/migrations/20261112170000_fix_group_chat_dm_privacy_direction.sql', import.meta.url),
+  'utf8',
+);
+assert.match(groupPrivacyMigration, /f\.follower_id\s*=\s*current_user_id[\s\S]*f\.following_id\s*=\s*candidate\.user_id/,
+  'Group chat creation must allow a founder to invite someone they follow when that recipient disables public DMs.');
+assert.doesNotMatch(groupPrivacyMigration, /f\.follower_id\s*=\s*candidate\.user_id[\s\S]*f\.following_id\s*=\s*current_user_id/,
+  'Group chat privacy must not use the reverse follow direction.');
+assert.match(groupPrivacyMigration, /email_confirmed_at\s+is not null/i,
+  'Group chat members must remain email verified.');
+assert.match(groupPrivacyMigration, /public\.user_blocks[\s\S]*blocker_id\s*=\s*any\(member_ids\)[\s\S]*blocked_id\s*=\s*any\(member_ids\)/,
+  'Group chats must continue to reject any blocked pair.');
 const workspaceChatMigration = readFileSync(
   new URL('../supabase/migrations/20261016040000_add_private_workspace_chat.sql', import.meta.url),
   'utf8',
