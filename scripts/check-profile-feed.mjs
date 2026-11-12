@@ -178,6 +178,13 @@ assert.deepEqual(tabNames, ['posts', 'replies', 'stories', 'about'], 'Profile ta
 assert.match(profile, /id="profileStories"[^>]*\bhidden\b/, 'Stories must start hidden until the Stories tab is selected');
 assert.match(profile, /const allowed=new Set\(\['posts','replies','stories','about'\]\)/, 'Profile tab handler must reject unknown view names');
 assert.match(profile, /setTab\('posts'\)/, 'Profile tabs must initialize to the Posts panel on first load');
+assert.match(profile, /profile-about-chip-section/, 'Founder skills and interests should render as distinct profile sections');
+assert.match(profile, /profile-about-chip/, 'Founder skills and interests should render as readable chips');
+assert.match(profile, /addChips\('Skills',p\.skills\)/, 'Founder skills should be surfaced as chips in About');
+assert.match(profile, /addChips\('Interests',p\.interests\)/, 'Founder interests should be surfaced as chips in About');
+assert.match(profile, /const linkedin=safeUrl\(p\.linkedin_url\)/, 'LinkedIn profile links must pass through the safe URL validator');
+assert.match(profile, /link\.rel='noopener noreferrer'/, 'External LinkedIn links must use safe new-tab relationship attributes');
+
 for (const [name, panel] of [['about','profileAbout'],['stories','profileStories']]) {
   assert.ok(profile.includes("if(" + panel + ")") || profile.includes("const " + (name === 'about' ? 'about' : 'stories') + "=document.getElementById('" + panel + "')"), 'Profile tab handler must manage #' + panel);
 }
