@@ -44,7 +44,7 @@ assert.match(discussionSecurityMigration, /private\.can_access_pending_collabora
 assert.match(discussionSecurityMigration, /security definer[\s\S]*set search_path\s*=\s*''/i, 'The discussion permission predicate must pin its SECURITY DEFINER search path.');
 assert.match(discussionSecurityMigration, /public\.user_blocks[\s\S]*blocker_id[\s\S]*blocked_id/i, 'Proposal discussion access must reject blocks in either direction.');
 assert.match(discussionSecurityMigration, /as restrictive[\s\S]*for select[\s\S]*collaboration_request_messages/i, 'A restrictive SELECT policy must prevent participants bypassing proposal discussion blocks.');
-assert.match(discussionSecurityMigration, /as restrictive[\s\S]*for insert[\s\S]*collaboration_request_messages/i, 'A restrictive INSERT policy must prevent new messages after either participant blocks the other.');
+assert.ok(discussionSecurityMigration.includes('on public.collaboration_request_messages') && discussionSecurityMigration.includes('as restrictive') && discussionSecurityMigration.includes('for insert') && discussionSecurityMigration.includes('with check (private.can_access_pending_collaboration_discussion(request_id))'), 'A restrictive INSERT policy must prevent new messages after either participant blocks the other.');
 assert.match(discussionSecurityMigration, /status\s*=\s*'pending'/i, 'Proposal discussion access must end when a request is accepted or declined.');
 assert.match(discussionSecurityMigration, /guard_collaboration_request_message[\s\S]*can_access_pending_collaboration_discussion/i, 'A database trigger must reject writes when a discussion is no longer available.');
 assert.ok(collaborations.includes("href=\"workspace.html?request='+encodeURIComponent(r.id)+'\""),
