@@ -60,6 +60,8 @@ for (const control of ['data-like=', 'data-focus=', 'data-bookmark=', 'data-subm
   assert.ok(feed.includes(control), 'Feed must retain ' + control + ' interaction');
 }
 assert.match(feed, /maxlength=["']500["']/i, 'Comment inputs must remain length-limited');
+assert.match(feed, /const feedFetchWindow\s*=\s*\(\)\s*=>\s*Math\.max\(999,Math\.max\(40,Number\(window\.venturifyFeedVisibleLimit\)\|\|40\)\+249\)/, 'Feed server fetch window must grow with the member-facing Show more limit');
+assert.ok((feed.match(/\.range\(0,feedFetchWindow\(\)\)/g)||[]).length >= 6, 'All time-ordered feed modes, including community and repost views, must use the expanding server window');
 assert.match(feed, /function\s+loginRequired|const\s+loginRequired\s*=/, 'Feed must retain login gating for interactions');
 assert.match(feed, /@media\s*\(max-width:\s*760px\)/, 'Feed must retain a mobile breakpoint');
 for (const id of ['gettingStarted','gettingStartedProgress','gettingStartedTrack','gettingStartedBar','gettingStartedList','gettingStartedNote']) {
