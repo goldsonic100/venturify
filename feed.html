@@ -462,7 +462,7 @@ input,select,textarea,button{max-width:100%}
 <script>
 (() => {
 const client=window.supabase.createClient('https://edyssdvytwdvpqkmalow.supabase.co','sb_publishable_Gsv129_4tDStH7xzeirfAQ_LJ8ZSv1W');window.venturifySupabaseClient=client;
-const $=id=>document.getElementById(id);let user=null,profile=null,mode='login',people=[],communities=[],currentCommunityId=null,communityMemberships=new Set();window.venturifyFeedVisibleLimit=40;
+const $=id=>document.getElementById(id);let user=null,profile=null,mode='login',people=[],communities=[],currentCommunityId=null,communityMemberships=new Set();window.venturifyFeedVisibleLimit=40;const feedFetchWindow=()=>Math.max(999,Math.max(40,Number(window.venturifyFeedVisibleLimit)||40)+249);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const initials=s=>(String(s||'V').trim().split(/\s+/).slice(0,2).map(x=>x[0]).join('')||'V').toUpperCase();
 const name=p=>p?.display_name||('@'+(p?.username||(p?.id?'user_'+String(p.id).replace(/-/g,'').slice(0,8).toLowerCase():'founder')));
@@ -484,7 +484,7 @@ async function feed(){
  const opportunityFilters=$('opportunityFilters');if(opportunityFilters)opportunityFilters.hidden=mode!=='opportunities';
  const communityPostTypeFilter=$('communityPostTypeFilter');if(communityPostTypeFilter)communityPostTypeFilter.hidden=!currentCommunityId;const savedPostTypeFilter=$('savedPostTypeFilter');if(savedPostTypeFilter)savedPostTypeFilter.hidden=mode!=='saved';const savedCommunityFilter=$('savedCommunityFilter');if(savedCommunityFilter)savedCommunityFilter.hidden=mode!=='saved';
  if(mode==='opportunities'){
-  const r=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').in('post_type',['idea','resource','lesson']).order('created_at',{ascending:false}).range(0,999);
+  const r=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').in('post_type',['idea','resource','lesson']).order('created_at',{ascending:false}).range(0,feedFetchWindow());
   if(r.error){box.innerHTML='<div class="community-empty">Could not load opportunities: '+esc(r.error.message)+'<p><button type="button" class="btn" data-retry-feed>Retry feed</button></p></div>';return}posts=r.data||[];
  }else if(mode==='saved'){
   if(!user){box.innerHTML='<div class="community-empty">Log in to see your saved posts.</div>';return}
@@ -506,12 +506,12 @@ async function feed(){
    return;
   }
   followedIds=new Set((fr.data||[]).map(x=>x.following_id));joinedCommunityIds=new Set((mr.data||[]).map(x=>x.community_id));
-  const all=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').order('created_at',{ascending:false}).range(0,999);
+  const all=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').order('created_at',{ascending:false}).range(0,feedFetchWindow());
   if(all.error){box.innerHTML='<div class="community-empty">Could not load posts: '+esc(all.error.message)+'<p><button type="button" class="btn" data-retry-feed>Retry feed</button></p></div>';return}
   posts=(all.data||[]).filter(p=>{if(mode==='following')return followedIds.has(p.user_id);if(mode==='communities')return !!p.community_id&&joinedCommunityIds.has(p.community_id);return !p.community_id||followedIds.has(p.user_id)||joinedCommunityIds.has(p.community_id)});
   window.venturifyRepostActivity=new Map();
   if(mode==='following'&&followedIds.size){
-   const repostRows=await client.from('post_reposts').select('id,post_id,user_id,commentary,created_at').in('user_id',[...followedIds]).order('created_at',{ascending:false}).range(0,999);
+   const repostRows=await client.from('post_reposts').select('id,post_id,user_id,commentary,created_at').in('user_id',[...followedIds]).order('created_at',{ascending:false}).range(0,feedFetchWindow());
    if(repostRows.error){box.innerHTML='<div class="community-empty">Could not load repost activity: '+esc(repostRows.error.message)+'<p><button type="button" class="btn" data-retry-feed>Retry feed</button></p></div>';return}
    const existing=new Set(posts.map(p=>p.id)),missing=[...new Set((repostRows.data||[]).map(x=>x.post_id).filter(id=>!existing.has(id)))];
    if(missing.length){const originals=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').in('id',missing);if(originals.error){box.innerHTML='<div class="community-empty" role="alert">Could not load reposted posts: '+esc(originals.error.message)+'<p><button type="button" class="btn" data-retry-feed>Retry feed</button></p></div>';return}
@@ -520,13 +520,13 @@ async function feed(){
    for(const r of repostRows.data||[]){const original=posts.find(p=>p.id===r.post_id);if(original&&!original._repostedBy){original._repostedBy=r.user_id;original._repostCommentary=r.commentary;original._repostCreatedAt=r.created_at}}
   }
  }else if(mode==='trending'){
-  const r=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').order('created_at',{ascending:false}).range(0,999);
+  const r=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').order('created_at',{ascending:false}).range(0,feedFetchWindow());
   if(r.error){box.innerHTML='<div class="community-empty" role="alert">Could not load trending posts: '+esc(r.error.message)+'<p><button type="button" class="btn" data-retry-feed>Retry feed</button></p></div>';return}posts=r.data||[];
  }else if(currentCommunityId){
-  const r=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').eq('community_id',currentCommunityId).order('created_at',{ascending:false}).limit(100);
+  const r=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').eq('community_id',currentCommunityId).order('created_at',{ascending:false}).range(0,feedFetchWindow());
   if(r.error){box.innerHTML='<div class="community-empty" role="alert">Could not load posts: '+esc(r.error.message)+'<p><button type="button" class="btn" data-retry-feed>Retry feed</button></p></div>';return}posts=r.data||[];
  }else{
-  const r=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').order('created_at',{ascending:false}).range(0,999);
+  const r=await client.from('posts').select('id,user_id,content,image_url,topic_tags,pinned_at,created_at,community_id,post_type,opportunity_offer,opportunity_need,opportunity_stage').order('created_at',{ascending:false}).range(0,feedFetchWindow());
   if(r.error){box.innerHTML='<div class="community-empty">Could not load posts: '+esc(r.error.message)+'</div>';return}posts=r.data||[];
  }
  if(mode==='opportunities'){const opportunityTypes=['idea','resource','lesson'];const kind=window.venturifyOpportunityFilter||'all';posts=posts.filter(p=>opportunityTypes.includes(p.post_type)&&(kind==='all'||p.post_type===kind))}
