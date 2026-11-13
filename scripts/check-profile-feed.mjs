@@ -160,7 +160,7 @@ assert.match(files.feed, /data-feed-load-more/, 'Feed should offer progressive b
 assert.match(files.feed, /const sharedPostId=window\.location\.hash\.startsWith\('#post-'\)/, 'Shared post URLs must resolve their target even when it is outside the normal feed candidate set');
 assert.match(files.feed, /if\(sharedPostId\)\{const sharedIndex=posts\.findIndex\(p=>p\.id===sharedPostId\)/, 'A directly linked post must be moved into the visible first position before feed pagination');
 assert.match(files.feed, /Show more posts/, 'Feed pagination should have a clear member-facing action');
-assert.ok((files.feed.match(/\.range\(0,999\)/g)||[]).length >= 3, 'Main feed, opportunities, and trending views should load a larger stable candidate window before client-side ranking and filtering');
+assert.ok((files.feed.match(/\.range\(0,feedFetchWindow\(\)\)/g)||[]).length >= 6, 'Feed views should fetch a growing ordered candidate window before client-side ranking and filtering');
 assert.match(files.feed, /Search covers the latest posts loaded for the selected feed/, 'Feed search scope must remain explicit when candidates are bounded');
 assert.match(files.feed, /if\(mode==='for-you'&&[\s\S]{0,1800}relationship=followedIds\.has\(p\.user_id\)\?9:0/, 'For-you feed should rank with member relationships');
 assert.match(files.feed, /engagement=\(likeCounts\.get\(p\.id\)\|\|0\)\*1\.5/, 'For-you feed should incorporate real engagement signals');
