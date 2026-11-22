@@ -193,8 +193,8 @@ assert.match(discoverHtml, /founder_match_feedback.*upsert|upsert\(\{viewer_id:c
   'Recommendation feedback should persist to Supabase');
 assert.match(discoverHtml, /matchFeedback\.get\(p\.id\)!=='not_relevant'/,
   'Future daily recommendations should exclude founders marked not relevant');
-assert.match(discoverHtml, /matchFeedback\.get\(p\.id\)==='relevant'\?15:0/,
-  'Relevant feedback should boost future match ranking');
+assert.match(discoverHtml, /matchFeedback\.get\(p\.id\)==='relevant'\?10:0/,
+  'Relevant feedback should use the same boost as the displayed founder match score');
 assert.ok(discoverHtml.includes("const points=(feedbackBonus>0?'+':'')+feedbackBonus"),
   'Discover should format positive and negative feedback adjustments clearly');
 assert.ok(discoverHtml.includes('Past feedback adjusted this match by '+"'+points+'"+' points based on topics in founders you rated.'),
