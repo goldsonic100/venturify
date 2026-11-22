@@ -21,7 +21,7 @@ assert.ok(settings.includes('aria-controls="section-privacy"') && settings.inclu
 assert.ok(settings.includes("location.hash.match") && settings.includes("updateHash:true"), "settings panels should support direct links and preserve the selected section in the URL");
 
 assert.ok(messages.includes('id="messageStatus" role="status" aria-live="polite" aria-atomic="true"'), "Message composer status should be announced accessibly");
-assert.ok(messages.includes('data-conversation-filter="unread"') && messages.includes('data-unread-count="'+item.unread+'"'), "Inbox should expose an unread-only filter backed by each conversation unread count");
+assert.ok(messages.includes('data-conversation-filter="unread"') && /data-unread-count=.*item\.unread/.test(messages), "Inbox should expose an unread-only filter backed by each conversation unread count");
 assert.ok(messages.includes("Number(button.dataset.unreadCount||0)>0") && messages.includes("aria-pressed"), "Unread inbox filtering should combine with search and expose its selected state accessibly");
 assert.ok(messages.includes("sendButton.setAttribute('aria-busy','true')"), "Sending a message should expose its busy state to assistive technology");
 
