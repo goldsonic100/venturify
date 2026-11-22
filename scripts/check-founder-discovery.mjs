@@ -335,6 +335,10 @@ assert.match(discoverHtml, /communityOptions\.map\(item=>'<option value="'\+safe
 assert.match(discoverHtml, /id="founderFit"[^>]*aria-label="Filter founders by collaboration fit"/, 'Founder discovery should provide a dedicated collaboration-fit filter');
 for (const value of ['need_from_them','offer_to_them','two_way','open_collab']) assert.ok(discoverHtml.includes('value="'+value+'"'), 'Collaboration-fit filter is missing '+value);
 assert.match(discoverHtml, /skillFit:\{needFromThem:complement\.length>0,offerToThem:helps\.length>0,twoWay:complement\.length>0&&helps\.length>0,openCollab:collab\}/, 'Collaboration-fit filters must use the same complementary-skill and collaboration signals as match explanations');
+assert.match(discoverHtml, /skillOverlap=\(a,b\)=>a===b\|\|a\.split\(' '\)\.some\(token=>token\.length>=4&&b\.split\(' '\)\.includes\(token\)\)/, 'Skill matching should use exact meaningful word overlap instead of substring matches');
+assert.ok(discoverHtml.includes("needs.some(n=>skillOverlap(n,x))"), 'Candidate skills should match the viewer needs using precise token overlap');
+assert.ok(discoverHtml.includes("candidateNeeds.some(n=>skillOverlap(n,x))"), 'Viewer skills should match candidate needs using precise token overlap');
+assert.ok(!discoverHtml.includes("n.includes(x)||x.includes(n)"), 'Skill matching should not use broad substring comparisons that confuse similarly named skills');
 assert.match(discoverHtml, /const selectedFit=\$\('founderFit'\)\?\.value\|\|'all'/, 'Founder results must apply the selected collaboration-fit filter');
 assert.match(discoverHtml, /\$\('founderFit'\)\.addEventListener\('change',resetFounderResults\)/, 'Changing collaboration fit must refresh founder results');
 assert.ok(discoverHtml.includes("$('founderFit').value='all';resetFounderResults()"), 'Clear-search recovery should reset collaboration-fit filters');
