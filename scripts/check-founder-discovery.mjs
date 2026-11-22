@@ -338,6 +338,8 @@ assert.match(discoverHtml, /skillFit:\{needFromThem:complement\.length>0,offerTo
 assert.match(discoverHtml, /skillOverlap=\(a,b\)=>a===b\|\|a\.split\(' '\)\.some\(token=>token\.length>=4&&b\.split\(' '\)\.includes\(token\)\)/, 'Skill matching should use exact meaningful word overlap instead of substring matches');
 assert.ok(discoverHtml.includes("needs.some(n=>skillOverlap(n,x))"), 'Candidate skills should match the viewer needs using precise token overlap');
 assert.ok(discoverHtml.includes("candidateNeeds.some(n=>skillOverlap(n,x))"), 'Viewer skills should match candidate needs using precise token overlap');
+assert.match(discoverHtml, /dailySkillOverlap=\(a,b\)=>a===b\|\|a\.split\(' '\)\.some\(token=>token\.length>=4&&b\.split\(' '\)\.includes\(token\)\)/, 'The daily recommendation ranking should use the same precise skill overlap rule');
+assert.ok(discoverHtml.includes('needs.some(n=>dailySkillOverlap(n,x))')&&discoverHtml.includes('candidateNeeds.some(n=>dailySkillOverlap(n,x))'), 'Daily recommendations should apply precise skill overlap in both directions');
 assert.ok(!discoverHtml.includes("n.includes(x)||x.includes(n)"), 'Skill matching should not use broad substring comparisons that confuse similarly named skills');
 assert.match(discoverHtml, /const selectedFit=\$\('founderFit'\)\?\.value\|\|'all'/, 'Founder results must apply the selected collaboration-fit filter');
 assert.match(discoverHtml, /\$\('founderFit'\)\.addEventListener\('change',resetFounderResults\)/, 'Changing collaboration fit must refresh founder results');
