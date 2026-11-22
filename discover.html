@@ -866,13 +866,14 @@ renderCases();
   if(q.length)list=list.filter(p=>{const hay=[p.display_name,p.username,p.headline,p.company,p.location,p.skills,p.interests,p.looking_for,p.bio].join(' ').toLowerCase();return q.every(t=>hay.includes(t))});
   const normalizeTokens=v=>[...new Set((v||'').split(/[,;|\n]+/).map(x=>x.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g,' ')).filter(Boolean))];
   const skillList=p=>normalizeTokens(p.skills);
+  const skillOverlap=(a,b)=>a===b||a.split(' ').some(token=>token.length>=4&&b.split(' ').includes(token));
   const matchInfo=p=>{
    const theirs=skillList(p),shared=theirs.filter(x=>ownSkills.includes(x));
    const theirInterests=normalizeTokens(p.interests),sharedInterests=theirInterests.filter(x=>ownInterests.includes(x));
    const sharedCommunityIds=(communityIdsByUser.get(p.id)||new Set());const sharedCommunities=[...sharedCommunityIds].filter(id=>ownCommunityIds.has(id)).map(id=>communityNames.get(id)).filter(Boolean);
    const needs=normalizeTokens(ownNeeds),candidateNeeds=normalizeTokens(p.looking_for);
-   const complement=theirs.filter(x=>needs.some(n=>n===x||n.includes(x)||x.includes(n)));
-   const helps=ownSkills.filter(x=>candidateNeeds.some(n=>n===x||n.includes(x)||x.includes(n)));
+   const complement=theirs.filter(x=>needs.some(n=>skillOverlap(n,x)));
+   const helps=ownSkills.filter(x=>candidateNeeds.some(n=>skillOverlap(n,x)));
    const collab=/co.?founder|collaborat|partner|team|teammate/i.test(p.looking_for||'');
    const theirText=[p.headline,p.company,p.bio,p.interests].filter(Boolean).join(' ').toLowerCase();
    const words=[...new Set(ownText.split(/\W+/).filter(x=>x.length>3))],sharedTopics=words.filter(x=>theirText.includes(x));
