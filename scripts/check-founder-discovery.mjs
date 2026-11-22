@@ -378,4 +378,10 @@ assert.match(discoverHtml, /Show 40 more founders/, 'Founder discovery should la
 assert.match(discoverHtml, /\.range\(0,999\)/, 'Founder discovery should search a broader first batch than the former 500-profile cap');
 assert.match(discoverHtml, /function resetFounderResults\(\)/, 'Founder discovery filters should reset pagination when changed');
 assert.match(discoverHtml, /if\(e\.target\.closest\('\[data-founder-load-more\]'\)\)\{founderVisibleLimit\+=40;render\(\);return;\}/, 'Founder discovery load-more action should reveal the next page');
-assert.match(discoverHtml, /Math\.min\(list\.length,founderVisibleLimit\)/, 'Founder discovery status should report the visible result count');
+assert.match(discoverHtml, /Math.min\(list.length,founderVisibleLimit\)/, 'Founder discovery status should report the visible result count');
+assert.match(discoverHtml, /theyCanOffer:complement\.slice\(0,5\),youCanOffer:helps\.slice\(0,5\),sharedSkills:shared\.slice\(0,5\)/, 'Founder match details should retain the exact skills each side can offer and shared skills');
+assert.match(discoverHtml, /Potential skill exchange/, 'Founder cards should show a dedicated potential skill exchange section');
+assert.match(discoverHtml, /They can offer you/, 'Founder cards should clearly label skills the candidate can offer the viewer');
+assert.match(discoverHtml, /You can offer them/, 'Founder cards should clearly label skills the viewer can offer the candidate');
+assert.match(discoverHtml, /No direct skill match listed yet/, 'Founder skill exchange should explain when no direct skill match is listed');
+
