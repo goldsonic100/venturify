@@ -340,7 +340,7 @@ assert.match(discoverHtml, /communityOptions\.map\(item=>'<option value="'\+safe
 
 assert.match(discoverHtml, /id="founderFit"[^>]*aria-label="Filter founders by collaboration fit"/, 'Founder discovery should provide a dedicated collaboration-fit filter');
 for (const value of ['need_from_them','offer_to_them','two_way','open_collab']) assert.ok(discoverHtml.includes('value="'+value+'"'), 'Collaboration-fit filter is missing '+value);
-assert.match(discoverHtml, /skillFit:\{needFromThem:complement\.length>0,offerToThem:helps\.length>0,twoWay:complement\.length>0&&helps\.length>0,openCollab:collab\}/, 'Collaboration-fit filters must use the same complementary-skill and collaboration signals as match explanations');
+assert.match(discoverHtml, /skillFit:\{needFromThem:complement\.length>0,offerToThem:helps\.length>0,twoWay:complement\.length>0&&helps\.length>0,openCollab:collab,theyCanOffer:complement\.slice\(0,5\),youCanOffer:helps\.slice\(0,5\),sharedSkills:shared\.slice\(0,5\)\}/, 'Collaboration-fit filters must use the same complementary-skill and collaboration signals as match explanations');
 assert.match(discoverHtml, /skillOverlap=\(a,b\)=>a===b\|\|a\.split\(' '\)\.some\(token=>token\.length>=4&&b\.split\(' '\)\.includes\(token\)\)/, 'Skill matching should use exact meaningful word overlap instead of substring matches');
 assert.ok(discoverHtml.includes("needs.some(n=>skillOverlap(n,x))"), 'Candidate skills should match the viewer needs using precise token overlap');
 assert.ok(discoverHtml.includes("candidateNeeds.some(n=>skillOverlap(n,x))"), 'Viewer skills should match candidate needs using precise token overlap');
@@ -378,4 +378,10 @@ assert.match(discoverHtml, /Show 40 more founders/, 'Founder discovery should la
 assert.match(discoverHtml, /\.range\(0,999\)/, 'Founder discovery should search a broader first batch than the former 500-profile cap');
 assert.match(discoverHtml, /function resetFounderResults\(\)/, 'Founder discovery filters should reset pagination when changed');
 assert.match(discoverHtml, /if\(e\.target\.closest\('\[data-founder-load-more\]'\)\)\{founderVisibleLimit\+=40;render\(\);return;\}/, 'Founder discovery load-more action should reveal the next page');
-assert.match(discoverHtml, /Math\.min\(list\.length,founderVisibleLimit\)/, 'Founder discovery status should report the visible result count');
+assert.match(discoverHtml, /Math.min\(list.length,founderVisibleLimit\)/, 'Founder discovery status should report the visible result count');
+assert.match(discoverHtml, /theyCanOffer:complement\.slice\(0,5\),youCanOffer:helps\.slice\(0,5\),sharedSkills:shared\.slice\(0,5\)/, 'Founder match details should retain the exact skills each side can offer and shared skills');
+assert.match(discoverHtml, /Potential skill exchange/, 'Founder cards should show a dedicated potential skill exchange section');
+assert.match(discoverHtml, /They can offer you/, 'Founder cards should clearly label skills the candidate can offer the viewer');
+assert.match(discoverHtml, /You can offer them/, 'Founder cards should clearly label skills the viewer can offer the candidate');
+assert.match(discoverHtml, /No direct skill match listed yet/, 'Founder skill exchange should explain when no direct skill match is listed');
+
