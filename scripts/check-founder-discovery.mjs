@@ -341,6 +341,8 @@ assert.ok(discoverHtml.includes("candidateNeeds.some(n=>skillOverlap(n,x))"), 'V
 assert.match(discoverHtml, /dailySkillOverlap=\(a,b\)=>a===b\|\|a\.split\(' '\)\.some\(token=>token\.length>=4&&b\.split\(' '\)\.includes\(token\)\)/, 'The daily recommendation ranking should use the same precise skill overlap rule');
 assert.ok(discoverHtml.includes('needs.some(n=>dailySkillOverlap(n,x))')&&discoverHtml.includes('candidateNeeds.some(n=>dailySkillOverlap(n,x))'), 'Daily recommendations should apply precise skill overlap in both directions');
 assert.ok(!discoverHtml.includes("n.includes(x)||x.includes(n)"), 'Skill matching should not use broad substring comparisons that confuse similarly named skills');
+assert.ok(discoverHtml.includes("theirWords=new Set(theirText.split(/\\W+/).filter(x=>x.length>3)),sharedTopics=words.filter(x=>theirWords.has(x))"), 'Profile-topic matching should use exact normalized words instead of substring matches');
+assert.match(discoverHtml, /insights:insights\.slice\(0,6\)/, 'Founder match explanations should retain the full set of available evidence signals');
 assert.match(discoverHtml, /const selectedFit=\$\('founderFit'\)\?\.value\|\|'all'/, 'Founder results must apply the selected collaboration-fit filter');
 assert.match(discoverHtml, /\$\('founderFit'\)\.addEventListener\('change',resetFounderResults\)/, 'Changing collaboration fit must refresh founder results');
 assert.ok(discoverHtml.includes("$('founderFit').value='all';resetFounderResults()"), 'Clear-search recovery should reset collaboration-fit filters');
