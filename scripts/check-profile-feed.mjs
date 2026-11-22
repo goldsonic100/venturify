@@ -67,6 +67,12 @@ assert.ok(feed.includes('if(isStale())return;'), 'Superseded feed requests must 
 assert.ok((feed.match(/\.range\(0,feedFetchWindow\(\)\)/g)||[]).length >= 6, 'All time-ordered feed modes, including community and repost views, must use the expanding server window');
 assert.match(feed, /if\(l\.disabled\)return;l\.disabled=true;l\.setAttribute\('aria-busy','true'\)/, 'Like actions must lock immediately to prevent duplicate in-flight requests');
 assert.match(feed, /finally\{if\(l\.isConnected\)\{l\.disabled=false;l\.removeAttribute\('aria-busy'\)\}\}/, 'Like action controls must recover after failed requests without touching replaced DOM');
+assert.match(feed, /if\(bm\.disabled\)return;bm\.disabled=true;bm\.setAttribute\('aria-busy','true'\)/, 'Bookmark actions must lock immediately to prevent duplicate requests');
+assert.match(feed, /if\(rp\.disabled\)return;rp\.disabled=true;rp\.setAttribute\('aria-busy','true'\)/, 'Repost actions must lock immediately to prevent duplicate requests');
+assert.match(feed, /if\(c\.disabled\)return;[\s\S]{0,260}c\.setAttribute\('aria-busy','true'\)/, 'Comment submissions must lock immediately to prevent duplicate comments');
+assert.match(feed, /finally\{if\(bm\.isConnected\)\{bm\.disabled=false;bm\.removeAttribute\('aria-busy'\)\}\}/, 'Bookmark controls must recover after failures');
+assert.match(feed, /finally\{if\(rp\.isConnected\)\{rp\.disabled=false;rp\.removeAttribute\('aria-busy'\)\}\}/, 'Repost controls must recover after failures');
+assert.match(feed, /finally\{if\(c\.isConnected\)\{c\.disabled=false;c\.removeAttribute\('aria-busy'\)\}\}/, 'Comment controls must recover after failures');
 assert.match(feed, /function\s+loginRequired|const\s+loginRequired\s*=/, 'Feed must retain login gating for interactions');
 assert.match(feed, /@media\s*\(max-width:\s*760px\)/, 'Feed must retain a mobile breakpoint');
 for (const id of ['gettingStarted','gettingStartedProgress','gettingStartedTrack','gettingStartedBar','gettingStartedList','gettingStartedNote']) {
