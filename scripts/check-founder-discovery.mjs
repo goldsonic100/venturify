@@ -275,7 +275,7 @@ assert.match(discoverHtml, /No explicit collaboration matches; showing /,
 assert.ok(discoverHtml.includes('skill:design need:fundraising'), 'Founder search should explain structured multi-skill and collaboration-need queries');
 assert.match(discoverHtml, /searchFilters=searchParts\.filter\(part=>\/\^\(skill\|need\|offers\):\//, 'Founder search should parse skill, need, and offers qualifiers');
 assert.match(discoverHtml, /searchFilters\.every\(filter=>\{const target=filter\.type==='skill'\|\|filter\.type==='offers'\?skills:needs;return target\.some\(value=>value\.includes\(filter\.value\)\|\|filter\.value\.includes\(value\)\)\}\)/, 'Every structured search qualifier should match the appropriate candidate skill or stated need');
-assert.match(discoverHtml, /const q=searchParts\.filter\(part=>! \/\^\(skill\|need\|offers\):\/\.test\(part\)\)/, 'Ordinary search terms should remain supported alongside structured filters');
+assert.ok(discoverHtml.includes("q=searchParts.filter(part=>! /^(skill|need|offers):/.test(part))"), 'Ordinary search terms should remain supported alongside structured filters');
 
 console.log('Passed: ' + scripts.length + ' inline scripts parse; founder-discovery and shortlist regression checks passed.');
 
