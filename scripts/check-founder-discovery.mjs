@@ -325,6 +325,12 @@ assert.ok(discoverHtml.includes("const selectedSkill=$('founderSkill')?.value||'
 assert.match(discoverHtml, /\$\('founderSkill'\)\.addEventListener\('change',resetFounderResults\)/, 'Changing the skill filter should refresh founder results');
 assert.match(discoverHtml, /\$\('founderSkill'\)\.innerHTML='<option value="all">All skills<\/option>'/, 'Skill options should be populated from eligible profile data');
 assert.ok(discoverHtml.includes("$('founderSkill').value='all'"), 'Clear-search recovery should reset the skill filter');
+assert.match(discoverHtml, /id="founderCommunity"[^>]*aria-label="Filter founders by community"/, 'Founder discovery should provide a community filter');
+assert.ok(discoverHtml.includes("const selectedCommunity=$('founderCommunity')?.value||'all'"), 'Founder discovery should apply the selected community filter');
+assert.ok(discoverHtml.includes("communityIdsByUser.get(p.id)||new Set()).has(selectedCommunity)"), 'Community filtering should use membership rows already loaded for eligibility');
+assert.ok(discoverHtml.includes("$('founderCommunity').addEventListener('change',resetFounderResults)"), 'Changing community should refresh founder results and reset pagination');
+assert.ok(discoverHtml.includes("$('founderCommunity').value='all'"), 'Clear-search recovery should reset the community filter');
+assert.ok(discoverHtml.includes("communityOptions.map(item=>'<option value=\\"'+safe(item.id)+'\\">'+safe(item.name)"), 'Community filter options should safely escape IDs and names');
 
 assert.match(discoverHtml, /id="founderFit"[^>]*aria-label="Filter founders by collaboration fit"/, 'Founder discovery should provide a dedicated collaboration-fit filter');
 for (const value of ['need_from_them','offer_to_them','two_way','open_collab']) assert.ok(discoverHtml.includes('value="'+value+'"'), 'Collaboration-fit filter is missing '+value);
